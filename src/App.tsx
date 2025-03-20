@@ -1,9 +1,9 @@
 import React from 'react';
-import Header from './components/Header';
-import Canvas from './components/CanvasContainer';
-import LeftSidebar from './components/LeftSidebar';
-import RightSidebar from './components/RightSidebar';
-import Footer from './components/Footer';
+import Header from './sections/Header';
+import Canvas from './sections/CanvasContainer';
+import LeftSidebar from './sections/LeftSidebar';
+import RightSidebar from './sections/RightSidebar';
+import Footer from './sections/Footer';
 import './App.css';
 
 function App() {

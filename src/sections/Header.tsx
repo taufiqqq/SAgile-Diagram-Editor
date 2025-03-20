@@ -5,7 +5,7 @@ const Header: React.FC = () => {
   return (
     <div className="header">
       {/* Top content goes here */}
-      Top Container
+      SAgile Diagram Editor
     </div>
   );
 };
