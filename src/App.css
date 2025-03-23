@@ -37,7 +37,7 @@ body, html {
 /* Left Sidebar */
 .leftsidebar {
   width: 250px;
-  background-color: #343a40;
+  background-color: white;
   color: white;
   padding: 20px;
   box-sizing: border-box;
@@ -72,4 +72,8 @@ body, html {
   text-align: center;
   font-size: 14px;
   flex-shrink: 0;
+}
+
+.light {
+  color: #111;
 }

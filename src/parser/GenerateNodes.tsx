@@ -3,7 +3,7 @@
 // Sample PlantUML input string
 const plantUML = `
 left to right direction
-actor "Food Critic" as fc
+actor "Luqman" as fc
 rectangle Restaurant {
   usecase "Eat Food" as UC1
   usecase "Pay for Food" as UC2
@@ -30,20 +30,20 @@ function parsePlantUML(umlString: string) {
     // Generate nodes for actors
     for (const match of actorMatches) {
         const [, name, id] = match;
-        nodes.push({ id, position: { x: 0, y: nodes.length * 100 }, data: { label: name } });
+        nodes.push({ id, position: { x: 0, y: nodes.length * 100  }, type: 'actor', data: { label: name } });
         console.log(name);
     }
 
     // Generate nodes for use cases
     for (const match of usecaseMatches) {
         const [, name, id] = match;
-        nodes.push({ id, position: { x: 200, y: nodes.length * 100 }, data: { label: name } });
+        nodes.push({ id, position: { x: 200, y: (nodes.length-1) * 120 }, type : 'oval' , data: { label: name } });
     }
 
     // Generate edges for relations
     for (const match of relationMatches) {
         const [, source, target] = match;
-        edges.push({ id: `e${source}-${target}`, source, target });
+        edges.push({ id: `e${source}-${target}`, source, target, type: 'straight' });
     }
     
     console.log(nodes);
