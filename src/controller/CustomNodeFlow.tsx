@@ -35,6 +35,7 @@ export default function CustomNodeFlow() {
       onConnect={onConnect}
       nodeTypes={nodeTypes}
       proOptions={{hideAttribution: true}}
+      fitView
     
     ><MiniMap nodeStrokeWidth={10} /><Background />
         <Controls /></ReactFlow>

@@ -3,7 +3,7 @@
 // Sample PlantUML input string
 const plantUML = `
 left to right direction
-actor "Food Critic" as fc
+actor "Luqman" as fc
 rectangle Restaurant {
   usecase "Eat Food" as UC1
   usecase "Pay for Food" as UC2
