@@ -1,22 +1,21 @@
-import React from 'react';
-import Header from './sections/Header';
-import Canvas from './sections/CanvasContainer';
-import LeftSidebar from './sections/LeftSidebar';
-import RightSidebar from './sections/RightSidebar';
-import Footer from './sections/Footer';
+
 import './App.css';
+import { ReactFlowProvider } from '@xyflow/react';
+import { Header, LeftSidebar, CanvasContainer, RightSidebar, Footer} from './shared';
 
 function App() {
   return (
-    <div className="app">
+    <ReactFlowProvider>
+      <div className="app">
       <Header />
       <div className="main-content">
         <LeftSidebar />
-        <Canvas />
+        <CanvasContainer />
         <RightSidebar />
       </div>
       <Footer />
     </div>
+    </ReactFlowProvider>
   );
 }
 

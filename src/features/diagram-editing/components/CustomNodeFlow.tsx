@@ -11,7 +11,7 @@ import {
 
 import '@xyflow/react/dist/style.css';
 
-import { initialNodes, initialEdges } from '../parser/GenerateNodes'; // Importing initial nodes and edges
+import { initialNodes, initialEdges } from '../../parsing/plantuml-use-case/GenerateNodes'; // Importing initial nodes and edges
 import ActorNode from '../shapes/Actor';
 import OvalNode from '../shapes/Oval';
 

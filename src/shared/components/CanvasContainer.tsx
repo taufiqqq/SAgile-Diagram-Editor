@@ -1,7 +1,5 @@
 import React from 'react';
-import CustomNodeFlow from '../controller/CustomNodeFlow'; // Adjust the import path as necessary
-import '../App.css';
-import { ReactFlowProvider } from '@xyflow/react';
+import CustomNodeFlow from '../../features/diagram-editing/components/CustomNodeFlow';
 
 const CanvasContainer: React.FC = () => {
   return (
