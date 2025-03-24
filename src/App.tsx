@@ -2,10 +2,13 @@
 import './App.css';
 import { ReactFlowProvider } from '@xyflow/react';
 import { Header, LeftSidebar, CanvasContainer, RightSidebar, Footer} from './shared';
+import { DnDProvider } from './features/diagram-editing';
+
 
 function App() {
   return (
     <ReactFlowProvider>
+      <DnDProvider>
       <div className="app">
       <Header />
       <div className="main-content">
@@ -15,6 +18,7 @@ function App() {
       </div>
       <Footer />
     </div>
+      </DnDProvider>
     </ReactFlowProvider>
   );
 }

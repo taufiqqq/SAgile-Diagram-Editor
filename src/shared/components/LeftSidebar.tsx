@@ -1,12 +1,14 @@
 import React from 'react';
+import { useDnD } from '../../features/diagram-editing/components/DnDContext'; // Import the DnDContext hook
 
 const Sidebar: React.FC = () => {
+  const [_, setType] = useDnD(); // Get the setType function from the context
 
   const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    // setType(nodeType);
+    setType(nodeType); // Set the node type in the context
     event.dataTransfer.effectAllowed = 'move';
   };
-  
+
   return (
     <div className="leftsidebar">
       <div
