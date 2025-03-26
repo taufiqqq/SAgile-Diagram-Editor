@@ -9,9 +9,10 @@ interface ActorNodeProps {
     label: string;
   };
   isConnectable: boolean;
+  selected: boolean
 }
 
-const ActorNode: React.FC<ActorNodeProps> = ({ data, isConnectable }) => {
+const ActorNode: React.FC<ActorNodeProps> = ({ data, selected, isConnectable }) => {
   return (
     <div className="actor-node">
       <Handle
@@ -21,7 +22,7 @@ const ActorNode: React.FC<ActorNodeProps> = ({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
       
-      <ActorHtml label={data.label} />
+      <ActorHtml label={data.label} selected = {selected}/>
       
       <Handle
         type="source"

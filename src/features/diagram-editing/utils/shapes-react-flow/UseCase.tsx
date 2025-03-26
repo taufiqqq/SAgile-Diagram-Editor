@@ -9,19 +9,20 @@ interface UseCaseNodeProps {
     label: string;
   };
   isConnectable: boolean;
+  selected: boolean
 }
 
-const UseCaseNode: React.FC<UseCaseNodeProps> = ({ data, isConnectable }) => {
+const UseCaseNode: React.FC<UseCaseNodeProps> = ({ data, selected, isConnectable }) => {
   return (
     <div className="usecase-node">
       <Handle
         type="target"
         position={Position.Left}
-        style={{ background: '#555' }}
+        style={{ background: selected? 'red' : '#555' }}
         isConnectable={isConnectable}
       />
       
-      <UseCaseHtml label={data.label} />
+      <UseCaseHtml label={data.label} selected = {selected} />
       
       <Handle
         type="source"
