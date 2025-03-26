@@ -1,73 +1,33 @@
-import {
-  ReactFlow,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  MiniMap,
-  Background,
-  Controls,
-  useReactFlow,
-} from '@xyflow/react';
-
+import {Panel, ReactFlow} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-
-import { initialNodes, initialEdges } from '../../parsing/plantuml-use-case/GenerateNodes'; // Importing initial nodes and edges
-import ActorNode from '../shapes/Actor';
-import OvalNode from '../shapes/Oval';
-import { useCallback } from 'react';
-import { useDnD } from './DnDContext';
+import styles from '../styles.module.css';
+import { useFlowState } from '../hooks/useFlowState';
+import { useFlowHandlers } from '../hooks/useFlowHandlers';
+import { FlowControls } from './FlowControl';
+import { nodeTypes } from '../types/NodeTypes.types';
 
 export default function CustomNodeFlow() {
-  const [nodes, setNodes , onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { screenToFlowPosition } = useReactFlow();
-  const [type] = useDnD();
-  const nodeTypes = { actor: ActorNode, oval: OvalNode };
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    setNodes,
+    setEdges,
+    cut, 
+    copy, 
+    paste, 
+    bufferedNodes
+  } = useFlowState();
 
-  const onConnect = useCallback(
-    (params: any) =>
-      setEdges((eds) =>
-        addEdge({ ...params, type: 'straight' }, eds)
-      ),
-    [setEdges],
-  );
+  const { onConnect, onDragOver, onDrop } = useFlowHandlers({
+    setNodes,
+    setEdges
+  });
 
-  const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-  }, []);
-
-  const onDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      event.preventDefault();
-
-      if (!type) {
-        console.error('No node type found in drag event');
-        return;
-      }
-
-    const position = screenToFlowPosition({
-      x: event.clientX,
-      y: event.clientY,
-    });
-
-    
-    const adjustedPosition = {
-      x: position.x - 75,
-      y: position.y - 50,
-    };
-
-      const newNode = {
-        id: `node_${+new Date()}`,
-        type,
-        position: adjustedPosition,
-        data: { label: `${type} node` },
-      };
-
-      setNodes((nds) => nds.concat(newNode));
-    },
-    [screenToFlowPosition, type, setNodes],
-  );
+  //TODO: recheck issit correct to put in this file or better in other file
+  const canCopy = nodes.some(({ selected }) => selected);
+  const canPaste = bufferedNodes.length > 0;
 
   return (
     <ReactFlow
@@ -77,14 +37,40 @@ export default function CustomNodeFlow() {
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
       onDragOver={onDragOver}
-      onDrop={onDrop}
+      onDrop={(event) => {
+        const newNode = onDrop(event);
+        if (newNode) {
+          setNodes(nds => nds.concat(newNode));
+        }
+      }}
       nodeTypes={nodeTypes}
       proOptions={{ hideAttribution: true }}
       fitView
     >
-      <MiniMap nodeStrokeWidth={10} />
-      <Background />
-      <Controls />
+      <FlowControls />
+      {/* <Panel className={styles.buttonGroup} position="top-left">
+        <button
+          className={styles.button}
+          onClick={() => cut()}
+          disabled={!canCopy}
+        >
+          cut
+        </button>
+        <button
+          className={styles.button}
+          onClick={() => copy()}
+          disabled={!canCopy}
+        >
+          copy
+        </button>
+        <button
+          className={styles.button}
+          onClick={() => paste({ x: 0, y: 0 })}
+          disabled={!canPaste}
+        >
+          paste
+        </button>
+      </Panel> */}
     </ReactFlow>
   );
 }

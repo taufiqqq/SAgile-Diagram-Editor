@@ -37,7 +37,7 @@ function parsePlantUML(umlString: string) {
     // Generate nodes for use cases
     for (const match of usecaseMatches) {
         const [, name, id] = match;
-        nodes.push({ id, position: { x: 200, y: (nodes.length-1) * 120 }, type : 'oval' , data: { label: name } });
+        nodes.push({ id, position: { x: 200, y: (nodes.length-1) * 120 }, type : 'usecase' , data: { label: name } });
     }
 
     // Generate edges for relations

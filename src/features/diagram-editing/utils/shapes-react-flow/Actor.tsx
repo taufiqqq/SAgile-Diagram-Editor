@@ -1,7 +1,9 @@
+// features/diagram-editing/components/nodes/ActorNode.tsx
 import React from 'react';
 import { Handle, Position } from '@xyflow/react';
+import { ActorHtml } from '../shapes-html/Actor-html';
 
-// Define the types for the props
+
 interface ActorNodeProps {
   data: {
     label: string;
@@ -9,7 +11,6 @@ interface ActorNodeProps {
   isConnectable: boolean;
 }
 
-// Apply the types to the component
 const ActorNode: React.FC<ActorNodeProps> = ({ data, isConnectable }) => {
   return (
     <div className="actor-node">
@@ -19,10 +20,9 @@ const ActorNode: React.FC<ActorNodeProps> = ({ data, isConnectable }) => {
         style={{ background: '#555' }}
         isConnectable={isConnectable}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <img width={100} src="/actor.svg" alt="Actor Icon" className="actor-icon" />
-        <strong>{data.label}</strong>
-      </div>
+      
+      <ActorHtml label={data.label} />
+      
       <Handle
         type="source"
         position={Position.Right}
