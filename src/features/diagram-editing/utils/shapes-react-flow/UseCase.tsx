@@ -16,18 +16,20 @@ const UseCaseNode: React.FC<UseCaseNodeProps> = ({ data, selected, isConnectable
   return (
     <div className="usecase-node">
       <Handle
-        type="target"
+        id={data.label+'-left'}
+        type="source"
         position={Position.Left}
-        style={{ background: selected? 'red' : '#555' }}
+        style={{ background: selected? 'red' : '#555' , width: '10px', height: '10px'}}
         isConnectable={isConnectable}
       />
       
       <UseCaseHtml label={data.label} selected = {selected} />
       
       <Handle
+        id={data.label+'-right'}
         type="source"
         position={Position.Right}
-        style={{ background: '#555' }}
+        style={{ background: '#555' , width: '10px', height: '10px'}}
         isConnectable={isConnectable}
       />
     </div>

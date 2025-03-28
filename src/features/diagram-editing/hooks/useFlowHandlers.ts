@@ -21,10 +21,12 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((currentEdges: Edge[]) => {
+        console.log('onConnect', params);
         const newEdges: Edge[] = addEdge<Edge>(
-          { ...params, type: 'straight' },
+          { ...params, type: 'straight', },
           currentEdges
         );
+        console.log(newEdges);
         return newEdges;
       });
     },

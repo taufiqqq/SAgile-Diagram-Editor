@@ -1,12 +1,7 @@
 
 import './App.css';
-import { Header, LeftSidebar, RightSidebar, Footer } from './shared';
 import { DnDProvider } from './features/diagram-editing';
-import { useFlowState } from './features/diagram-editing/hooks/useFlowState';
-import { useFlowHandlers } from './features/diagram-editing/hooks/useFlowHandlers';
-import { nodeTypes } from './features/diagram-editing/types/NodeTypes.types';
-import { FlowControls } from './features/diagram-editing/components/FlowControl';
-import { ReactFlow, ReactFlowProvider } from '@xyflow/react';
+import { ReactFlowProvider } from '@xyflow/react';
 import Canvas from './shared/components/CanvasContainer';
 
 

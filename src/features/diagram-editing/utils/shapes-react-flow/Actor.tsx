@@ -16,18 +16,20 @@ const ActorNode: React.FC<ActorNodeProps> = ({ data, selected, isConnectable }) 
   return (
     <div className="actor-node">
       <Handle
-        type="target"
-        position={Position.Left}
-        style={{ background: '#555' }}
+        id="right"
+        type="source"
+        position={Position.Right}
+        style={{ background: '#555', width: '10px', height: '10px'}}
         isConnectable={isConnectable}
       />
       
       <ActorHtml label={data.label} selected = {selected}/>
       
       <Handle
+        id="left"
         type="source"
-        position={Position.Right}
-        style={{ background: '#555' }}
+        position={Position.Left}
+        style={{ background: '#555' , width: '10px', height: '10px'}}
         isConnectable={isConnectable}
       />
     </div>

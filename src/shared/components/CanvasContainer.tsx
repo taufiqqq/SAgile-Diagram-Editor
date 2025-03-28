@@ -1,10 +1,11 @@
 import React from 'react';
-import { ReactFlow } from '@xyflow/react';
+import { ConnectionMode, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useFlowState } from '../../features/diagram-editing/hooks/useFlowState';
 import { useFlowHandlers } from '../../features/diagram-editing/hooks/useFlowHandlers';
 import { FlowControls } from '../../features/diagram-editing/components/FlowControl';
 import { nodeTypes } from '../../features/diagram-editing/types/NodeTypes.types';
+
 import RightSidebar from './RightSidebar';
 import Footer from './Footer';
 import LeftSidebar from './LeftSidebar';
@@ -53,6 +54,7 @@ const Canvas: React.FC = () => {
                   }
                 }}
                 nodeTypes={nodeTypes}
+                connectionMode={ConnectionMode.Loose}
                 proOptions={{ hideAttribution: true }}
                 fitView
               >
