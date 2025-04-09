@@ -1,16 +1,10 @@
-import { useCallback } from 'react';
-import { 
-  useReactFlow, 
-  addEdge, 
-  Edge, 
-  Node, 
-  Connection,
-} from '@xyflow/react';
-import { useDnD } from '../hooks/useDnD';
-import { NodeType } from '../types/NodeTypes.types';
+import { useCallback } from "react";
+import { useReactFlow, addEdge, Edge, Connection } from "@xyflow/react";
+import { useDnD } from "../hooks/useDnD";
+import { ShapeNode, ShapeType } from "../types/NodeTypes.types";
 
 type FlowHandlersProps = {
-  setNodes: (nodes: Node[]) => void;
+  setNodes: (nodes: ShapeNode[]) => void;
   setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void;
 };
 
@@ -21,9 +15,9 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
   const onConnect = useCallback(
     (params: Connection) => {
       setEdges((currentEdges: Edge[]) => {
-        console.log('onConnect', params);
+        console.log("onConnect", params);
         const newEdges: Edge[] = addEdge<Edge>(
-          { ...params, type: 'straight', },
+          { ...params, type: "straight" },
           currentEdges
         );
         console.log(newEdges);
@@ -35,7 +29,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
+    event.dataTransfer.dropEffect = "move";
   }, []);
 
   const onDrop = useCallback(
@@ -43,7 +37,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
       event.preventDefault();
 
       if (!type) {
-        console.error('No node type found in drag event');
+        console.error("No node type found in drag event");
         return null;
       }
 
@@ -57,11 +51,15 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
         y: position.y - 50,
       };
 
-      const newNode: Node = {
+      const newNode: ShapeNode = {
         id: `node_${Date.now()}`,
-        type: type as NodeType,
+        type: "shape",
         position: adjustedPosition,
-        data: { label: `${type} node` },
+        data: {
+          type: type as ShapeType,
+          label: `${type} node`,
+          color: "#3F8AE2",
+        },
       };
 
       return newNode;

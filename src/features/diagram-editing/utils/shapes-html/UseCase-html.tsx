@@ -1,30 +1,57 @@
+import React, { useState } from 'react';
+import NodeLabel from "../shapes-react-flow/Label";
+
 interface UseCaseHtmlProps {
   label?: string;
   selected?: boolean;
   width?: number;
   height?: number;
+  onLabelChange?: (newLabel: string) => void;
 }
 
 export const UseCaseHtml = ({ 
-  label, 
-  selected,
+  label = '', 
+  selected = false,
   width = 150, 
-  height = 100 
-}: UseCaseHtmlProps) => (
-  <div
-  draggable
-    style={{
+  height = 100,
+  onLabelChange
+}: UseCaseHtmlProps) => {
+  const [currentLabel, setCurrentLabel] = useState(label);
+
+  const handleLabelChange = (newLabel: string) => {
+    setCurrentLabel(newLabel);
+    if (onLabelChange) {
+      onLabelChange(newLabel);
+    }
+  };
+
+  // Handle click on the label container to allow propagation
+  const handleLabelContainerClick = (e: React.MouseEvent) => {
+    // Only stop propagation if we're clicking on the input itself
+    if (e.target instanceof HTMLInputElement) {
+      e.stopPropagation();
+    }
+  };
+
+  return (
+    <div style={{
       width: `${width}px`,
       height: `${height}px`,
       borderRadius: '50%',
       background: '#f0f0f0',
-      border: selected? '2px solid red' : '2px solid #555',
+      border: selected ? '2px solid red' : '2px solid #555',
       display: 'flex',
       justifyContent: 'center',
-      alignItems: 'center',
-      textAlign: 'center',
-    }}
-  >
-    {label && <strong>{label}</strong>}
-  </div>
-);
+      alignItems: 'center'
+    }}>
+      <div onClick={handleLabelContainerClick}>
+        <NodeLabel 
+          placeholder="Use Case Name" 
+          value={currentLabel}
+          onChange={handleLabelChange}
+        />
+      </div>
+    </div>
+  );
+};
+

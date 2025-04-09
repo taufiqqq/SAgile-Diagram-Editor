@@ -1,10 +1,19 @@
-import ActorNode from '../utils/shapes-react-flow/Actor';
-import UseCaseNode from '../utils/shapes-react-flow/UseCase';
+import { Node } from '@xyflow/react';
+import ShapeNode from '../components/ShapeNode';
 
+export type ShapeType = 'actor' | 'usecase';
+
+export interface ShapeNodeData {
+  type: ShapeType;
+  label: string;
+  color?: string;
+  [key: string]: unknown;
+}
+
+export type ShapeNode = Node<ShapeNodeData>;
 
 export const nodeTypes = {
-  actor: ActorNode,
-  usecase: UseCaseNode
+  shape: ShapeNode
 };
 
 export type NodeType = keyof typeof nodeTypes;

@@ -25,11 +25,10 @@ export const createNodeFactory = () => {
     },
     actor: {
       type: 'actor',
-      displayName: 'actor',
-      html: <ActorHtml/>,
+      displayName: "actor",
+      html: <ActorHtml label={""} selected={false} />,
       width: 150,
       height: 100,
-      
     },
     
     // Add more node types here
