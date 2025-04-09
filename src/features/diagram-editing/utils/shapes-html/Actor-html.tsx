@@ -6,13 +6,15 @@ interface ActorHtmlProps {
   width?: number;
   selected: boolean;
   onLabelChange?: (newLabel: string) => void;
+  hidePlaceholder?: boolean;
 }
 
 export const ActorHtml = ({ 
   label, 
   selected, 
   width = 100,
-  onLabelChange 
+  onLabelChange,
+  hidePlaceholder = false
 }: ActorHtmlProps) => {
   const [currentLabel, setCurrentLabel] = useState(label);
 
@@ -51,6 +53,7 @@ export const ActorHtml = ({
           placeholder="Actor Name" 
           value={currentLabel}
           onChange={handleLabelChange}
+          hidePlaceholder={hidePlaceholder}
         />
       </div>
     </div>

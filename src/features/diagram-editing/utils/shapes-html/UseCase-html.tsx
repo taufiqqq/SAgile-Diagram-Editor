@@ -7,6 +7,7 @@ interface UseCaseHtmlProps {
   width?: number;
   height?: number;
   onLabelChange?: (newLabel: string) => void;
+  hidePlaceholder?: boolean;
 }
 
 export const UseCaseHtml = ({ 
@@ -14,7 +15,8 @@ export const UseCaseHtml = ({
   selected = false,
   width = 150, 
   height = 100,
-  onLabelChange
+  onLabelChange,
+  hidePlaceholder = false
 }: UseCaseHtmlProps) => {
   const [currentLabel, setCurrentLabel] = useState(label);
 
@@ -49,6 +51,7 @@ export const UseCaseHtml = ({
           placeholder="Use Case Name" 
           value={currentLabel}
           onChange={handleLabelChange}
+          hidePlaceholder={hidePlaceholder}
         />
       </div>
     </div>

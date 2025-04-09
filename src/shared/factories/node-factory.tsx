@@ -17,16 +17,16 @@ export const createNodeFactory = () => {
   const nodeTypes: Record<NodeType, NodeConfig> = {
     usecase: {
       type: 'usecase',
-      displayName: 'usecase',
-      html: <UseCaseHtml/>,
+      displayName: 'Use Case',
+      html: <UseCaseHtml hidePlaceholder={true}/>,
       width: 150,
       height: 100,
       
     },
     actor: {
       type: 'actor',
-      displayName: "actor",
-      html: <ActorHtml label={""} selected={false} />,
+      displayName: "Actor",
+      html: <ActorHtml label={""} selected={false} hidePlaceholder={true} />,
       width: 150,
       height: 100,
     },
@@ -46,24 +46,28 @@ export const createNodeFactory = () => {
     const config = getNodeConfig(type);
     
     return (
-        <div 
+      <div
+        className="dndnode"
+        draggable
         onDragStart={(event) => onDragStart(event, type)}
         style={{
-          width: config.width,
-          height: config.height,
-          position: 'relative'
-        }}>
+          padding: '10px',
+          border: '1px solid #ccc',
+          borderRadius: '5px',
+          backgroundColor: 'white',
+          cursor: 'grab',
+          width: '150px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '5px'
+        }}
+      >
+        <div className="node-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {customHtml || config.html}
-          <div style={{
-            position: 'absolute',
-            bottom: -20,
-            width: '100%',
-            color: 'black',
-            fontSize: 12
-          }}>
-            {config.displayName}
-          </div>
+          <div style={{ fontSize: '12px', color: '#666' }}>{config.displayName}</div>
         </div>
+      </div>
     );
   };
 
