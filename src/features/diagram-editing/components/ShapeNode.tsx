@@ -1,18 +1,20 @@
 import React from 'react';
-import { Handle, Position, useReactFlow } from '@xyflow/react';
-import { ShapeNode as ShapeNodeType } from '../types/NodeTypes.types';
+import { Handle, Position, useReactFlow, NodeToolbar } from '@xyflow/react';
+import { ShapeNodeData } from '../types/NodeTypes.types';
 import { ActorHtml } from '../utils/shapes-html/Actor-html';
 import { UseCaseHtml } from '../utils/shapes-html/UseCase-html';
+import { useModal } from '../../../shared/context/ModalContext';
 
 interface ShapeNodeProps {
-  data: ShapeNodeType['data'];
+  id: string;
+  data: ShapeNodeData;
   selected?: boolean;
   isConnectable?: boolean;
-  id: string;
 }
 
 const ShapeNode: React.FC<ShapeNodeProps> = ({ data, selected = false, isConnectable = true, id }) => {
   const { setNodes } = useReactFlow();
+  const { openModal } = useModal();
 
   const handleLabelChange = (newLabel: string) => {
     setNodes((nodes) => 
@@ -51,6 +53,27 @@ const ShapeNode: React.FC<ShapeNodeProps> = ({ data, selected = false, isConnect
 
   return (
     <div style={{ position: 'relative' }}>
+      <NodeToolbar position={Position.Top} align="end">
+        <button
+          onClick={() => openModal({ type: data.type, label: data.label, id })}
+          style={{
+            border: 'none',
+            background: '#000000',
+            cursor: 'pointer',
+            padding: '4px 8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '4px',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: '500'
+          }}
+        >
+          Edit
+        </button>
+      </NodeToolbar>
+      
       <Handle
         id="left"
         type="source"

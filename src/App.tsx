@@ -1,9 +1,9 @@
-
 import './App.css';
 import { DnDProvider } from './features/diagram-editing';
 import { ReactFlowProvider } from '@xyflow/react';
 import Canvas from './shared/components/CanvasContainer';
-
+import { ModalProvider } from './shared/context/ModalContext';
+import { GlobalModal } from './shared/components/GlobalModal';
 
 function App() {
 
@@ -13,9 +13,12 @@ function App() {
 
   return (
     <ReactFlowProvider>
-      <DnDProvider>
-        <Canvas/>
-      </DnDProvider>
+      <ModalProvider>
+        <DnDProvider>
+          <Canvas />
+          <GlobalModal />
+        </DnDProvider>
+      </ModalProvider>
     </ReactFlowProvider>
   );
 }
