@@ -6,8 +6,8 @@ import useUndoAndRedo from './useUndoAndRedo';
 export function useFlowState() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { cut, copy, paste, bufferedNodes } = useCopyPaste();
   const { undo, redo, takeSnapshot } = useUndoAndRedo();
+  const { cut, copy, paste, bufferedNodes } = useCopyPaste(takeSnapshot);
 
   return {
     nodes,
