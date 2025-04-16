@@ -9,16 +9,16 @@ left to right direction
 actor "Project Manager"
 
 rectangle sprintDebug {
-	usecase "drink"
-	usecase "devd"
-	usecase "tak haus"
-	usecase "eat"
+	usecase "Drink"
+	usecase "Buat Something"
+	usecase "Tak haus"
+	usecase "Eat"
 }
 
-"Project Manager" --> "tak haus"
-"tak haus" .> "drink" : include
-"Project Manager" --> "devd"
-"Project Manager" --> "eat"
+"Project Manager" --> "Eat"
+"Project Manager" --> "Tak haus"
+"Tak haus" .> "Drink" : include
+"Project Manager" --> "Buat Something"
 `;
 
 // Function to parse PlantUML string
@@ -56,7 +56,6 @@ function parsePlantUML(umlString: string) {
       type: "shape",
       data: { type: "actor", label: name },
     });
-    currentY += 100;
   }
 
   // Extract use cases within rectangles
