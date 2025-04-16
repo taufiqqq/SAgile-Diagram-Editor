@@ -5,6 +5,7 @@ import { useFlowState } from '../../features/diagram-editing/hooks/useFlowState'
 import { useFlowHandlers } from '../../features/diagram-editing/hooks/useFlowHandlers';
 import { FlowControls } from '../../features/diagram-editing/components/FlowControl';
 import { nodeTypes } from '../../features/diagram-editing/types/NodeTypes.types';
+import { edgeTypes } from '../../features/diagram-editing/types/EdgeTypes.types';
 
 import RightSidebar from './RightSidebar';
 import Footer from './Footer';
@@ -80,6 +81,7 @@ const Canvas: React.FC = () => {
             onNodesDelete={handleNodesDelete}
             onEdgesDelete={handleEdgesDelete}
             nodeTypes={nodeTypes as NodeTypes}
+            edgeTypes={edgeTypes}
             connectionMode={ConnectionMode.Loose}
             proOptions={{ hideAttribution: true }}
             fitView
