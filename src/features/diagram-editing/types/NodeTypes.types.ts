@@ -10,7 +10,7 @@ export interface ShapeNodeData {
   [key: string]: unknown;
 }
 
-export type ShapeNode = Node<ShapeNodeData>;
+export type ShapeNodeType = Node<ShapeNodeData>;
 
 export const nodeTypes = {
   shape: ShapeNode
