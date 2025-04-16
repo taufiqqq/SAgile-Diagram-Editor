@@ -1,6 +1,7 @@
 // GenerateNodes.ts
 import { ShapeNode } from "../../diagram-editing/types/NodeTypes.types";
 import { MarkerType } from "@xyflow/react";
+import { EdgeType } from "../../diagram-editing/types/EdgeTypes.types";
 
 // Sample PlantUML input string
 const plantUML = `
@@ -136,7 +137,8 @@ function parsePlantUML(umlString: string) {
         id: `e${sourceId}-${targetId}`,
         source: sourceId,
         target: targetId,
-        type: "straight",
+        type: "custom",
+        data: { type: "association" as EdgeType },
         sourceHandle: isLeftToRight ? "right" : "bottom",
         targetHandle: isLeftToRight ? "left" : "top",
       });
@@ -156,12 +158,16 @@ function parsePlantUML(umlString: string) {
         id: `e${sourceId}-${targetId}-include`,
         source: sourceId,
         target: targetId,
-        type: "straight",
+        type: "custom",
+        data: { type: "include" as EdgeType },
         sourceHandle: "right",
         targetHandle: "left",
-        style: { strokeDasharray: "5 5" }, // This creates the dashed line
+        style: { strokeDasharray: "5 5" },
         markerEnd: {
           type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: "#b1b1b7",
         },
         label: "«include»",
         labelStyle: { fill: "#000", fontFamily: "monospace" },

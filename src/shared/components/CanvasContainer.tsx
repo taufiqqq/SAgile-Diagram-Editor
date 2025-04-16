@@ -1,16 +1,32 @@
-import React from 'react';
-import { ConnectionMode, NodeTypes, ReactFlow, NodeChange, EdgeChange, Connection, OnNodesChange, OnEdgesChange, OnConnect, OnNodeDrag, OnNodesDelete, OnEdgesDelete } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import { useFlowState } from '../../features/diagram-editing/hooks/useFlowState';
-import { useFlowHandlers } from '../../features/diagram-editing/hooks/useFlowHandlers';
-import { FlowControls } from '../../features/diagram-editing/components/FlowControl';
-import { nodeTypes } from '../../features/diagram-editing/types/NodeTypes.types';
-import { edgeTypes } from '../../features/diagram-editing/types/EdgeTypes.types';
+import React from "react";
+import {
+  ConnectionMode,
+  NodeTypes,
+  ReactFlow,
+  NodeChange,
+  EdgeChange,
+  Connection,
+  OnNodesChange,
+  OnEdgesChange,
+  OnConnect,
+  OnNodeDrag,
+  OnNodesDelete,
+  OnEdgesDelete,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
+import { useFlowHandlers } from "../../features/diagram-editing/hooks/useFlowHandlers";
+import { FlowControls } from "../../features/diagram-editing/components/FlowControl";
+import {
+  nodeTypes,
+  ShapeNode,
+} from "../../features/diagram-editing/types/NodeTypes.types";
+import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
 
-import RightSidebar from './RightSidebar';
-import Footer from './Footer';
-import LeftSidebar from './LeftSidebar';
-import Header from './Header';
+import RightSidebar from "./RightSidebar";
+import Footer from "./Footer";
+import LeftSidebar from "./LeftSidebar";
+import Header from "./Header";
 
 const Canvas: React.FC = () => {
   const {
@@ -22,34 +38,46 @@ const Canvas: React.FC = () => {
     setEdges,
     undo,
     redo,
-    takeSnapshot
+    takeSnapshot,
   } = useFlowState();
 
   const { onConnect, onDragOver, onDrop } = useFlowHandlers({
     setNodes,
-    setEdges
+    setEdges,
   });
 
-  const handleNodesChange: OnNodesChange = React.useCallback((changes) => {
-    onNodesChange(changes);
-  }, [onNodesChange]);
+  const handleNodesChange: OnNodesChange = React.useCallback(
+    (changes) => {
+      onNodesChange(changes as NodeChange<ShapeNode>[]);
+    },
+    [onNodesChange]
+  );
 
-  const handleEdgesChange: OnEdgesChange = React.useCallback((changes) => {
-    onEdgesChange(changes);
-  }, [onEdgesChange]);
+  const handleEdgesChange: OnEdgesChange = React.useCallback(
+    (changes) => {
+      onEdgesChange(changes);
+    },
+    [onEdgesChange]
+  );
 
-  const handleConnect: OnConnect = React.useCallback((connection) => {
-    takeSnapshot();
-    onConnect(connection);
-  }, [onConnect, takeSnapshot]);
+  const handleConnect: OnConnect = React.useCallback(
+    (connection) => {
+      takeSnapshot();
+      onConnect(connection);
+    },
+    [onConnect, takeSnapshot]
+  );
 
-  const handleDrop = React.useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    takeSnapshot();
-    const newNode = onDrop(event);
-    if (newNode) {
-      setNodes(nds => nds.concat(newNode));
-    }
-  }, [onDrop, setNodes, takeSnapshot]);
+  const handleDrop = React.useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      takeSnapshot();
+      const newNode = onDrop(event);
+      if (newNode) {
+        setNodes((nds) => nds.concat(newNode));
+      }
+    },
+    [onDrop, setNodes, takeSnapshot]
+  );
 
   const handleNodeDragStart: OnNodeDrag = React.useCallback(() => {
     takeSnapshot();
@@ -68,7 +96,7 @@ const Canvas: React.FC = () => {
       <Header />
       <div className="main-content">
         <LeftSidebar />
-        <div className='canvas'>
+        <div className="canvas">
           <ReactFlow
             nodes={nodes}
             edges={edges}

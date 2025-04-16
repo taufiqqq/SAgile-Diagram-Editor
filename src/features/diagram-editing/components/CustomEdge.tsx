@@ -1,6 +1,5 @@
 import React from 'react';
-import { EdgeProps, getStraightPath } from '@xyflow/react';
-import EdgeTypeSelector from './EdgeTypeSelector';
+import { EdgeProps, getStraightPath, useReactFlow, MarkerType } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
 
 const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
@@ -13,6 +12,7 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
   selected,
   data = { type: 'association' },
 }) => {
+  const { setEdges } = useReactFlow();
   const [edgePath] = getStraightPath({
     sourceX,
     sourceY,
@@ -22,14 +22,54 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
 
   const edgeType: EdgeType = data.type || 'association';
 
+  const handleTypeChange = (type: EdgeType) => {
+    setEdges((eds) =>
+      eds.map((edge) => {
+        if (edge.id === id) {
+          return {
+            ...edge,
+            data: { ...edge.data, type },
+            style: { 
+              ...edge.style,
+              strokeDasharray: type === 'association' ? undefined : '5 5' 
+            },
+            label: type === 'association' ? undefined : `«${type}»`,
+            labelStyle: { fill: '#000', fontFamily: 'monospace' },
+            animated: false,
+            markerEnd: type === 'association' ? undefined : {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: '#b1b1b7',
+            },
+          };
+        }
+        return edge;
+      })
+    );
+  };
+
   return (
     <>
+      <defs>
+        <marker
+          id="arrow"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="6"
+          markerHeight="6"
+          orient="auto-start-reverse"
+        >
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#b1b1b7" />
+        </marker>
+      </defs>
       <path
         id={id}
         style={{
           ...style,
-          strokeWidth: 20, // Make the clickable area wider
-          stroke: 'transparent', // Make the wider area invisible
+          strokeWidth: 20,
+          stroke: 'transparent',
           cursor: 'pointer',
         }}
         className="react-flow__edge-path"
@@ -37,10 +77,29 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
       />
       <path
         id={`${id}-visible`}
-        style={style}
+        style={{
+          ...style,
+          strokeDasharray: edgeType === 'association' ? undefined : '5 5',
+        }}
         className="react-flow__edge-path"
         d={edgePath}
+        markerEnd={edgeType === 'association' ? undefined : "url(#arrow)"}
       />
+      {edgeType !== 'association' && (
+        <text
+          x={(sourceX + targetX) / 2}
+          y={(sourceY + targetY) / 2 - 10}
+          textAnchor="middle"
+          style={{
+            fill: '#000',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            pointerEvents: 'none',
+          }}
+        >
+          {`«${edgeType}»`}
+        </text>
+      )}
       {selected && (
         <foreignObject
           x={(sourceX + targetX) / 2 - 75}
@@ -63,6 +122,7 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
             gap: '4px'
           }}>
             <button
+              onClick={() => handleTypeChange('association')}
               style={{
                 padding: '4px 8px',
                 border: '1px solid #e5e7eb',
@@ -76,6 +136,7 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
               Association
             </button>
             <button
+              onClick={() => handleTypeChange('include')}
               style={{
                 padding: '4px 8px',
                 border: '1px solid #e5e7eb',
@@ -89,6 +150,7 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
               Include
             </button>
             <button
+              onClick={() => handleTypeChange('exclude')}
               style={{
                 padding: '4px 8px',
                 border: '1px solid #e5e7eb',
