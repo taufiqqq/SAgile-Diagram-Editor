@@ -1,7 +1,6 @@
 import React from 'react';
 import { EdgeProps, getStraightPath, useReactFlow, MarkerType } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
-import { useFlowState } from '../hooks/useFlowState';
 
 const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
   id,
@@ -14,7 +13,6 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
   data = { type: 'association' },
 }) => {
   const { setEdges } = useReactFlow();
-  const { takeSnapshot } = useFlowState();
   const [edgePath] = getStraightPath({
     sourceX,
     sourceY,
@@ -25,9 +23,6 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
   const edgeType: EdgeType = data.type || 'association';
 
   const handleTypeChange = (type: EdgeType) => {
-    // Take snapshot before the change
-    takeSnapshot();
-
     setEdges((eds) =>
       eds.map((edge) => {
         if (edge.id === id) {
@@ -52,9 +47,6 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
         return edge;
       })
     );
-
-    // Take snapshot after the change
-    takeSnapshot();
   };
 
   return (
@@ -76,7 +68,7 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
         id={id}
         style={{
           ...style,
-          strokeWidth: 30,
+          strokeWidth: 20,
           stroke: 'transparent',
           cursor: 'pointer',
         }}
@@ -110,10 +102,10 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
       )}
       {selected && (
         <foreignObject
-          x={(sourceX + targetX) / 2 - 50}
-          y={(sourceY + targetY) / 2 - 40}
-          width={100}
-          height={30}
+          x={(sourceX + targetX) / 2 - 75}
+          y={(sourceY + targetY) / 2 - 20}
+          width={150}
+          height={40}
           style={{ 
             overflow: 'visible', 
             pointerEvents: 'all',
@@ -123,22 +115,22 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
           <div style={{ 
             position: 'absolute',
             background: 'white',
-            padding: '2px',
+            padding: '4px',
             borderRadius: '4px',
             boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
             display: 'flex',
-            gap: '2px'
+            gap: '4px'
           }}>
             <button
               onClick={() => handleTypeChange('association')}
               style={{
-                padding: '2px 4px',
+                padding: '4px 8px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
                 background: edgeType === 'association' ? '#3b82f6' : 'white',
                 color: edgeType === 'association' ? 'white' : 'black',
                 cursor: 'pointer',
-                fontSize: '10px'
+                fontSize: '12px'
               }}
             >
               Association
@@ -146,13 +138,13 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
             <button
               onClick={() => handleTypeChange('include')}
               style={{
-                padding: '2px 4px',
+                padding: '4px 8px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
                 background: edgeType === 'include' ? '#10B981' : 'white',
                 color: edgeType === 'include' ? 'white' : 'black',
                 cursor: 'pointer',
-                fontSize: '10px'
+                fontSize: '12px'
               }}
             >
               Include
@@ -160,13 +152,13 @@ const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
             <button
               onClick={() => handleTypeChange('exclude')}
               style={{
-                padding: '2px 4px',
+                padding: '4px 8px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
                 background: edgeType === 'exclude' ? '#EF4444' : 'white',
                 color: edgeType === 'exclude' ? 'white' : 'black',
                 cursor: 'pointer',
-                fontSize: '10px'
+                fontSize: '12px'
               }}
             >
               Exclude
