@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useModal } from "../context/ModalContext";
-import { UseCaseTabNav } from "../../features/diagram-editing/components/modal/UseCaseTabNav";
-import { UseCaseDetailsForm } from "../../features/diagram-editing/components/modal/UseCaseDetailsForm";
-import { UseCaseSpecifications } from "../../features/diagram-editing/components/modal/UseCaseSpecifications";
+import { UseCaseTabNav } from "../../features/project-browser/modal/UseCaseTabNav";
+import { UseCaseDetailsForm } from "../../features/project-browser/modal/UseCaseDetailsForm";
+import { UseCaseSpecifications } from "../../features/project-browser/modal/UseCaseSpecifications";
 import { UseCaseData, UseCaseTab, DEFAULT_USE_CASE } from "../../features/diagram-editing/types/UseCaseTypes";
 
 interface SpecificationsMap {

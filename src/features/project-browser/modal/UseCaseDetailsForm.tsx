@@ -1,5 +1,5 @@
 import React from 'react';
-import { UseCaseData } from '../../types/UseCaseTypes';
+import { UseCaseData } from '../../diagram-editing/types/UseCaseTypes';
 
 interface UseCaseDetailsFormProps {
   data: UseCaseData;

@@ -1,0 +1,2 @@
+the reason why i put different file for shapes-html and shapes-react-flow is that because i want to allow the visual to be decoupled from the logic
+so i can use the html as a image to be drag and drop and more

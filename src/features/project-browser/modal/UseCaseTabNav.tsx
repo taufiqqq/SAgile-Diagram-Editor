@@ -1,5 +1,5 @@
 import React from 'react';
-import { UseCaseTab } from '../../types/UseCaseTypes';
+import { UseCaseTab } from '../../diagram-editing/types/UseCaseTypes';
 
 interface UseCaseTabNavProps {
   activeTab: UseCaseTab;
