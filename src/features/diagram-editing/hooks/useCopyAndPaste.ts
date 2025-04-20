@@ -10,6 +10,7 @@ import {
   type KeyCode,
 } from '@xyflow/react';
 import { assertWithLog } from '../../../shared/utils/assertWithLog';
+import GraphEditor from '../utils/GraphEditor';
 
 export function useCopyPaste<
   NodeType extends Node = Node,
@@ -77,68 +78,26 @@ export function useCopyPaste<
   }, [getNodes, getEdges]);
 
   const cut = useCallback(() => {
-    const selectedNodes = getNodes().filter((node) => node.selected);
-    const selectedEdges = getConnectedEdges(selectedNodes, getEdges()).filter(
-      (edge) => {
-        const isExternalSource = selectedNodes.every((n) => n.id !== edge.source);
-        const isExternalTarget = selectedNodes.every((n) => n.id !== edge.target);
-  
-        return !(isExternalSource || isExternalTarget);
-      }
-    );
-  
-    // Pre-condition: Ensure there are selected nodes
-    assertWithLog(
-      selectedNodes.length > 0,
-      'Pre-condition failed: No nodes are selected.',
-      'Pre-condition passed: At least one node is selected.'
-    );
-  
-    // Pre-condition: Ensure getEdges returns valid edges
-    const edges = getEdges();
-    assertWithLog(
-      Array.isArray(edges),
-      'Pre-condition failed: Edges must be an array.',
-      'Pre-condition passed: Edges are valid.'
-    );
-  
-    // Invariant: Ensure selectedEdges are valid
-    assertWithLog(
-      selectedEdges.every((edge) => edge.source && edge.target),
-      'Invariant failed: All selected edges must have valid source and target.',
-      'Invariant passed: All selected edges have valid source and target.'
-    );
-  
-    // Buffer the selected nodes and edges
-    setBufferedNodes(selectedNodes);
-    setBufferedEdges(selectedEdges);
-  
-    // Take a snapshot of the current state
+    // Create a new GraphEditor instance with current nodes and edges
+    const graphEditor = new GraphEditor(getNodes(), getEdges());
+
+    // Execute the cut operation
+    graphEditor.cut();
+
+    // Get the updated state from the GraphEditor
+    const { nodes: updatedNodes, edges: updatedEdges } = graphEditor.getBuffered();
+
+    // Update the React Flow state
+    setNodes(graphEditor.getNodes());
+    setEdges(graphEditor.getEdges());
+
+    // Update the buffer
+    setBufferedNodes(updatedNodes);
+    setBufferedEdges(updatedEdges);
+
+    // Take snapshot if provided
     if (takeSnapshot) takeSnapshot();
-  
-    // Remove selected nodes and edges from the graph
-    setNodes((nodes) => nodes.filter((node) => !node.selected));
-    setEdges((edges) => edges.filter((edge) => !selectedEdges.includes(edge)));
-  
-    // Post-condition: Ensure selected nodes are removed
-    setNodes((nodes) => {
-      const updatedNodes = nodes.filter((node) => !node.selected);
-      assertWithLog(
-        updatedNodes.every((node: NodeType) => !node.selected),
-        'Post-condition failed: Selected nodes were not removed.',
-        'Post-condition passed: Selected nodes were successfully removed.'
-      );
-      return updatedNodes;
-    });
-  
-    // Post-condition: Ensure selected edges are removed
-    const updatedEdges = getEdges();
-    assertWithLog(
-      selectedEdges.every((edge) => !updatedEdges.includes(edge)),
-      'Post-condition failed: Selected edges were not removed.',
-      'Post-condition passed: Selected edges were successfully removed.'
-    );
-  }, [getNodes, setNodes, getEdges, setEdges, takeSnapshot]);
+  }, [getNodes, getEdges, setNodes, setEdges, takeSnapshot]);
 
   const paste = useCallback(
     (
