@@ -1,9 +1,7 @@
 // GenerateNodes.ts
-import { ShapeNode } from "../../diagram-editing/types/NodeTypes.types";
-import { MarkerType } from "@xyflow/react";
-import { EdgeType } from "../../diagram-editing/types/EdgeTypes.types";
-import { parseNodes } from './nodeParser';
-import { parseEdges } from './edgeParser';
+import { parseEdges } from "./utils/edgeParser";
+import { parseNodes } from "./utils/nodeParser";
+import { ParsedDiagram } from "./types";
 
 // Sample PlantUML input string
 const plantUML = `
@@ -24,51 +22,8 @@ rectangle sprintDebug {
 "Project Manager" --> "Buat Something"
 `;
 
-// Function to calculate closest handles between two nodes
-function calculateClosestHandles(sourceNode: ShapeNode, targetNode: ShapeNode) {
-  const sourcePos = sourceNode.position;
-  const targetPos = targetNode.position;
-  
-  // Define handle positions relative to node center
-  const sourceHandles = {
-    left: { x: sourcePos.x - 10, y: sourcePos.y },
-    right: { x: sourcePos.x + 10, y: sourcePos.y },
-    top: { x: sourcePos.x, y: sourcePos.y - 10 },
-    bottom: { x: sourcePos.x, y: sourcePos.y + 10 }
-  };
-  
-  const targetHandles = {
-    left: { x: targetPos.x - 10, y: targetPos.y },
-    right: { x: targetPos.x + 10, y: targetPos.y },
-    top: { x: targetPos.x, y: targetPos.y - 10 },
-    bottom: { x: targetPos.x, y: targetPos.y + 10 }
-  };
-  
-  let minDistance = Infinity;
-  let bestSourceHandle: string = 'right';
-  let bestTargetHandle: string = 'left';
-  
-  // Calculate distances between all handle combinations
-  for (const [sourceHandle, sourcePoint] of Object.entries(sourceHandles)) {
-    for (const [targetHandle, targetPoint] of Object.entries(targetHandles)) {
-      const distance = Math.sqrt(
-        Math.pow(sourcePoint.x - targetPoint.x, 2) + 
-        Math.pow(sourcePoint.y - targetPoint.y, 2)
-      );
-      
-      if (distance < minDistance) {
-        minDistance = distance;
-        bestSourceHandle = sourceHandle;
-        bestTargetHandle = targetHandle;
-      }
-    }
-  }
-  
-  return { sourceHandle: bestSourceHandle, targetHandle: bestTargetHandle };
-}
-
 // Function to parse PlantUML string
-function parsePlantUML(umlString: string) {
+function parsePlantUML(umlString: string): ParsedDiagram {
   // Extract direction
   const directionMatch = umlString.match(/left to right direction/);
   const isLeftToRight = !!directionMatch;
