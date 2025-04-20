@@ -13,7 +13,7 @@ import {
 export function useCopyPaste<
   NodeType extends Node = Node,
   EdgeType extends Edge = Edge
->() {
+>(takeSnapshot?: () => void) {
   const mousePosRef = useRef<XYPosition>({ x: 0, y: 0 });
   const rfDomNode = useStore((state) => state.domNode);
 
@@ -94,9 +94,10 @@ export function useCopyPaste<
     setBufferedEdges(selectedEdges);
 
     // A cut action needs to remove the copied nodes and edges from the graph.
+    if (takeSnapshot) takeSnapshot();
     setNodes((nodes) => nodes.filter((node) => !node.selected));
     setEdges((edges) => edges.filter((edge) => !selectedEdges.includes(edge)));
-  }, [getNodes, setNodes, getEdges, setEdges]);
+  }, [getNodes, setNodes, getEdges, setEdges, takeSnapshot]);
 
   const paste = useCallback(
     (
@@ -126,6 +127,7 @@ export function useCopyPaste<
         return { ...edge, id, source, target };
       });
 
+      if (takeSnapshot) takeSnapshot();
       setNodes((nodes) => [
         ...nodes.map((node) => ({ ...node, selected: false })),
         ...newNodes,
@@ -135,7 +137,7 @@ export function useCopyPaste<
         ...newEdges,
       ]);
     },
-    [bufferedNodes, bufferedEdges, screenToFlowPosition, setNodes, setEdges]
+    [bufferedNodes, bufferedEdges, screenToFlowPosition, setNodes, setEdges, takeSnapshot]
   );
 
   useShortcut(['Meta+x', 'Control+x'], cut);
@@ -144,7 +146,6 @@ export function useCopyPaste<
 
   return { cut, copy, paste, bufferedNodes, bufferedEdges };
 }
-
 
 function useShortcut(keyCode: KeyCode, callback: Function): void {
   const [didRun, setDidRun] = useState(false);
