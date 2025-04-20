@@ -2,6 +2,45 @@ import React from 'react';
 import { EdgeProps, getStraightPath, useReactFlow, MarkerType } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
 
+/**
+ * A custom React Flow edge component that renders a styled edge with optional 
+ * labels and interactive controls for changing the edge type. The edge supports 
+ * three types: "association", "include", and "exclude", each with distinct 
+ * visual styles and behaviors.
+ *
+ * @component
+ * @param {EdgeProps & { data?: { type?: EdgeType } }} props - The properties for the custom edge.
+ * @param {string} props.id - The unique identifier for the edge.
+ * @param {number} props.sourceX - The X-coordinate of the source node.
+ * @param {number} props.sourceY - The Y-coordinate of the source node.
+ * @param {number} props.targetX - The X-coordinate of the target node.
+ * @param {number} props.targetY - The Y-coordinate of the target node.
+ * @param {React.CSSProperties} [props.style] - Optional custom styles for the edge.
+ * @param {boolean} props.selected - Indicates whether the edge is currently selected.
+ * @param {{ type?: EdgeType }} [props.data] - Optional data object containing the edge type.
+ *
+ * @returns {JSX.Element} The rendered custom edge component.
+ *
+ * @remarks
+ * - The edge type can be changed interactively when the edge is selected, using 
+ *   buttons rendered in a floating control panel.
+ * - The edge type affects the visual style, including stroke dash patterns, 
+ *   labels, and marker ends.
+ * - The component uses `useReactFlow` to update the edge state dynamically.
+ *
+ * @example
+ * ```tsx
+ * <CustomEdge
+ *   id="edge-1"
+ *   sourceX={100}
+ *   sourceY={200}
+ *   targetX={300}
+ *   targetY={400}
+ *   selected={true}
+ *   data={{ type: 'include' }}
+ * />
+ * ```
+ */
 const CustomEdge: React.FC<EdgeProps & { data?: { type?: EdgeType } }> = ({
   id,
   sourceX,
