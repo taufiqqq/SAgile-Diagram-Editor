@@ -1,12 +1,12 @@
 import { useNodesState, useEdgesState } from '@xyflow/react';
-import { initialNodes, initialEdges } from '../../parsing/plantuml-use-case/GenerateNodes';
+// import { initialNodes, initialEdges } from '../../parsing/plantuml-use-case/GenerateNodes';
 import useCopyPaste from './useCopyAndPaste';
 import useUndoAndRedo from './useUndoAndRedo';
 import { useEffect } from 'react';
 
 export function useFlowState() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { undo, redo, takeSnapshot } = useUndoAndRedo();
   const { cut, copy, paste, bufferedNodes } = useCopyPaste(takeSnapshot);
 
