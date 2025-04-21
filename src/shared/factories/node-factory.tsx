@@ -46,7 +46,7 @@ export const createNodeFactory = () => {
     const config = getNodeConfig(type);
     
     return (
-      <div
+        <div 
         className="dndnode"
         draggable
         onDragStart={(event) => onDragStart(event, type)}
@@ -66,8 +66,8 @@ export const createNodeFactory = () => {
         <div className="node-content" style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {customHtml || config.html}
           <div style={{ fontSize: '12px', color: '#666' }}>{config.displayName}</div>
+          </div>
         </div>
-      </div>
     );
   };
 

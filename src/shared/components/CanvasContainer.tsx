@@ -5,13 +5,13 @@ import {
   ReactFlow,
   NodeChange,
   EdgeChange,
-  Connection,
   OnNodesChange,
   OnEdgesChange,
   OnConnect,
   OnNodeDrag,
   OnNodesDelete,
   OnEdgesDelete,
+  Edge
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
@@ -36,14 +36,12 @@ const Canvas: React.FC = () => {
     onEdgesChange,
     setNodes,
     setEdges,
-    undo,
-    redo,
     takeSnapshot,
   } = useFlowState();
 
   const { onConnect, onDragOver, onDrop } = useFlowHandlers({
-    setNodes,
-    setEdges,
+    setNodes: setNodes as (nodes: ShapeNode[]) => void,
+    setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
 
   const handleNodesChange: OnNodesChange = React.useCallback(
@@ -55,7 +53,7 @@ const Canvas: React.FC = () => {
 
   const handleEdgesChange: OnEdgesChange = React.useCallback(
     (changes) => {
-      onEdgesChange(changes);
+      onEdgesChange(changes as EdgeChange<Edge>[]);
     },
     [onEdgesChange]
   );
@@ -73,7 +71,7 @@ const Canvas: React.FC = () => {
       takeSnapshot();
       const newNode = onDrop(event);
       if (newNode) {
-        setNodes((nds) => nds.concat(newNode));
+        setNodes((nds: ShapeNode[]) => [...nds, newNode]);
       }
     },
     [onDrop, setNodes, takeSnapshot]
@@ -117,7 +115,10 @@ const Canvas: React.FC = () => {
             <FlowControls />
           </ReactFlow>
         </div>
-        <RightSidebar nodes={nodes} setNodes={setNodes} />
+        <RightSidebar 
+          nodes={nodes} 
+          setNodes={setNodes as (nodes: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])) => void} 
+        />
       </div>
       <Footer />
     </div>

@@ -14,10 +14,10 @@ function App() {
   return (
     <ReactFlowProvider>
       <ModalProvider>
-        <DnDProvider>
+      <DnDProvider>
           <Canvas />
           <GlobalModal />
-        </DnDProvider>
+      </DnDProvider>
       </ModalProvider>
     </ReactFlowProvider>
   );

@@ -25,6 +25,7 @@ const parseHandler: RequestHandler = async (req, res) => {
   }
 };
 
+// Direct parsing endpoint
 router.post('/parse', parseHandler);
 
 export default router; 

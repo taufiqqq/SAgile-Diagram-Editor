@@ -14,7 +14,7 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
   }
 
   // Extract actors
-  const actorRegex = /actor\s+"([^"]+)"/g;
+  const actorRegex = /actor\s+"?([^"]+)"?/g;
   let actorIdCounter = 1;
   let currentY = 0;
 
@@ -38,7 +38,7 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
   let baseX = isLeftToRight ? 200 : 0;
 
   for (const rectangleMatch of umlString.matchAll(rectangleRegex)) {
-    const [, rectangleName, rectangleContent] = rectangleMatch;
+    const [rectangleContent] = rectangleMatch;
 
     for (const usecaseMatch of rectangleContent.matchAll(usecaseRegex)) {
       const [, name] = usecaseMatch;
