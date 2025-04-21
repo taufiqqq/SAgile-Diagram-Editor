@@ -7,7 +7,7 @@ export function usePlantUMLParser() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const socket = new WebSocket('ws://localhost:3000');
+    const socket = new WebSocket(import.meta.env.VITE_WEBSOCKET_URL);
 
     socket.onopen = () => {
       setIsConnected(true);
