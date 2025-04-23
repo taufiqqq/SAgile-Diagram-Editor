@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ConnectionMode,
   NodeTypes,
@@ -22,6 +22,9 @@ import {
   ShapeNode,
 } from "../../features/diagram-editing/types/NodeTypes.types";
 import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
+import { useParams } from "react-router-dom";
+import { fetchDiagramData } from "../../features/diagram-editing/services/diagramService";
+import { toast } from "react-toastify";
 
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
@@ -29,6 +32,7 @@ import LeftSidebar from "./LeftSidebar";
 import Header from "./Header";
 
 const Canvas: React.FC = () => {
+  const { projectId, sprintId } = useParams<{ projectId: string; sprintId: string }>();
   const {
     nodes,
     edges,
@@ -43,6 +47,34 @@ const Canvas: React.FC = () => {
     setNodes: setNodes as (nodes: ShapeNode[]) => void,
     setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
+
+  // Load diagram data when component mounts
+  useEffect(() => {
+    const loadDiagramData = async () => {
+      if (!projectId || !sprintId) {
+        toast.error('Project ID and Sprint ID are required');
+        return;
+      }
+
+      try {
+        const diagramData = await fetchDiagramData(projectId, sprintId);
+        
+        if (diagramData) {
+          // @ts-ignore - Ignoring type errors for now
+          setNodes(diagramData.nodes);
+          // @ts-ignore - Ignoring type errors for now
+          setEdges(diagramData.edges);
+        } else {
+          toast.info('No diagram found. Starting with an empty diagram.');
+        }
+      } catch (err) {
+        console.error('Error loading diagram:', err);
+        toast.error('Failed to load diagram data');
+      }
+    };
+
+    loadDiagramData();
+  }, [projectId, sprintId, setNodes, setEdges]);
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
@@ -90,11 +122,16 @@ const Canvas: React.FC = () => {
   }, [takeSnapshot]);
 
   return (
-    <div className="app">
+    <div className="app" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <Header />
-      <div className="main-content">
+      <div className="main-content" style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         <LeftSidebar />
-        <div className="canvas">
+        <div className="canvas" style={{ 
+          flex: 1, 
+          position: 'relative',
+          minHeight: 0,
+          minWidth: 0
+        }}>
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -111,6 +148,7 @@ const Canvas: React.FC = () => {
             connectionMode={ConnectionMode.Loose}
             proOptions={{ hideAttribution: true }}
             fitView
+            style={{ width: '100%', height: '100%' }}
           >
             <FlowControls />
           </ReactFlow>
