@@ -33,11 +33,14 @@ export async function fetchDiagramData(projectId: string, sprintId: string): Pro
       throw new Error(data.message || 'Failed to fetch diagram');
     }
     
-    // Use nodes and edges directly from the response
+    // Parse the PlantUML string to get nodes and edges
+    const { nodes, nodeMap } = parseNodes(data.data.original_plantuml);
+    const edges = parseEdges(data.data.original_plantuml, nodes, nodeMap);
+    
     return {
-      nodes: data.data.nodes || [],
-      edges: data.data.edges || [],
-      original_plantuml: data.data.original_plantuml || ''
+      nodes,
+      edges,
+      original_plantuml: data.data.original_plantuml
     };
   } catch (error) {
     console.error('Error fetching diagram data:', error);
