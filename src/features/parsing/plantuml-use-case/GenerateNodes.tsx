@@ -15,7 +15,7 @@ function parsePlantUML(umlString: string): ParsedDiagram {
   const isLeftToRight = !!directionMatch;
 
   // Parse nodes and get node map
-  const { nodes, nodeMap } = parseNodes(umlString, isLeftToRight);
+  const { nodes, nodeMap } = parseNodes(umlString);
 
   // Parse edges
   const edges = parseEdges(umlString, nodes, nodeMap, isLeftToRight);

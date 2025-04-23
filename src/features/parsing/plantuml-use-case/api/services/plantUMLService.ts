@@ -9,7 +9,7 @@ export const parsePlantUML = async (plantUML: string): Promise<ParsedDiagram> =>
     const isLeftToRight = !!directionMatch;
 
     // Parse nodes and get node map
-    const { nodes, nodeMap } = parseNodes(plantUML, isLeftToRight);
+    const { nodes, nodeMap } = parseNodes(plantUML);
 
     // Parse edges
     const edges = parseEdges(plantUML, nodes, nodeMap, isLeftToRight);

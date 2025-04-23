@@ -1,10 +1,14 @@
-import { ShapeNode, NodeMap } from '../types';
+import { ShapeNode, NodeMap } from "../types";
 
-export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: ShapeNode[], nodeMap: NodeMap } {
+export function parseNodes(umlString: string): {
+  nodes: ShapeNode[];
+  nodeMap: NodeMap;
+} {
   const nodes: ShapeNode[] = [];
   const nodeMap: NodeMap = {};
   const processedUsecases = new Set<string>();
   const includeRelations = new Set<string>();
+  const actorPositions = new Map<string, 'left' | 'right'>();
 
   // First, find all include relationships to identify included use cases
   const findIncludeRegex = /"([^"]+)"\s+\.>\s+"([^"]+)"\s*:\s*include/g;
@@ -13,29 +17,55 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
     includeRelations.add(target);
   }
 
+  // Find all relationships to determine actor positions
+  const leftToRightRegex = /"([^"]+)"\s*-->\s*"([^"]+)"/g;
+  const rightToLeftRegex = /"([^"]+)"\s*<--\s*"([^"]+)"/g;
+  
+  // Process all relationships to determine actor positions
+  for (const match of umlString.matchAll(leftToRightRegex)) {
+    const [, source, target] = match;
+    if (!actorPositions.has(source)) {
+      actorPositions.set(source, 'left');
+    }
+  }
+  
+  for (const match of umlString.matchAll(rightToLeftRegex)) {
+    const [, target, source] = match;
+    if (!actorPositions.has(source)) {
+      actorPositions.set(source, 'right');
+    }
+  }
+
   // Extract actors
   const actorRegex = /actor\s+"?([^"]+)"?/g;
   let actorIdCounter = 1;
   let currentY = 0;
+  let baseX = 200;
 
   for (const match of umlString.matchAll(actorRegex)) {
     const [, name] = match;
     const id = `actor_${actorIdCounter++}`;
     nodeMap[name] = id;
 
+    // Determine position based on first relationship appearance
+    const position = actorPositions.get(name) || 'left';
+    const x = position === 'right' ? baseX + 300 : -100;
+
     nodes.push({
       id,
-      position: { x: isLeftToRight ? -100 : 0, y: currentY },
+      position: { x, y: currentY },
       type: "shape",
       data: { type: "actor", label: name },
     });
+
+    currentY += 120;
   }
 
   // Extract use cases within rectangles
   const rectangleRegex = /rectangle\s+(\w+)\s*{([^}]*)}/g;
   const usecaseRegex = /usecase\s+"([^"]+)"/g;
   let usecaseIdCounter = 1;
-  let baseX = isLeftToRight ? 200 : 0;
+  currentY = 0;
 
   for (const rectangleMatch of umlString.matchAll(rectangleRegex)) {
     const [rectangleContent] = rectangleMatch;
@@ -49,7 +79,8 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
       nodeMap[name] = id;
       processedUsecases.add(name);
 
-      const x = includeRelations.has(name) ? baseX + 300 : baseX;
+      // All use cases at the same x level
+      const x = baseX;
 
       nodes.push({
         id,
@@ -58,9 +89,7 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
         data: { type: "usecase", label: name },
       });
 
-      if (!includeRelations.has(name)) {
-        currentY += 120;
-      }
+      currentY += 120;
     }
   }
 
@@ -75,7 +104,8 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
     nodeMap[name] = id;
     processedUsecases.add(name);
 
-    const x = includeRelations.has(name) ? baseX + 300 : baseX;
+    // All use cases at the same x level
+    const x = baseX;
 
     nodes.push({
       id,
@@ -84,10 +114,8 @@ export function parseNodes(umlString: string, isLeftToRight: boolean): { nodes: 
       data: { type: "usecase", label: name },
     });
 
-    if (!includeRelations.has(name)) {
-      currentY += 120;
-    }
+    currentY += 120;
   }
 
   return { nodes, nodeMap };
-} 
+}
