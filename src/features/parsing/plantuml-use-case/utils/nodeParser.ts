@@ -40,7 +40,7 @@ export function parseNodes(umlString: string): {
   const actorRegex = /actor\s+"?([^"]+)"?/g;
   let actorIdCounter = 1;
   let currentY = 0;
-  let baseX = 200;
+  let baseX = 100;
 
   for (const match of umlString.matchAll(actorRegex)) {
     const [, name] = match;
@@ -49,7 +49,7 @@ export function parseNodes(umlString: string): {
 
     // Determine position based on first relationship appearance
     const position = actorPositions.get(name) || "left";
-    const x = position === "right" ? baseX + 300 : -100;
+    const x = position === "right" ? baseX + 500 : -100;
 
     nodes.push({
       id,
@@ -65,11 +65,17 @@ export function parseNodes(umlString: string): {
   const rectangleRegex = /rectangle\s+(\w+)\s*{([^}]*)}/g;
   const usecaseRegex = /usecase\s+"([^"]+)"/g;
   let usecaseIdCounter = 1;
+  let packageIdCounter = 1;
   currentY = 0;
 
   for (const rectangleMatch of umlString.matchAll(rectangleRegex)) {
-    const [rectangleContent] = rectangleMatch;
-
+    const [, packageName, rectangleContent] = rectangleMatch;
+    
+    // Store the starting Y position for this package
+    const packageStartY = currentY;
+    let usecaseCount = 0;
+    
+    // Process use cases within this package first
     for (const usecaseMatch of rectangleContent.matchAll(usecaseRegex)) {
       const [, name] = usecaseMatch;
 
@@ -79,18 +85,37 @@ export function parseNodes(umlString: string): {
       nodeMap[name] = id;
       processedUsecases.add(name);
 
-      // All use cases at the same x level
-      const x = baseX;
-
+      // Position use cases
       nodes.push({
         id,
-        position: { x, y: currentY },
+        position: { x: baseX + 150, y: currentY + 50 + (usecaseCount * 120) },
         type: "shape",
         data: { type: "usecase", label: name },
       });
 
-      currentY += 120;
+      usecaseCount++;
     }
+    
+    // Calculate the final Y position after all use cases
+    const packageEndY = currentY + 50 + (usecaseCount * 120) + 50;
+    
+    // Create the package node with height based on content
+    const packageId = `package_${packageIdCounter++}`;
+    nodeMap[packageName] = packageId;
+    
+    const packageNode: ShapeNode = {
+      id: packageId,
+      position: { x: baseX + 100, y: packageStartY },
+      type: "package",
+      data: { type: "package", label: packageName },
+      style: { zIndex: -1 },
+      height: packageEndY - packageStartY + 10, // Add 10px padding
+    };
+    
+    nodes.push(packageNode);
+    
+    // Update currentY for next package
+    currentY = packageEndY;
   }
 
   // Extract standalone use cases
