@@ -1,5 +1,6 @@
 import { Node, Edge } from '@xyflow/react';
-import { parseNodes, parseEdges } from '../utils/parsers';
+import { parseNodes } from '../../parsing/plantuml-use-case/utils/nodeParser';
+import { parseEdges } from '../../parsing/plantuml-use-case/utils/edgeParser';
 import { ShapeNode, ParsedEdge } from '../types';
 
 interface DiagramData {

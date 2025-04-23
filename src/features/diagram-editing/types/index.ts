@@ -1,7 +1,7 @@
 import { Node, Edge, MarkerType } from '@xyflow/react';
 
 export interface ShapeNode extends Node {
-  type: 'shape';
+  type: string;
   data: {
     type: 'actor' | 'usecase' | 'package';
     label: string;
@@ -15,7 +15,7 @@ export interface ShapeNode extends Node {
 }
 
 export interface ParsedEdge extends Edge {
-  type: 'custom';
+  type: string;
   data: {
     type: 'association' | 'include';
   };
