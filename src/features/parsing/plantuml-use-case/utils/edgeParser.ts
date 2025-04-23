@@ -6,7 +6,6 @@ export function parseEdges(
   umlString: string,
   nodes: ShapeNode[],
   nodeMap: NodeMap,
-  isLeftToRight: boolean
 ): ParsedEdge[] {
   const edges: ParsedEdge[] = [];
 

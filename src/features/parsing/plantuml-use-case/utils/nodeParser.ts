@@ -8,7 +8,7 @@ export function parseNodes(umlString: string): {
   const nodeMap: NodeMap = {};
   const processedUsecases = new Set<string>();
   const includeRelations = new Set<string>();
-  const actorPositions = new Map<string, 'left' | 'right'>();
+  const actorPositions = new Map<string, "left" | "right">();
 
   // First, find all include relationships to identify included use cases
   const findIncludeRegex = /"([^"]+)"\s+\.>\s+"([^"]+)"\s*:\s*include/g;
@@ -20,19 +20,19 @@ export function parseNodes(umlString: string): {
   // Find all relationships to determine actor positions
   const leftToRightRegex = /"([^"]+)"\s*-->\s*"([^"]+)"/g;
   const rightToLeftRegex = /"([^"]+)"\s*<--\s*"([^"]+)"/g;
-  
+
   // Process all relationships to determine actor positions
   for (const match of umlString.matchAll(leftToRightRegex)) {
-    const [, source, target] = match;
+    const [, source] = match;
     if (!actorPositions.has(source)) {
-      actorPositions.set(source, 'left');
+      actorPositions.set(source, "left");
     }
   }
-  
+
   for (const match of umlString.matchAll(rightToLeftRegex)) {
-    const [, target, source] = match;
+    const [, , source] = match;
     if (!actorPositions.has(source)) {
-      actorPositions.set(source, 'right');
+      actorPositions.set(source, "right");
     }
   }
 
@@ -48,8 +48,8 @@ export function parseNodes(umlString: string): {
     nodeMap[name] = id;
 
     // Determine position based on first relationship appearance
-    const position = actorPositions.get(name) || 'left';
-    const x = position === 'right' ? baseX + 300 : -100;
+    const position = actorPositions.get(name) || "left";
+    const x = position === "right" ? baseX + 300 : -100;
 
     nodes.push({
       id,

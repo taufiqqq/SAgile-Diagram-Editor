@@ -1,4 +1,4 @@
-import { ShapeNode, HandlePosition, HandlePositions, ClosestHandles } from '../types';
+import { ShapeNode, HandlePositions, ClosestHandles } from '../types';
 
 export function calculateClosestHandles(sourceNode: ShapeNode, targetNode: ShapeNode): ClosestHandles {
   const sourcePos = sourceNode.position;

@@ -4,15 +4,11 @@ import { ParsedDiagram } from "../../types";
 
 export const parsePlantUML = async (plantUML: string): Promise<ParsedDiagram> => {
   try {
-    // Extract direction
-    const directionMatch = plantUML.match(/left to right direction/);
-    const isLeftToRight = !!directionMatch;
-
     // Parse nodes and get node map
     const { nodes, nodeMap } = parseNodes(plantUML);
 
     // Parse edges
-    const edges = parseEdges(plantUML, nodes, nodeMap, isLeftToRight);
+    const edges = parseEdges(plantUML, nodes, nodeMap);
     
     return { nodes, edges };
   } catch (error) {
