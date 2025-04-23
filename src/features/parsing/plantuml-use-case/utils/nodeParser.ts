@@ -107,15 +107,20 @@ export function parseNodes(umlString: string): {
       id: packageId,
       position: { x: baseX + 100, y: packageStartY },
       type: "package",
-      data: { type: "package", label: packageName },
+      data: { 
+        type: "package", 
+        label: packageName,
+        width: 300, // Add default width
+        height: packageEndY - packageStartY + 10 // Add height to data object
+      },
       style: { zIndex: -1 },
-      height: packageEndY - packageStartY + 10, // Add 10px padding
+      height: packageEndY - packageStartY + 100, // Keep height at node level for compatibility
     };
     
     nodes.push(packageNode);
     
     // Update currentY for next package
-    currentY = packageEndY;
+    currentY = packageEndY + 10; // Add extra spacing between packages
   }
 
   // Extract standalone use cases

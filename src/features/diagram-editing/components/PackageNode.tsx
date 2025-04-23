@@ -1,9 +1,22 @@
 import { memo } from 'react';
 import { ShapeNodeData } from '../types/NodeTypes.types';
+import { NodeResizer, useReactFlow } from '@xyflow/react';
+import { useNodeDimensions } from '../hooks/useNodeDimensions';
 
-const PackageNode = ({ data }: { data: ShapeNodeData }) => {
-  const width = 300;
-  const height = 200;
+interface PackageNodeProps {
+  id: string;
+  data: ShapeNodeData;
+  selected?: boolean;
+}
+
+const PackageNode = ({ id, data, selected = false }: PackageNodeProps) => {
+  const { setNodes } = useReactFlow();
+  const defaultWidth = 300;
+  const { width: measuredWidth, height: measuredHeight } = useNodeDimensions(id);
+  
+  // Use measured dimensions from React Flow, fallback to data properties, or defaults
+  const width = measuredWidth || (data.width as number) || defaultWidth;
+  const height = measuredHeight || (data.height as number) || 200;
   const titleHeight = 30;
 
   return (
@@ -12,12 +25,19 @@ const PackageNode = ({ data }: { data: ShapeNodeData }) => {
         width,
         height,
         position: 'relative',
-        pointerEvents: 'none'
+        pointerEvents: 'auto'
       }}
     >
+      <NodeResizer
+        color="#555"
+        isVisible={selected}
+        minWidth={200}
+        minHeight={100}
+      />
+      
       <svg
-        width={width}
-        height={height}
+        width="100%"
+        height="100%"
         style={{
           position: 'absolute',
           top: 0,
@@ -25,13 +45,13 @@ const PackageNode = ({ data }: { data: ShapeNodeData }) => {
           overflow: 'visible',
         }}
       >
-        {/* Debug background to verify rendering */}
+        {/* Package background - transparent */}
         <rect
           x="0"
           y="0"
-          width={width}
-          height={height}
-          fill="rgba(200, 200, 200, 0.0)"
+          width="100%"
+          height="100%"
+          fill="transparent"
           stroke="black"
           strokeWidth="2"
         />
@@ -39,14 +59,14 @@ const PackageNode = ({ data }: { data: ShapeNodeData }) => {
         <line
           x1="0"
           y1={titleHeight}
-          x2={width}
+          x2="100%"
           y2={titleHeight}
           stroke="black"
           strokeWidth="2"
         />
         {/* Title text */}
         <text
-          x={width / 2}
+          x="50%"
           y={titleHeight / 2}
           dominantBaseline="middle"
           textAnchor="middle"
