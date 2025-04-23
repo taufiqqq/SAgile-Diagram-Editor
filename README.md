@@ -2,7 +2,7 @@ clone this project
 
 npm install
 
-npm run dev
+npm run dev:all
 
 
 

@@ -1,4 +1,4 @@
-import { ShapeNode, HandlePosition, HandlePositions, ClosestHandles } from '../types';
+import { ShapeNode, HandlePositions, ClosestHandles } from '../types';
 
 export function calculateClosestHandles(sourceNode: ShapeNode, targetNode: ShapeNode): ClosestHandles {
   const sourcePos = sourceNode.position;
@@ -6,16 +6,12 @@ export function calculateClosestHandles(sourceNode: ShapeNode, targetNode: Shape
   
   const sourceHandles: HandlePositions = {
     left: { x: sourcePos.x - 10, y: sourcePos.y },
-    right: { x: sourcePos.x + 10, y: sourcePos.y },
-    top: { x: sourcePos.x, y: sourcePos.y - 10 },
-    bottom: { x: sourcePos.x, y: sourcePos.y + 10 }
+    right: { x: sourcePos.x + 10, y: sourcePos.y }
   };
   
   const targetHandles: HandlePositions = {
     left: { x: targetPos.x - 10, y: targetPos.y },
-    right: { x: targetPos.x + 10, y: targetPos.y },
-    top: { x: targetPos.x, y: targetPos.y - 10 },
-    bottom: { x: targetPos.x, y: targetPos.y + 10 }
+    right: { x: targetPos.x + 10, y: targetPos.y }
   };
   
   let minDistance = Infinity;

@@ -1,0 +1,10 @@
+{
+  "watch": [
+    "src/features/parsing/plantuml-use-case/api",
+    "src/features/parsing/plantuml-use-case/utils"
+  ],
+  "ext": "ts,json",
+  "ignore": ["src/features/parsing/plantuml-use-case/api/**/*.spec.ts"],
+  "exec": "tsx src/features/parsing/plantuml-use-case/api/server.ts",
+  "verbose": true
+} 
