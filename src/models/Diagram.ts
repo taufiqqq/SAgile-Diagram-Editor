@@ -15,11 +15,12 @@ export interface Diagram extends RowDataPacket {
 export class DiagramModel {
   static async create(data: Omit<Diagram, 'id' | 'created_at' | 'updated_at'>): Promise<Diagram> {
     const { project_id, sprint_id, diagram_element, original_plantuml } = data;
-    const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO diagrams (project_id, sprint_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?)',
-      [project_id, sprint_id, JSON.stringify(diagram_element), original_plantuml]
+    const id = uuidv4();
+    await pool.query<ResultSetHeader>(
+      'INSERT INTO diagrams (id, project_id, sprint_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?, ?)',
+      [id, project_id, sprint_id, JSON.stringify(diagram_element), original_plantuml]
     );
-    const diagram = await this.findById(result.insertId.toString());
+    const diagram = await this.findById(id);
     if (!diagram) {
       throw new Error('Failed to create diagram');
     }

@@ -1,8 +1,10 @@
 import { Node, Edge } from '@xyflow/react';
+import { parseNodes, parseEdges } from '../utils/parsers';
+import { ShapeNode, ParsedEdge } from '../types';
 
 interface DiagramData {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: ShapeNode[];
+  edges: ParsedEdge[];
   original_plantuml: string;
 }
 
@@ -30,14 +32,72 @@ export async function fetchDiagramData(projectId: string, sprintId: string): Pro
       throw new Error(data.message || 'Failed to fetch diagram');
     }
     
-    // @ts-ignore - Ignoring type errors for now
+    // Parse the PlantUML string to get nodes and edges
+    const { nodes, nodeMap } = parseNodes(data.data.original_plantuml);
+    const edges = parseEdges(data.data.original_plantuml, nodes, nodeMap);
+    
     return {
-      nodes: data.data.nodes || [],
-      edges: data.data.edges || [],
-      original_plantuml: data.data.original_plantuml || ''
+      nodes,
+      edges,
+      original_plantuml: data.data.original_plantuml
     };
   } catch (error) {
     console.error('Error fetching diagram data:', error);
+    throw error;
+  }
+}
+
+/**
+ * Saves diagram data to the backend
+ * @param projectId The project ID
+ * @param sprintId The sprint ID
+ * @param nodes The nodes to save
+ * @param edges The edges to save
+ * @returns The response from the server
+ */
+export async function saveDiagramData(
+  projectId: string,
+  sprintId: string,
+  nodes: ShapeNode[],
+  edges: ParsedEdge[]
+): Promise<any> {
+  try {
+    const response = await fetch('/api/diagrams/save', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        project_id: projectId,
+        sprint_id: sprintId,
+        nodes: nodes.map(node => ({
+          ...node,
+          type: 'shape', // Ensure node type is 'shape'
+          data: {
+            ...node.data,
+            type: node.data.type // actor/usecase/package
+          }
+        })),
+        edges: edges.map(edge => ({
+          ...edge,
+          type: 'custom' // Ensure edge type is 'custom'
+        }))
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to save diagram: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to save diagram');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error saving diagram data:', error);
     throw error;
   }
 }
@@ -51,7 +111,7 @@ export async function fetchDiagramData(projectId: string, sprintId: string): Pro
  */
 export async function processPlantUML(projectId: string, sprintId: string, plantuml: string): Promise<any> {
   try {
-    const response = await fetch('/api/diagrams/process', {
+    const response = await fetch('/api/diagrams/process-plantuml', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

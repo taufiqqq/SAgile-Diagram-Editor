@@ -21,8 +21,6 @@ export class DiagramController {
       }
       
       // Process PlantUML to get diagram data
-      // This is where you would call your existing PlantUML processing logic
-      // For now, we'll assume you have a function that converts PlantUML to diagram data
       const diagramData = await processPlantUMLToDiagramData(plantuml);
       
       // Save or update diagram in database
@@ -112,6 +110,48 @@ export class DiagramController {
       });
     }
   }
+
+  /**
+   * Save diagram data
+   */
+  static async saveDiagram(req: Request, res: Response): Promise<void> {
+    try {
+      const { project_id, sprint_id, nodes, edges } = req.body;
+      
+      // Validate required fields
+      if (!project_id || !sprint_id || !nodes || !edges) {
+        res.status(400).json({
+          success: false,
+          message: 'Missing required fields: project_id, sprint_id, nodes, or edges'
+        });
+        return;
+      }
+
+      // Create or update diagram
+      const diagram = await DiagramService.getOrCreateDiagram(
+        project_id,
+        sprint_id,
+        '', // Empty PlantUML for now
+        { nodes, edges }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: 'Diagram saved successfully',
+        data: {
+          id: diagram.id,
+          name: diagram.name
+        }
+      });
+    } catch (error) {
+      console.error('Error saving diagram:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error saving diagram',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }
 }
 
 // This function would be replaced with your actual PlantUML processing logic
@@ -145,15 +185,21 @@ async function processPlantUMLToDiagramData(plantuml: string): Promise<any> {
     const nodes = [
       ...actors.map((actor, index) => ({
         id: `actor-${index}`,
-        type: 'default',
+        type: 'actor',
         position: { x: 100, y: 100 + index * 100 },
-        data: { label: actor }
+        data: { 
+          type: 'actor',
+          label: actor 
+        }
       })),
       ...useCases.map((useCase, index) => ({
         id: `usecase-${index}`,
-        type: 'default',
+        type: 'usecase',
         position: { x: 300, y: 100 + index * 100 },
-        data: { label: useCase }
+        data: { 
+          type: 'usecase',
+          label: useCase 
+        }
       }))
     ];
     

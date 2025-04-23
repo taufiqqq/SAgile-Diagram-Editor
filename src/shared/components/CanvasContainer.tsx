@@ -23,7 +23,7 @@ import {
 } from "../../features/diagram-editing/types/NodeTypes.types";
 import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
 import { useParams } from "react-router-dom";
-import { fetchDiagramData } from "../../features/diagram-editing/services/diagramService";
+import { fetchDiagramData, saveDiagramData } from "../../features/diagram-editing/services/diagramService";
 import { toast } from "react-toastify";
 
 import RightSidebar from "./RightSidebar";
@@ -75,6 +75,24 @@ const Canvas: React.FC = () => {
 
     loadDiagramData();
   }, [projectId, sprintId, setNodes, setEdges]);
+
+  // Save diagram data when changes are made
+  useEffect(() => {
+    const saveDiagram = async () => {
+      if (!projectId || !sprintId) return;
+
+      try {
+        await saveDiagramData(projectId, sprintId, nodes, edges);
+      } catch (err) {
+        console.error('Error saving diagram:', err);
+        toast.error('Failed to save diagram data');
+      }
+    };
+
+    // Debounce the save operation
+    const timeoutId = setTimeout(saveDiagram, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [projectId, sprintId, nodes, edges]);
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {

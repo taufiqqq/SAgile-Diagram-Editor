@@ -10,6 +10,9 @@ console.log('Registering diagram routes...');
 router.post('/process-plantuml', DiagramController.processPlantUML);
 console.log('Registered POST /process-plantuml route');
 
+// Save diagram data
+router.post('/save', DiagramController.saveDiagram);
+
 // Get diagram data by project and sprint ID
 router.get('/:projectId/:sprintId', DiagramController.getDiagram);
 console.log('Registered GET /:projectId/:sprintId route');
