@@ -18,7 +18,7 @@ interface DiagramData {
 export async function fetchDiagramData(projectId: string, sprintId: string): Promise<DiagramData | null> {
   try {
     const response = await fetch(`/api/diagrams/${projectId}/${sprintId}`);
-    
+    console.log('Fetching diagram data:', { projectId, sprintId });
     if (!response.ok) {
       if (response.status === 404) {
         // Diagram not found
@@ -28,14 +28,16 @@ export async function fetchDiagramData(projectId: string, sprintId: string): Pro
     }
     
     const data = await response.json();
+    console.log('Fetched diagram data:', data);
     
     if (!data.success) {
       throw new Error(data.message || 'Failed to fetch diagram');
     }
     
     // Parse the PlantUML string to get nodes and edges
-    const { nodes, nodeMap } = parseNodes(data.data.original_plantuml);
-    const edges = parseEdges(data.data.original_plantuml, nodes, nodeMap);
+    const { nodes, edges, original_plantuml } = data.data;
+
+    console.log('Parsed nodes and edges:', { nodes, edges });
     
     return {
       nodes,
