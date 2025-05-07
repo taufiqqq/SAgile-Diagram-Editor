@@ -53,12 +53,12 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
 
       const newNode: ShapeNode = {
         id: `${type}-${Date.now()}`,
-        type: type as ShapeType,
+        type: 'shape',
         position: adjustedPosition,
         data: {
           type: type as ShapeType,
-          label: `${type} node`,
-          color: "#3F8AE2",
+          label: type === 'actor' ? 'New Actor' : type === 'usecase' ? 'New Use Case' : 'New Package',
+          color: type === 'actor' ? '#FFB347' : type === 'usecase' ? '#3F8AE2' : '#98FB98',
         },
       };
 

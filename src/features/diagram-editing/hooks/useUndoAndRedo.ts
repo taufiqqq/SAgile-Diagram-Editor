@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Edge, Node, useReactFlow } from '@xyflow/react';
+import { toast } from 'react-toastify';
 
 type UseUndoRedoOptions = {
   maxHistorySize: number;
@@ -82,8 +83,10 @@ export const useUndoRedo: UseUndoRedo = ({
     const keyDownHandler = (event: KeyboardEvent) => {
       if (event.key === 'y' && (event.ctrlKey || event.metaKey)) {
         redo();
+        toast.info('Redo action performed');
       } else if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
         undo();
+        toast.info('Undo action performed');
       }
     };
 

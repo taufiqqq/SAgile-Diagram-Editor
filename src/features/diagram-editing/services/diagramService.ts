@@ -62,7 +62,12 @@ export async function saveDiagramData(
   nodes: ShapeNode[],
   edges: ParsedEdge[]
 ): Promise<any> {
-  try {
+  try {    
+    if (nodes.length === 0 && edges.length === 0) {
+    console.warn('Skipping save: Diagram is empty.');
+    return;
+  }
+
     const response = await fetch('/api/diagrams/save', {
       method: 'POST',
       headers: {
