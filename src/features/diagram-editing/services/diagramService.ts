@@ -62,45 +62,38 @@ export async function saveDiagramData(
   nodes: ShapeNode[],
   edges: ParsedEdge[]
 ): Promise<any> {
-  try {    
+  try {
     if (nodes.length === 0 && edges.length === 0) {
-    console.warn('Skipping save: Diagram is empty.');
-    return;
-  }
+      console.warn('Skipping save: Diagram is empty.');
+      return;
+    }
+
+    console.log('Saving diagram data:', { projectId, sprintId, nodes, edges });
 
     const response = await fetch('/api/diagrams/save', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         project_id: projectId,
         sprint_id: sprintId,
-        nodes: nodes.map(node => ({
-          ...node,
-          type: 'shape', // Ensure node type is 'shape'
-          data: {
-            ...node.data,
-            type: node.data.type // actor/usecase/package
-          }
-        })),
-        edges: edges.map(edge => ({
-          ...edge,
-          type: 'custom' // Ensure edge type is 'custom'
-        }))
-      })
+        nodes,
+        edges,
+      }),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to save diagram: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
+    console.log('Save response:', data);
+
     if (!data.success) {
       throw new Error(data.message || 'Failed to save diagram');
     }
-    
+
     return data;
   } catch (error) {
     console.error('Error saving diagram data:', error);

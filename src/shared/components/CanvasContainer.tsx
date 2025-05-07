@@ -83,37 +83,22 @@ const Canvas: React.FC = () => {
   useEffect(() => {
     const saveDiagram = async () => {
       if (!projectId || !sprintId) return;
-      toast.info("Saving diagram data...");
+  
+      // Prevent saving if nodes and edges are empty
+      if (nodes.length === 0 && edges.length === 0) {
+        console.warn('Skipping save: Diagram is empty.');
+        return;
+      }
+  
+      toast.info('Saving diagram data...');
       try {
         await saveDiagramData(projectId, sprintId, nodes, edges);
-      } catch (err) {      useEffect(() => {
-        const saveDiagram = async () => {
-          if (!projectId || !sprintId) return;
-      
-          // Prevent saving if nodes and edges are empty
-          if (nodes.length === 0 && edges.length === 0) {
-            console.warn('Skipping save: Diagram is empty.');
-            return;
-          }
-      
-          toast.info('Saving diagram data...');
-          try {
-            await saveDiagramData(projectId, sprintId, nodes, edges);
-          } catch (err) {
-            console.error('Error saving diagram:', err);
-            toast.error('Failed to save diagram data');
-          }
-        };
-      
-        // Debounce the save operation
-        const timeoutId = setTimeout(saveDiagram, 1000);
-        return () => clearTimeout(timeoutId);
-      }, [projectId, sprintId, nodes, edges]);
-        console.error("Error saving diagram:", err);
-        toast.error("Failed to save diagram data");
+      } catch (err) {
+        console.error('Error saving diagram:', err);
+        toast.error('Failed to save diagram data');
       }
     };
-
+  
     // Debounce the save operation
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);

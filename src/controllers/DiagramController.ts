@@ -78,6 +78,8 @@ export class DiagramController {
         });
         return;
       }
+
+      console.log('Fetched diagram from database:', diagram);
       
       // Parse diagram_element if it's a string
       let diagramData = diagram.diagram_element;
@@ -89,7 +91,7 @@ export class DiagramController {
           diagramData = { nodes: [], edges: [] };
         }
       }
-      
+      console.log('Parsed diagram data:', diagramData);
       // Return diagram data in the expected format
       res.status(200).json({
         success: true,
