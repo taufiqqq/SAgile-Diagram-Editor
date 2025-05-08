@@ -58,7 +58,7 @@ const EdgeTypeSelector: React.FC<EdgeTypeSelectorProps> = ({
     >
       <div style={{ 
         position: 'absolute',
-        zIndex: 1000,
+zIndex: 1000000,
         background: 'white',
         padding: '4px',
         borderRadius: '4px',

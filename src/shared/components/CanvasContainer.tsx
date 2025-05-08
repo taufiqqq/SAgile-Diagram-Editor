@@ -1,17 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ConnectionMode,
   NodeTypes,
   ReactFlow,
   NodeChange,
   EdgeChange,
-  Connection,
   OnNodesChange,
   OnEdgesChange,
   OnConnect,
   OnNodeDrag,
   OnNodesDelete,
   OnEdgesDelete,
+  Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
@@ -22,6 +22,12 @@ import {
   ShapeNode,
 } from "../../features/diagram-editing/types/NodeTypes.types";
 import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
+import { useParams } from "react-router-dom";
+import {
+  fetchDiagramData,
+  saveDiagramData,
+} from "../../features/diagram-editing/services/diagramService";
+import { toast } from "react-toastify";
 
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
@@ -29,6 +35,10 @@ import LeftSidebar from "./LeftSidebar";
 import Header from "./Header";
 
 const Canvas: React.FC = () => {
+  const { projectId, sprintId } = useParams<{
+    projectId: string;
+    sprintId: string;
+  }>();
   const {
     nodes,
     edges,
@@ -36,15 +46,63 @@ const Canvas: React.FC = () => {
     onEdgesChange,
     setNodes,
     setEdges,
-    undo,
-    redo,
     takeSnapshot,
   } = useFlowState();
 
   const { onConnect, onDragOver, onDrop } = useFlowHandlers({
-    setNodes,
-    setEdges,
+    setNodes: setNodes as (nodes: ShapeNode[]) => void,
+    setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
+
+  useEffect(() => {
+    const loadDiagramData = async () => {
+      if (!projectId || !sprintId) {
+        toast.error('Project ID and Sprint ID are required');
+        return;
+      }
+  
+      try {
+        const diagramData = await fetchDiagramData(projectId, sprintId);
+  
+        if (diagramData) {
+          setNodes(diagramData.nodes);
+          setEdges(diagramData.edges);
+        } else {
+          toast.info('No diagram found. Starting with an empty diagram.');
+        }
+      } catch (err) {
+        console.error('Error loading diagram:', err);
+        toast.error('Failed to load diagram data');
+      }
+    };
+  
+    loadDiagramData();
+  }, [projectId, sprintId, setNodes, setEdges]);
+
+  // Save diagram data when changes are made
+  useEffect(() => {
+    const saveDiagram = async () => {
+      if (!projectId || !sprintId) return;
+  
+      // Prevent saving if nodes and edges are empty
+      if (nodes.length === 0 && edges.length === 0) {
+        console.warn('Skipping save: Diagram is empty.');
+        return;
+      }
+  
+      toast.info('Saving diagram data...');
+      try {
+        await saveDiagramData(projectId, sprintId, nodes, edges);
+      } catch (err) {
+        console.error('Error saving diagram:', err);
+        toast.error('Failed to save diagram data');
+      }
+    };
+  
+    // Debounce the save operation
+    const timeoutId = setTimeout(saveDiagram, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [projectId, sprintId, nodes, edges]);
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
@@ -55,7 +113,7 @@ const Canvas: React.FC = () => {
 
   const handleEdgesChange: OnEdgesChange = React.useCallback(
     (changes) => {
-      onEdgesChange(changes);
+      onEdgesChange(changes as EdgeChange<Edge>[]);
     },
     [onEdgesChange]
   );
@@ -73,7 +131,7 @@ const Canvas: React.FC = () => {
       takeSnapshot();
       const newNode = onDrop(event);
       if (newNode) {
-        setNodes((nds) => nds.concat(newNode));
+        setNodes((nds: ShapeNode[]) => [...nds, newNode]);
       }
     },
     [onDrop, setNodes, takeSnapshot]
@@ -92,11 +150,30 @@ const Canvas: React.FC = () => {
   }, [takeSnapshot]);
 
   return (
-    <div className="app">
+    <div
+      className="app"
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Header />
-      <div className="main-content">
+      <div
+        className="main-content"
+        style={{ flex: 1, position: "relative", minHeight: 0 }}
+      >
         <LeftSidebar />
-        <div className="canvas">
+        <div
+          className="canvas"
+          style={{
+            flex: 1,
+            position: "relative",
+            minHeight: 0,
+            minWidth: 0,
+          }}
+        >
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -113,11 +190,19 @@ const Canvas: React.FC = () => {
             connectionMode={ConnectionMode.Loose}
             proOptions={{ hideAttribution: true }}
             fitView
+            style={{ width: "100%", height: "100%" }}
           >
             <FlowControls />
           </ReactFlow>
         </div>
-        <RightSidebar nodes={nodes} setNodes={setNodes} />
+        <RightSidebar
+          nodes={nodes}
+          setNodes={
+            setNodes as (
+              nodes: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+            ) => void
+          }
+        />
       </div>
       <Footer />
     </div>

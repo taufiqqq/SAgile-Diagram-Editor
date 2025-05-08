@@ -54,7 +54,7 @@ export const UseCaseHtml = ({
           hidePlaceholder={hidePlaceholder}
         />
       </div>
-    </div>
-  );
+  </div>
+);
 };
 

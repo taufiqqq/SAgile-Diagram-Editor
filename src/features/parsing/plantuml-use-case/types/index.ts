@@ -11,8 +11,8 @@ export interface HandlePosition {
 export interface HandlePositions {
   left: HandlePosition;
   right: HandlePosition;
-  top: HandlePosition;
-  bottom: HandlePosition;
+  top?: HandlePosition;
+  bottom?: HandlePosition;
 }
 
 export interface ClosestHandles {

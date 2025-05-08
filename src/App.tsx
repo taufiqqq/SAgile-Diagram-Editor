@@ -1,25 +1,67 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ReactFlowProvider } from '@xyflow/react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { DnDProvider } from './features/diagram-editing';
-import { ReactFlowProvider } from '@xyflow/react';
-import Canvas from './shared/components/CanvasContainer';
 import { ModalProvider } from './shared/context/ModalContext';
 import { GlobalModal } from './shared/components/GlobalModal';
+import Canvas from './shared/components/CanvasContainer';
 
 function App() {
-
-  //TODO: recheck issit correct to put in this file or better in other file
-  // const canCopy = nodes.some(({ selected }) => selected);
-  // const canPaste = bufferedNodes.length > 0;
-
   return (
-    <ReactFlowProvider>
-      <ModalProvider>
-        <DnDProvider>
-          <Canvas />
-          <GlobalModal />
-        </DnDProvider>
-      </ModalProvider>
-    </ReactFlowProvider>
+    <div style={{ 
+      width: '100%', 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0
+    }}>
+      <Router>
+        <ToastContainer position="top-right" autoClose={3000} />
+        <Routes>
+          <Route path="/:projectId/:sprintId" element={
+            <div style={{ 
+              width: '100%', 
+              height: '100%', 
+              position: 'relative',
+              flex: 1
+            }}>
+              <ReactFlowProvider>
+                <ModalProvider>
+                  <DnDProvider>
+                    <Canvas />
+                    <GlobalModal />
+                  </DnDProvider>
+                </ModalProvider>
+              </ReactFlowProvider>
+            </div>
+          } />
+          <Route path="/" element={
+            <div style={{ 
+              width: '100%', 
+              height: '100%', 
+              position: 'relative',
+              flex: 1
+            }}>
+              <ReactFlowProvider>
+                <ModalProvider>
+                  <DnDProvider>
+                    <Canvas />
+                    <GlobalModal />
+                  </DnDProvider>
+                </ModalProvider>
+              </ReactFlowProvider>
+            </div>
+          } />
+        </Routes>
+      </Router>
+    </div>
   );
 }
 

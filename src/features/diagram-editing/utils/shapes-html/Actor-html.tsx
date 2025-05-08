@@ -34,20 +34,20 @@ export const ActorHtml = ({
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <img draggable
-        width={width} 
-        src="/actor.svg" 
-        style={{ 
-          filter: selected 
-          ? 'brightness(0) saturate(100%) invert(21%) sepia(93%) saturate(7473%) hue-rotate(-1deg) brightness(96%) contrast(107%)'
-          : 'none',
-          width: '75px',
-          height: '100px'
-        }} 
-        alt="Actor Icon" 
-        className="actor-icon" 
-      />
+      width={width} 
+      src="/actor.svg" 
+      style={{ 
+        filter: selected 
+        ? 'brightness(0) saturate(100%) invert(21%) sepia(93%) saturate(7473%) hue-rotate(-1deg) brightness(96%) contrast(107%)'
+        : 'none',
+        width: '75px',
+        height: '100px'
+      }} 
+      alt="Actor Icon" 
+      className="actor-icon" 
+    />
       <div onClick={handleLabelContainerClick}>
         <NodeLabel 
           placeholder="Actor Name" 
@@ -56,6 +56,6 @@ export const ActorHtml = ({
           hidePlaceholder={hidePlaceholder}
         />
       </div>
-    </div>
-  );
+  </div>
+);
 };

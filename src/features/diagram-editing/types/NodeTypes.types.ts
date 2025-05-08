@@ -1,7 +1,8 @@
 import { Node } from '@xyflow/react';
 import ShapeNode from '../components/ShapeNode';
+import PackageNode from '../components/PackageNode';
 
-export type ShapeType = 'actor' | 'usecase';
+export type ShapeType = 'actor' | 'usecase' | 'package';
 
 export interface ShapeNodeData {
   type: ShapeType;
@@ -13,7 +14,8 @@ export interface ShapeNodeData {
 export type ShapeNode = Node<ShapeNodeData>;
 
 export const nodeTypes = {
-  shape: ShapeNode
+  shape: ShapeNode,
+  package: PackageNode
 };
 
 export type NodeType = keyof typeof nodeTypes;
