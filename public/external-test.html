@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>External PlantUML Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 200px;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>External PlantUML Test</h1>
+    <div>
+        <div class="form-group">
+            <label for="projectId">Project ID:</label>
+            <input type="text" id="projectId" placeholder="Enter project ID">
+        </div>
+        <div class="form-group">
+            <label for="sprintId">Sprint ID:</label>
+            <input type="text" id="sprintId" placeholder="Enter sprint ID">
+        </div>
+        <div class="form-group">
+            <h3>Enter PlantUML Code:</h3>
+            <textarea id="plantumlInput">@startuml
+left to right direction
+actor "User"
+rectangle System {
+  usecase "Use Case 1"
+  usecase "Use Case 2"
+}
+"User" --> "Use Case 1"
+"User" --> "Use Case 2"
+@enduml</textarea>
+        </div>
+    </div>
+    <button onclick="sendToEditor()">Open in Editor</button>
+
+    <script>
+        function sendToEditor() {
+            const projectId = document.getElementById('projectId').value;
+            const sprintId = document.getElementById('sprintId').value;
+            const plantumlText = document.getElementById('plantumlInput').value;
+            
+            if (!projectId || !sprintId) {
+                alert('Please enter both Project ID and Sprint ID');
+                return;
+            }
+            
+            // First, send the PlantUML to your API for processing
+            fetch('http://localhost:3000/api/diagrams/process-plantuml', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    project_id: projectId,
+                    sprint_id: sprintId,
+                    plantuml: plantumlText
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // After successful processing, redirect to your diagram editor
+                    window.location.href = `http://localhost:5173/${projectId}/${sprintId}`;
+                } else {
+                    throw new Error(data.message || 'Failed to process PlantUML');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -7,7 +7,7 @@ import { parsePlantUML } from './services/plantUMLService';
 
 const app = express();
 const server = createServer(app);
-const wss = new WebSocketServer({ server });
+const wss = new WebSocketServer({ server });  
 const port = 3000;
 
 // Middleware
