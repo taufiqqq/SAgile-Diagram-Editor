@@ -125,7 +125,7 @@ export class DiagramController {
    */
   static async saveDiagram(req: Request, res: Response): Promise<void> {
     try {
-      const { project_id, sprint_id, nodes, edges } = req.body;
+      const { project_id, sprint_id, nodes, edges, isCreating} = req.body;
       
       // Validate required fields
       if (!project_id || !sprint_id || !nodes || !edges) {
@@ -141,7 +141,8 @@ export class DiagramController {
         project_id,
         sprint_id,
         '', // Empty PlantUML for now
-        { nodes, edges }
+        { nodes, edges },
+        isCreating
       );
 
       res.status(200).json({

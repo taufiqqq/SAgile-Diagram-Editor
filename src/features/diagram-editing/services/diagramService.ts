@@ -82,6 +82,7 @@ export async function saveDiagramData(
         sprint_id: sprintId,
         nodes,
         edges,
+        isCreating: false
       }),
     });
 
@@ -95,7 +96,6 @@ export async function saveDiagramData(
     if (!data.success) {
       throw new Error(data.message || 'Failed to save diagram');
     }
-
     return data;
   } catch (error) {
     console.error('Error saving diagram data:', error);

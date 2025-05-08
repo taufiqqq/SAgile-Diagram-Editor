@@ -14,16 +14,19 @@ export class DiagramService {
     projectId: string,
     sprintId: string,
     plantuml: string,
-    diagramData: any
+    diagramData: any,
+    isCreating: boolean = true
   ): Promise<Diagram> {
     // Check if diagram exists
     let diagram = await DiagramModel.findByProjectAndSprint(projectId, sprintId);
     
     if (diagram) {
+      if(isCreating){
+        return diagram;
+      }
       // Update existing diagram
       await DiagramModel.update(diagram.id, {
         diagram_element: diagramData,
-        original_plantuml: plantuml
       } as Partial<Diagram>);
       
       // Get updated diagram
