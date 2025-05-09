@@ -2,8 +2,9 @@
 import {ReactNode} from 'react';
 import { UseCaseHtml } from '../../features/diagram-editing/utils/shapes-html/UseCase-html';
 import { ActorHtml } from '../../features/diagram-editing/utils/shapes-html/Actor-html';
+import { PackageHtml } from '../../features/diagram-editing/utils/shapes-html/Package-html';
 
-type NodeType = 'usecase'  | 'actor';
+type NodeType = 'usecase'  | 'actor' | 'package' | string;
 
 interface NodeConfig {
   type: NodeType;
@@ -27,6 +28,13 @@ export const createNodeFactory = () => {
       type: 'actor',
       displayName: "Actor",
       html: <ActorHtml label={""} selected={false} hidePlaceholder={true} />,
+      width: 150,
+      height: 100,
+    },
+    package: {
+      type: 'package',
+      displayName: "Package",
+      html: <PackageHtml label={''} width={100} height={100} hidePlaceholder={true}/>,
       width: 150,
       height: 100,
     },

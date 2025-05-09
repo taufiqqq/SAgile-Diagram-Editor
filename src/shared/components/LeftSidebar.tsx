@@ -92,6 +92,7 @@ const Sidebar: React.FC = () => {
       >
         {nodeFactory.createDraggableNode("usecase", onDragStart)}
         {nodeFactory.createDraggableNode("actor", onDragStart)}
+        {nodeFactory.createDraggableNode("package", onDragStart)}
       </div>
     </div>
   );

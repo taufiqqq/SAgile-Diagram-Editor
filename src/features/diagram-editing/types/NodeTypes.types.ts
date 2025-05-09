@@ -2,7 +2,8 @@ import { Node } from '@xyflow/react';
 import ShapeNode from '../components/ShapeNode';
 import PackageNode from '../components/PackageNode';
 
-export type ShapeType = 'actor' | 'usecase' | 'package';
+// this is to differentiate specific type of node, and what pop up should be shown
+export type ShapeType = string;
 
 export interface ShapeNodeData {
   type: ShapeType;
