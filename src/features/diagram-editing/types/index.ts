@@ -1,5 +1,5 @@
 import { Node, Edge, MarkerType } from '@xyflow/react';
-import { ShapeNode as BaseShapeNode } from './NodeTypes.types';
+import { DiagramElementNode as BaseShapeNode } from './DiagramElementType.types';
 
 export type ShapeNode = BaseShapeNode;
 

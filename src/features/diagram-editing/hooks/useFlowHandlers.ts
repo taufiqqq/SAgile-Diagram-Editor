@@ -1,16 +1,16 @@
 import { useCallback } from "react";
 import { useReactFlow, addEdge, Edge, Connection } from "@xyflow/react";
 import { useDnD } from "../hooks/useDnD";
-import { ShapeNode, ShapeType } from "../types/NodeTypes.types";
+import { DiagramElementNode, DiagramElementType } from "../types/DiagramElementType.types";
 
 type FlowHandlersProps = {
-  setNodes: (nodes: ShapeNode[]) => void;
+  setNodes: (nodes: DiagramElementNode[]) => void;
   setEdges: (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void;
 };
 
 export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
   const { screenToFlowPosition } = useReactFlow();
-  const [type] = useDnD();
+  const {diagramElementType, shapeType} = useDnD();
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -36,7 +36,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
     (event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
-      if (!type) {
+      if (!diagramElementType) {
         console.error("No node type found in drag event");
         return null;
       }
@@ -50,21 +50,20 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
         x: position.x - 75,
         y: position.y - 50,
       };
-
-      const newNode: ShapeNode = {
-        id: `${type}-${Date.now()}`,
-        type: type === 'package' ? 'package' : 'usecaseshape',
+console.log("onDrop", diagramElementType);
+      const newNode: DiagramElementNode = {
+        id: `${diagramElementType}-${Date.now()}`,
+        type: diagramElementType,
         position: adjustedPosition,
         data: {
-          type: type as ShapeType,
-          label: type === 'actor' ? 'New Actor' : type === 'usecase' ? 'New Use Case' : 'New Package',
-          color: type === 'actor' ? '#FFB347' : type === 'usecase' ? '#3F8AE2' : '#98FB98',
+          type: shapeType,
+          label: '',
         },
       };
 
       return newNode;
     },
-    [screenToFlowPosition, type]
+    [screenToFlowPosition, diagramElementType]
   );
 
   return { onConnect, onDragOver, onDrop };

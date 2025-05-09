@@ -1,13 +1,13 @@
 import React from "react";
 import { memo } from "react";
-import { ShapeNodeData } from "../types/NodeTypes.types";
+import { DiagramElementdata } from "../types/DiagramElementType.types";
 import { NodeResizer, useReactFlow } from "@xyflow/react";
 import { useNodeDimensions } from "../hooks/useNodeDimensions";
 import { PackageHtml } from "../utils/shapes-html/Package-html";
 
 interface PackageNodeProps {
   id: string;
-  data: ShapeNodeData;
+  data: DiagramElementdata;
   selected?: boolean;
 }
 
