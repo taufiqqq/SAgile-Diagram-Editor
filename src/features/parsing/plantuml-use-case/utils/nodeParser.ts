@@ -54,7 +54,7 @@ export function parseNodes(umlString: string): {
     nodes.push({
       id,
       position: { x, y: currentY },
-      type: "shape",
+      type: "usecaseshape",
       data: { type: "actor", label: name },
     });
 
@@ -89,7 +89,7 @@ export function parseNodes(umlString: string): {
       nodes.push({
         id,
         position: { x: baseX + 150, y: currentY + 50 + (usecaseCount * 120) },
-        type: "shape",
+        type: "usecaseshape",
         data: { type: "usecase", label: name },
       });
 
@@ -140,7 +140,7 @@ export function parseNodes(umlString: string): {
     nodes.push({
       id,
       position: { x, y: currentY },
-      type: "shape",
+      type: "usecaseshape",
       data: { type: "usecase", label: name },
     });
 

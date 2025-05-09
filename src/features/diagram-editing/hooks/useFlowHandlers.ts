@@ -53,7 +53,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
 
       const newNode: ShapeNode = {
         id: `${type}-${Date.now()}`,
-        type: 'shape',
+        type: type === 'package' ? 'package' : 'usecaseshape',
         position: adjustedPosition,
         data: {
           type: type as ShapeType,

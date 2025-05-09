@@ -5,14 +5,14 @@ import { ActorHtml } from '../utils/shapes-html/Actor-html';
 import { UseCaseHtml } from '../utils/shapes-html/UseCase-html';
 import { useModal } from '../../../shared/context/ModalContext';
 
-interface ShapeNodeProps {
+interface UseCaseShapeNodeProps {
   id: string;
   data: ShapeNodeData;
   selected?: boolean;
   isConnectable?: boolean;
 }
 
-const ShapeNode: React.FC<ShapeNodeProps> = ({ data, selected = false, isConnectable = true, id }) => {
+const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({ data, selected = false, isConnectable = true, id }) => {
   const { setNodes } = useReactFlow();
   const { openModal } = useModal();
 
@@ -95,4 +95,4 @@ const ShapeNode: React.FC<ShapeNodeProps> = ({ data, selected = false, isConnect
   );
 };
 
-export default ShapeNode; 
+export default UseCaseShapeNode; 

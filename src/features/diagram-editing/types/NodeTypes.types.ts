@@ -1,5 +1,5 @@
 import { Node } from '@xyflow/react';
-import ShapeNode from '../components/ShapeNode';
+import UseCaseShapeNode from '../components/ShapeNode';
 import PackageNode from '../components/PackageNode';
 
 // this is to differentiate specific type of node, and what pop up should be shown
@@ -15,7 +15,7 @@ export interface ShapeNodeData {
 export type ShapeNode = Node<ShapeNodeData>;
 
 export const nodeTypes = {
-  shape: ShapeNode,
+  usecaseshape: UseCaseShapeNode,
   package: PackageNode
 };
 
