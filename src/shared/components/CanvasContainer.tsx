@@ -84,15 +84,9 @@ const Canvas: React.FC = () => {
     const saveDiagram = async () => {
       if (!projectId || !sprintId) return;
   
-      // Prevent saving if nodes and edges are empty
-      if (nodes.length === 0 && edges.length === 0) {
-        console.warn('Skipping save: Diagram is empty.');
-        return;
-      }
-  
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, sprintId, nodes, edges);
+        await saveDiagramData(projectId, sprintId, nodes, edges, true);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');

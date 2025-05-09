@@ -4,12 +4,14 @@ import useCopyPaste from './useCopyAndPaste';
 import useUndoAndRedo from './useUndoAndRedo';
 import { useEffect } from 'react';
 import { DiagramElementNode } from '../types/DiagramElementType.types';
+import { useSelectAll } from './useSelectAll';
 
 export function useFlowState() {
   const [nodes, setNodes, onNodesChange] = useNodesState<DiagramElementNode>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { undo, redo, takeSnapshot } = useUndoAndRedo();
   const { cut, copy, paste, bufferedNodes } = useCopyPaste(takeSnapshot);
+  const { selectAll } = useSelectAll();
 
   // Load diagram from URL parameters if available
   useEffect(() => {
@@ -42,6 +44,7 @@ export function useFlowState() {
     bufferedNodes,
     undo,
     redo,
-    takeSnapshot
+    takeSnapshot,
+    selectAll,
   };
 }
