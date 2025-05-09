@@ -1,5 +1,5 @@
 import { Node } from '@xyflow/react';
-import UseCaseShapeNode from '../components/ShapeNode';
+import UseCaseShapeNode from '../components/UseCaseShapeNode';
 import PackageNode from '../components/PackageNode';
 
 export type DiagramElementType = string;
