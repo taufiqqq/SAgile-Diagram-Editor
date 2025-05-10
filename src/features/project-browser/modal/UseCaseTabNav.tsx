@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { saveDiagramData } from '../../diagram-editing/services/diagramService';
 import { toast } from 'react-toastify';
 import { ParsedEdge, ShapeNode } from '../../diagram-editing/types';
+import { DiagramComponentService } from '../../../services/DiagramComponentService';
 
 interface UseCaseTabNavProps {
   activeTab: UseCaseTab;
@@ -13,6 +14,8 @@ interface UseCaseTabNavProps {
   useCaseData: {
     name: string;
     id: string;
+    description?: string;
+    version?: string;
   };
 }
 
@@ -47,6 +50,19 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
 
       // Save the diagram data
       if (projectId && sprintId) {
+        // Save the diagram component data
+        await DiagramComponentService.getOrCreateComponent(
+          useCaseData.id,
+          `${projectId}-${sprintId}`,
+          {
+            name: useCaseData.name,
+            description: useCaseData.description || null,
+            version: useCaseData.version || null,
+            deletable: true
+          }
+        );
+
+        // Save the diagram data
         await saveDiagramData(projectId, sprintId, getNodes(), getEdges());
         toast.success('Changes saved successfully');
         closeModal();

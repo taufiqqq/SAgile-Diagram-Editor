@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
 import diagramRoutes from '../routes/diagramRoutes';
+import diagramComponentsRoutes from './routes/diagramComponents';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -32,11 +33,7 @@ app.use(express.static(path.join(__dirname, '../../public')));
 
 // Routes
 app.use('/api/diagrams', diagramRoutes);
-
-// Serve the external test page
-app.get('/external-test', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../public/external-test.html'));
-});
+app.use('/api/diagram-components', diagramComponentsRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -48,9 +45,14 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Available routes:');
   console.log('- GET /health');
-  console.log('- GET /external-test');
   console.log('- POST /api/diagrams/process-plantuml');
   console.log('- GET /api/diagrams/:projectId/:sprintId');
+  console.log('- POST /api/diagram-components/get-or-create');
+  console.log('- GET /api/diagram-components/:id');
+  console.log('- PATCH /api/diagram-components/:id');
+  console.log('- DELETE /api/diagram-components/:id');
+  console.log('- GET /api/diagrams/*');
+  console.log('- GET /api/diagram-components/*');
 });
 
 export default app; 

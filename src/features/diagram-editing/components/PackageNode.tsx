@@ -39,7 +39,7 @@ const PackageNode: React.FC<PackageNodeProps> = ({ id, data, selected = false })
     >
       <NodeResizer
         color="#555"
-        isVisible={selected}
+      isVisible={selected}
         minWidth={200}
         minHeight={100}
       />
