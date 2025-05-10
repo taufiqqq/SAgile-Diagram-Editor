@@ -163,7 +163,9 @@ export const UseCaseModal: React.FC = () => {
             onTabChange={setActiveTab}
             useCaseData={{
               name: useCaseData.name,
-              id: useCaseData.id
+              id: useCaseData.id,
+              description: useCaseData.description,
+              version: useCaseData.version
             }}
           />
         </div>
