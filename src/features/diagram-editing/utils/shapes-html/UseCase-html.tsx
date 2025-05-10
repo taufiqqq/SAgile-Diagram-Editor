@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NodeLabel from "../shapes-react-flow/Label";
 
 interface UseCaseHtmlProps {
@@ -19,6 +19,11 @@ export const UseCaseHtml = ({
   hidePlaceholder = false
 }: UseCaseHtmlProps) => {
   const [currentLabel, setCurrentLabel] = useState(label);
+
+  // Update local state when label prop changes
+  useEffect(() => {
+    setCurrentLabel(label);
+  }, [label]);
 
   const handleLabelChange = (newLabel: string) => {
     setCurrentLabel(newLabel);
@@ -54,7 +59,7 @@ export const UseCaseHtml = ({
           hidePlaceholder={hidePlaceholder}
         />
       </div>
-  </div>
-);
+    </div>
+  );
 };
 

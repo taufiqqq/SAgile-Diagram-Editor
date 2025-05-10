@@ -4,14 +4,14 @@ import PackageNode from '../components/PackageNode';
 
 export type DiagramElementType = string;
 
-export interface DiagramElementdata {
+export interface DiagramElementData {
   type: DiagramElementType;
   label: string;
   color?: string;
   [key: string]: unknown;
 }
 
-export type DiagramElementNode = Node<DiagramElementdata>;
+export type DiagramElementNode = Node<DiagramElementData>;
 
 export const diagramElementTypes = {
   usecaseshape: UseCaseShapeNode,

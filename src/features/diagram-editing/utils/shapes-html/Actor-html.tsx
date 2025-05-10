@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NodeLabel from "../shapes-react-flow/Label";
 
 interface ActorHtmlProps {
@@ -17,6 +17,11 @@ export const ActorHtml = ({
   hidePlaceholder = false
 }: ActorHtmlProps) => {
   const [currentLabel, setCurrentLabel] = useState(label);
+
+  // Update local state when label prop changes
+  useEffect(() => {
+    setCurrentLabel(label);
+  }, [label]);
 
   const handleLabelChange = (newLabel: string) => {
     setCurrentLabel(newLabel);

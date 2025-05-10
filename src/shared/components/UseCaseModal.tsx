@@ -9,7 +9,7 @@ interface SpecificationsMap {
   [useCaseId: string]: string[];
 }
 
-export const GlobalModal: React.FC = () => {
+export const UseCaseModal: React.FC = () => {
   const { isOpen, nodeData, closeModal } = useModal();
   const [activeTab, setActiveTab] = useState<UseCaseTab>('Details');
   const [useCaseData, setUseCaseData] = useState<UseCaseData>(DEFAULT_USE_CASE);
@@ -161,6 +161,10 @@ export const GlobalModal: React.FC = () => {
           <UseCaseTabNav
             activeTab={activeTab}
             onTabChange={setActiveTab}
+            useCaseData={{
+              name: useCaseData.name,
+              id: useCaseData.id
+            }}
           />
         </div>
       </div>
