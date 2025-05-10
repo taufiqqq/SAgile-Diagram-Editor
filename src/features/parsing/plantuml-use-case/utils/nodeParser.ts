@@ -113,7 +113,7 @@ export function parseNodes(umlString: string): {
         width: 300, // Add default width
         height: packageEndY - packageStartY + 10, // Add height to data object
       },
-      style: { zIndex: -1 },
+      // style: { zIndex: -1 },
       height: packageEndY - packageStartY + 100, // Keep height at node level for compatibility
     };
 

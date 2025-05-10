@@ -59,6 +59,7 @@ console.log("onDrop", diagramElementType);
           type: shapeType,
           label: '',
         },
+        zIndex: shapeType === 'package' ? -1 : undefined,
       };
 
       return newNode;
