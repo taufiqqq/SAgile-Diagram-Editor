@@ -18,9 +18,9 @@ import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState"
 import { useFlowHandlers } from "../../features/diagram-editing/hooks/useFlowHandlers";
 import { FlowControls } from "../../features/diagram-editing/components/FlowControl";
 import {
-  nodeTypes,
-  ShapeNode,
-} from "../../features/diagram-editing/types/NodeTypes.types";
+  diagramElementTypes,
+  DiagramElementNode,
+} from "../../features/diagram-editing/types/DiagramElementType.types";
 import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
 import { useParams } from "react-router-dom";
 import {
@@ -50,7 +50,7 @@ const Canvas: React.FC = () => {
   } = useFlowState();
 
   const { onConnect, onDragOver, onDrop } = useFlowHandlers({
-    setNodes: setNodes as (nodes: ShapeNode[]) => void,
+    setNodes: setNodes as (nodes: DiagramElementNode[]) => void,
     setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
 
@@ -84,15 +84,9 @@ const Canvas: React.FC = () => {
     const saveDiagram = async () => {
       if (!projectId || !sprintId) return;
   
-      // Prevent saving if nodes and edges are empty
-      if (nodes.length === 0 && edges.length === 0) {
-        console.warn('Skipping save: Diagram is empty.');
-        return;
-      }
-  
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, sprintId, nodes, edges);
+        await saveDiagramData(projectId, sprintId, nodes, edges, true);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');
@@ -106,7 +100,7 @@ const Canvas: React.FC = () => {
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
-      onNodesChange(changes as NodeChange<ShapeNode>[]);
+      onNodesChange(changes as NodeChange<DiagramElementNode>[]);
     },
     [onNodesChange]
   );
@@ -131,7 +125,7 @@ const Canvas: React.FC = () => {
       takeSnapshot();
       const newNode = onDrop(event);
       if (newNode) {
-        setNodes((nds: ShapeNode[]) => [...nds, newNode]);
+        setNodes((nds: DiagramElementNode[]) => [...nds, newNode]);
       }
     },
     [onDrop, setNodes, takeSnapshot]
@@ -185,7 +179,7 @@ const Canvas: React.FC = () => {
             onNodeDragStart={handleNodeDragStart}
             onNodesDelete={handleNodesDelete}
             onEdgesDelete={handleEdgesDelete}
-            nodeTypes={nodeTypes as NodeTypes}
+            nodeTypes={diagramElementTypes as NodeTypes}
             edgeTypes={edgeTypes}
             connectionMode={ConnectionMode.Loose}
             proOptions={{ hideAttribution: true }}
@@ -199,7 +193,7 @@ const Canvas: React.FC = () => {
           nodes={nodes}
           setNodes={
             setNodes as (
-              nodes: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+              nodes: DiagramElementNode[] | ((nodes: DiagramElementNode[]) => DiagramElementNode[])
             ) => void
           }
         />

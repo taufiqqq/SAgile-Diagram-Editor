@@ -4,23 +4,16 @@ import { nodeFactory } from "../factories/node-factory";
 import { assertWithLog } from "../utils/assertWithLog";
 
 const Sidebar: React.FC = () => {
-  const [_, setType] = useDnD();
+  const { setType, setShapeType } = useDnD(); // Access setType and setShapeType
 
-  const onDragStart = (event: React.DragEvent, nodeType: string) => {
-    console.log(`Dragging node of type: ${nodeType}`); // Debugging log
-
-    // Pre-condition: Ensure nodeType is a valid string
-    assertWithLog(
-      typeof nodeType === "string" && nodeType.length > 0,
-      "Pre-condition failed: nodeType must be a non-empty string.",
-      "Pre-condition passed: nodeType is valid."
-    );
-
-    setType(nodeType);
+  const onDragStart = (event: React.DragEvent, diagramElementType: string, shape: string) => {
+    console.log("onDragStart", diagramElementType, shape);
+    setType(diagramElementType);
+    setShapeType(shape); // Set the shape type (e.g., "usecase", "actor", "package")
     event.dataTransfer.effectAllowed = "move";
 
     // Set data for the drag operation
-    event.dataTransfer.setData("application/reactflow", nodeType);
+    event.dataTransfer.setData("application/reactflow", diagramElementType);
 
     // Create a custom drag image
     const dragImage = document.createElement("div");
@@ -90,8 +83,9 @@ const Sidebar: React.FC = () => {
           gap: "15px",
         }}
       >
-        {nodeFactory.createDraggableNode("usecase", onDragStart)}
-        {nodeFactory.createDraggableNode("actor", onDragStart)}
+        {nodeFactory.createDraggableNode("usecaseshape", "usecase", onDragStart)}
+        {nodeFactory.createDraggableNode("usecaseshape", "actor", onDragStart)}
+        {nodeFactory.createDraggableNode("package", "package", onDragStart)}
       </div>
     </div>
   );

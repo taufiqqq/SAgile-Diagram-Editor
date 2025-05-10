@@ -62,10 +62,11 @@ export async function saveDiagramData(
   projectId: string,
   sprintId: string,
   nodes: ShapeNode[],
-  edges: ParsedEdge[]
+  edges: ParsedEdge[],
+  isEditing: boolean = false
 ): Promise<any> {
   try {
-    if (nodes.length === 0 && edges.length === 0) {
+    if (nodes.length === 0 && edges.length === 0 && !isEditing) {
       console.warn('Skipping save: Diagram is empty.');
       return;
     }

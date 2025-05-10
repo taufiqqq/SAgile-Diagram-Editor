@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { useStore } from '@xyflow/react';
-import { ShapeNode } from '../../features/diagram-editing/types/NodeTypes.types';
+import { DiagramElementNode } from '../../features/diagram-editing/types/DiagramElementType.types';
 
 interface RightSidebarProps {
-  nodes: ShapeNode[];
-  setNodes: (nodes: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])) => void;
+  nodes: DiagramElementNode[];
+  setNodes: (nodes: DiagramElementNode[] | ((nodes: DiagramElementNode[]) => DiagramElementNode[])) => void;
 }
 
 const transformSelector = (state: any) => state.transform;

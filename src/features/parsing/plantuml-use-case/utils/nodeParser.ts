@@ -54,7 +54,7 @@ export function parseNodes(umlString: string): {
     nodes.push({
       id,
       position: { x, y: currentY },
-      type: "shape",
+      type: "usecaseshape",
       data: { type: "actor", label: name },
     });
 
@@ -62,7 +62,7 @@ export function parseNodes(umlString: string): {
   }
 
   // Extract use cases within rectangles
-  const rectangleRegex = /rectangle\s+(\w+)\s*{([^}]*)}/g;
+  const rectangleRegex = /rectangle\s+"?([^"{]+(?:\s+[^"{]+)*)"?\s*{([^}]*)}/g;
   const usecaseRegex = /usecase\s+"([^"]+)"/g;
   let usecaseIdCounter = 1;
   let packageIdCounter = 1;
@@ -70,11 +70,11 @@ export function parseNodes(umlString: string): {
 
   for (const rectangleMatch of umlString.matchAll(rectangleRegex)) {
     const [, packageName, rectangleContent] = rectangleMatch;
-    
+
     // Store the starting Y position for this package
     const packageStartY = currentY;
     let usecaseCount = 0;
-    
+
     // Process use cases within this package first
     for (const usecaseMatch of rectangleContent.matchAll(usecaseRegex)) {
       const [, name] = usecaseMatch;
@@ -88,37 +88,37 @@ export function parseNodes(umlString: string): {
       // Position use cases
       nodes.push({
         id,
-        position: { x: baseX + 150, y: currentY + 50 + (usecaseCount * 120) },
-        type: "shape",
+        position: { x: baseX + 150, y: currentY + 50 + usecaseCount * 120 },
+        type: "usecaseshape",
         data: { type: "usecase", label: name },
       });
 
       usecaseCount++;
     }
-    
+
     // Calculate the final Y position after all use cases
-    const packageEndY = currentY + 50 + (usecaseCount * 120) + 50;
-    
+    const packageEndY = currentY + 50 + usecaseCount * 120 + 50;
+
     // Create the package node with height based on content
     const packageId = `package_${packageIdCounter++}`;
     nodeMap[packageName] = packageId;
-    
+
     const packageNode: ShapeNode = {
       id: packageId,
       position: { x: baseX + 100, y: packageStartY },
       type: "package",
-      data: { 
-        type: "package", 
+      data: {
+        type: "package",
         label: packageName,
         width: 300, // Add default width
-        height: packageEndY - packageStartY + 10 // Add height to data object
+        height: packageEndY - packageStartY + 10, // Add height to data object
       },
       style: { zIndex: -1 },
       height: packageEndY - packageStartY + 100, // Keep height at node level for compatibility
     };
-    
+
     nodes.push(packageNode);
-    
+
     // Update currentY for next package
     currentY = packageEndY + 10; // Add extra spacing between packages
   }
@@ -140,7 +140,7 @@ export function parseNodes(umlString: string): {
     nodes.push({
       id,
       position: { x, y: currentY },
-      type: "shape",
+      type: "usecaseshape",
       data: { type: "usecase", label: name },
     });
 
