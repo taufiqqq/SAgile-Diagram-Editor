@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { DiagramController } from '../controllers/DiagramController';
+import { DiagramController } from '../controller/DiagramController';
 
 const router = express.Router();
 

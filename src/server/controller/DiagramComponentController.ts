@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { DiagramComponentModel, DiagramComponentRow } from '../models/DiagramComponent';
+import { DiagramComponentModel, DiagramComponentRow } from '../../models/DiagramComponent';
 
 interface CreateComponentBody {
   node_id: string;

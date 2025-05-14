@@ -11,6 +11,10 @@ export interface DiagramComponent {
   description: string | null;
   version: string | null;
   deletable: boolean;
+  created_by: string;
+  last_updated_by: string;
+  preconditions: string[];
+  postconditions: string[];
   created_at: Date;
   updated_at: Date;
 }
@@ -24,18 +28,22 @@ export interface DiagramComponentRow extends RowDataPacket {
   description: string | null;
   version: string | null;
   deletable: boolean;
+  created_by: string;
+  last_updated_by: string;
+  preconditions: string[];
+  postconditions: string[];
   created_at: Date;
   updated_at: Date;
 }
 
 export class DiagramComponentModel {
   static async create(data: Omit<DiagramComponentRow, 'id' | 'created_at' | 'updated_at'>): Promise<DiagramComponentRow> {
-    const { node_id, diagram_id, name, description, version, deletable } = data;
+    const { node_id, diagram_id, name, description, version, deletable, created_by, last_updated_by, preconditions, postconditions } = data;
     const id = uuidv4();
     
     await pool.query<ResultSetHeader>(
-      'INSERT INTO diagram_components (id, node_id, diagram_id, name, description, version, deletable) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [id, node_id, diagram_id, name, description || null, version || null, deletable]
+      'INSERT INTO diagram_components (id, node_id, diagram_id, name, description, version, deletable, created_by, last_updated_by, preconditions, postconditions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [id, node_id, diagram_id, name, description || null, version || null, deletable, created_by, last_updated_by, JSON.stringify(preconditions), JSON.stringify(postconditions)]
     );
     
     const [rows] = await pool.query<DiagramComponentRow[]>(
@@ -46,8 +54,13 @@ export class DiagramComponentModel {
     if (!rows[0]) {
       throw new Error('Failed to create diagram component');
     }
+
+    // Parse JSON arrays back to string arrays
+    const component = rows[0];
+    component.preconditions = JSON.parse(component.preconditions as unknown as string);
+    component.postconditions = JSON.parse(component.postconditions as unknown as string);
     
-    return rows[0];
+    return component;
   }
 
   static async findById(id: string): Promise<DiagramComponentRow | null> {
@@ -55,7 +68,15 @@ export class DiagramComponentModel {
       'SELECT * FROM diagram_components WHERE id = ?',
       [id]
     );
-    return rows[0] || null;
+    
+    if (!rows[0]) return null;
+
+    // Parse JSON arrays back to string arrays
+    const component = rows[0];
+    component.preconditions = JSON.parse(component.preconditions as unknown as string);
+    component.postconditions = JSON.parse(component.postconditions as unknown as string);
+    
+    return component;
   }
 
   static async findByNodeAndDiagram(nodeId: string, diagramId: string): Promise<DiagramComponentRow | null> {
@@ -63,11 +84,19 @@ export class DiagramComponentModel {
       'SELECT * FROM diagram_components WHERE node_id = ? AND diagram_id = ?',
       [nodeId, diagramId]
     );
-    return rows[0] || null;
+    
+    if (!rows[0]) return null;
+
+    // Parse JSON arrays back to string arrays
+    const component = rows[0];
+    component.preconditions = JSON.parse(component.preconditions as unknown as string);
+    component.postconditions = JSON.parse(component.postconditions as unknown as string);
+    
+    return component;
   }
 
   static async update(id: string, data: Partial<Omit<DiagramComponentRow, 'id' | 'created_at' | 'updated_at'>>): Promise<DiagramComponentRow | null> {
-    const { name, description, version, deletable } = data;
+    const { name, description, version, deletable, last_updated_by, preconditions, postconditions } = data;
     const updates: string[] = [];
     const values: (string | number | boolean | null)[] = [];
 
@@ -86,6 +115,18 @@ export class DiagramComponentModel {
     if (deletable !== undefined) {
       updates.push('deletable = ?');
       values.push(deletable);
+    }
+    if (last_updated_by !== undefined) {
+      updates.push('last_updated_by = ?');
+      values.push(last_updated_by);
+    }
+    if (preconditions !== undefined) {
+      updates.push('preconditions = ?');
+      values.push(JSON.stringify(preconditions));
+    }
+    if (postconditions !== undefined) {
+      updates.push('postconditions = ?');
+      values.push(JSON.stringify(postconditions));
     }
 
     if (updates.length === 0) {

@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import * as dotenv from 'dotenv';
-import diagramRoutes from '../routes/diagramRoutes';
-import diagramComponentsRoutes from './routes/diagramComponents';
+import diagramRoutes from './routes/diagramRoutes';
+import diagramComponentsRoutes from './routes/diagramComponentsRoutes';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
