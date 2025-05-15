@@ -57,7 +57,7 @@ export const UseCaseModal: React.FC = () => {
         setError(null);
         try {
           // First try to find existing component
-          const existingComponent = await DiagramComponentService.getComponent(nodeData.id);
+          const existingComponent = await DiagramComponentService.getComponent(nodeData.id, `${projectId}-${sprintId}`);
           
           if (existingComponent) {
             // Update use case data with existing component

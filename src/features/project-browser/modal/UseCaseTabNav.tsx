@@ -69,21 +69,39 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
         })
       );
 
-      // First, ensure the diagram component exists
-      const component = await DiagramComponentService.getOrCreateComponent(
-        useCaseData.id,
-        `${projectId}-${sprintId}`,
-        {
+      const diagramId = `${projectId}-${sprintId}`;
+
+      // First, try to get the existing component
+      let component = await DiagramComponentService.getComponent(useCaseData.id, diagramId);
+
+      if (!component) {
+        // If component doesn't exist, create it
+        component = await DiagramComponentService.getOrCreateComponent(
+          useCaseData.id,
+          diagramId,
+          {
+            name: useCaseData.name,
+            description: useCaseData.description || null,
+            version: useCaseData.version || null,
+            deletable: true,
+            preconditions: specifications?.preconditions.filter(p => p.trim() !== '') || [],
+            postconditions: specifications?.postconditions.filter(p => p.trim() !== '') || [],
+            created_by: 'system',
+            last_updated_by: 'system'
+          }
+        );
+      } else {
+        // Update existing component
+        component = await DiagramComponentService.updateComponent(component.id, {
           name: useCaseData.name,
           description: useCaseData.description || null,
           version: useCaseData.version || null,
           deletable: true,
           preconditions: specifications?.preconditions.filter(p => p.trim() !== '') || [],
           postconditions: specifications?.postconditions.filter(p => p.trim() !== '') || [],
-          created_by: 'system',
           last_updated_by: 'system'
-        }
-      );
+        });
+      }
 
       // Save the specifications (flows)
       if (specifications?.flows) {

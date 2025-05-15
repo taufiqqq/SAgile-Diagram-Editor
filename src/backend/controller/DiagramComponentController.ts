@@ -138,4 +138,27 @@ export class DiagramComponentController {
       res.status(500).json({ success: false, error: 'Failed to delete diagram component' });
     }
   }
+
+  static async getByNodeAndDiagram(req: Request, res: Response): Promise<void> {
+    try {
+      const { node_id, diagram_id } = req.query;
+      
+      if (!node_id || !diagram_id) {
+        res.status(400).json({ success: false, error: 'node_id and diagram_id are required' });
+        return;
+      }
+
+      const component = await DiagramComponentModel.findByNodeAndDiagram(node_id as string, diagram_id as string);
+      
+      if (!component) {
+        res.status(404).json({ success: false, error: 'Component not found' });
+        return;
+      }
+
+      res.json({ success: true, data: component });
+    } catch (error) {
+      console.error('Error getting diagram component:', error);
+      res.status(500).json({ success: false, error: 'Failed to get diagram component' });
+    }
+  }
 } 

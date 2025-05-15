@@ -48,8 +48,8 @@ export class DiagramComponentService {
    * @param diagramId The diagram ID
    * @returns The component or null if not found
    */
-  static async getComponent(id: string): Promise<DiagramComponent | null> {
-    const response = await fetch(`${this.API_BASE}/${id}`);
+  static async getComponent(nodeId: string, diagramId: string): Promise<DiagramComponent | null> {
+    const response = await fetch(`${this.API_BASE}/by-node-and-diagram?node_id=${nodeId}&diagram_id=${diagramId}`);
 
     if (!response.ok) {
       if (response.status === 404) {
