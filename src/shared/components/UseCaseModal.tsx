@@ -191,6 +191,7 @@ export const UseCaseModal: React.FC = () => {
               description: useCaseData.description,
               version: useCaseData.version
             }}
+            specifications={specifications}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ import { saveDiagramData } from '../../diagram-editing/services/diagramApiServic
 import { toast } from 'react-toastify';
 import { ParsedEdge, ShapeNode } from '../../diagram-editing/types';
 import { DiagramComponentService } from '../../../backend/services/DiagramComponentRepositoryService';
+import { DiagramUseCaseSpecificationService } from '../../../backend/services/DiagramUseCaseSpecificationService';
 
 interface UseCaseTabNavProps {
   activeTab: UseCaseTab;
@@ -17,6 +18,21 @@ interface UseCaseTabNavProps {
     description?: string;
     version?: string;
   };
+  specifications?: {
+    preconditions: string[];
+    postconditions: string[];
+    flows: Array<{
+      id: string;
+      type: 'NORMAL' | 'ALTERNATIVE' | 'EXCEPTION';
+      name: string;
+      entry_point?: string;
+      exit_point?: string;
+      steps: Array<{
+        id: string;
+        description: string;
+      }>;
+    }>;
+  };
 }
 
 const TABS: UseCaseTab[] = ['Details', 'Specifications', 'Others'];
@@ -25,6 +41,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
   activeTab,
   onTabChange,
   useCaseData,
+  specifications
 }) => {
   const { setNodes, getNodes, getEdges } = useReactFlow<ShapeNode, ParsedEdge>();
   const { closeModal } = useModal();
@@ -32,6 +49,10 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
 
   const handleSave = async () => {
     try {
+      if (!projectId || !sprintId) {
+        throw new Error('Project ID and Sprint ID are required');
+      }
+
       // Update the node data
       setNodes((nodes) =>
         nodes.map((node) => {
@@ -48,25 +69,92 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
         })
       );
 
-      // Save the diagram data
-      if (projectId && sprintId) {
-        // Save the diagram component data
-        await DiagramComponentService.getOrCreateComponent(
-          useCaseData.id,
-          `${projectId}-${sprintId}`,
-          {
-            name: useCaseData.name,
-            description: useCaseData.description || null,
-            version: useCaseData.version || null,
-            deletable: true
-          }
-        );
+      // First, ensure the diagram component exists
+      const component = await DiagramComponentService.getOrCreateComponent(
+        useCaseData.id,
+        `${projectId}-${sprintId}`,
+        {
+          name: useCaseData.name,
+          description: useCaseData.description || null,
+          version: useCaseData.version || null,
+          deletable: true,
+          preconditions: specifications?.preconditions || [],
+          postconditions: specifications?.postconditions || []
+        }
+      );
 
-        // Save the diagram data
-        await saveDiagramData(projectId, sprintId, getNodes(), getEdges());
-        toast.success('Changes saved successfully');
-        closeModal();
+      // Save the specifications (flows)
+      if (specifications?.flows) {
+        // First, find the normal flow if it exists
+        const normalFlow = specifications.flows.find(flow => flow.type === 'NORMAL');
+        if (normalFlow) {
+          try {
+            // Get existing specifications for this use case
+            const existingSpecs = await DiagramUseCaseSpecificationService.getSpecificationsByUseCaseId(component.id);
+            const existingNormalFlow = existingSpecs.find((spec: { type: string }) => spec.type === 'NORMAL');
+
+            if (existingNormalFlow) {
+              // Update existing normal flow
+              await DiagramUseCaseSpecificationService.updateSpecification(existingNormalFlow.id, {
+                type: normalFlow.type,
+                name: normalFlow.name,
+                entry_point: normalFlow.entry_point,
+                exit_point: normalFlow.exit_point,
+                steps: normalFlow.steps
+              });
+            } else {
+              // Create new normal flow
+              await DiagramUseCaseSpecificationService.createSpecification({
+                usecase_id: component.id,
+                type: normalFlow.type,
+                name: normalFlow.name,
+                entry_point: normalFlow.entry_point,
+                exit_point: normalFlow.exit_point,
+                steps: normalFlow.steps
+              });
+            }
+          } catch (error) {
+            console.error('Error saving normal flow:', error);
+            throw new Error('Failed to save normal flow');
+          }
+        }
+
+        // Handle other flows (alternative and exception)
+        for (const flow of specifications.flows) {
+          if (flow.type !== 'NORMAL') {
+            try {
+              if (flow.id.startsWith('normal-') || flow.id.startsWith('alternative-') || flow.id.startsWith('exception-')) {
+                // Create new specification for other flows
+                await DiagramUseCaseSpecificationService.createSpecification({
+                  usecase_id: component.id,
+                  type: flow.type,
+                  name: flow.name,
+                  entry_point: flow.entry_point,
+                  exit_point: flow.exit_point,
+                  steps: flow.steps
+                });
+              } else {
+                // Update existing specification
+                await DiagramUseCaseSpecificationService.updateSpecification(flow.id, {
+                  type: flow.type,
+                  name: flow.name,
+                  entry_point: flow.entry_point,
+                  exit_point: flow.exit_point,
+                  steps: flow.steps
+                });
+              }
+            } catch (error) {
+              console.error(`Error saving flow ${flow.id}:`, error);
+              throw new Error(`Failed to save flow ${flow.name}`);
+            }
+          }
+        }
       }
+
+      // Save the diagram data
+      await saveDiagramData(projectId, sprintId, getNodes(), getEdges());
+      toast.success('Changes saved successfully');
+      closeModal();
     } catch (error) {
       console.error('Error saving changes:', error);
       toast.error('Failed to save changes');
