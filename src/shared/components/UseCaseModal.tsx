@@ -55,9 +55,11 @@ export const UseCaseModal: React.FC = () => {
       if (nodeData && projectId && sprintId) {
         setIsLoading(true);
         setError(null);
+        console.log("nodeData", nodeData);
         try {
+          const diagramId = `${projectId}-${sprintId}`;
           // First try to find existing component
-          const existingComponent = await DiagramComponentService.getComponent(nodeData.id, `${projectId}-${sprintId}`);
+          const existingComponent = await DiagramComponentService.getComponent(nodeData.id, diagramId);
           
           if (existingComponent) {
             // Update use case data with existing component
@@ -79,16 +81,19 @@ export const UseCaseModal: React.FC = () => {
             // Fetch flows
             const flows = await DiagramUseCaseSpecificationService.getSpecificationsByUseCaseId(existingComponent.id);
             if (flows && flows.length > 0) {
+              // Transform the flows into the correct format
+              const transformedFlows = flows.map(flow => ({
+                id: flow.id,
+                type: flow.type,
+                name: flow.name || (flow.type === 'NORMAL' ? 'Normal flow' : flow.type === 'ALTERNATIVE' ? 'Alternative flow' : 'Exception flow'),
+                entry_point: flow.entry_point || '',
+                exit_point: flow.exit_point || '',
+                steps: flow.steps || []
+              }));
+
               setSpecifications(prev => ({
                 ...prev,
-                flows: flows.map(flow => ({
-                  id: flow.id,
-                  type: flow.type,
-                  name: flow.name,
-                  entry_point: flow.entry_point || '',
-                  exit_point: flow.exit_point || '',
-                  steps: flow.steps || []
-                }))
+                flows: transformedFlows
               }));
             } else {
               // If no flows found, ensure we have at least the initial normal flow
@@ -312,7 +317,8 @@ export const UseCaseModal: React.FC = () => {
             onTabChange={setActiveTab}
             useCaseData={{
               name: useCaseData.name,
-              id: useCaseData.id,
+              useCaseId: useCaseData.id,
+              nodeId: nodeData.id,
               description: useCaseData.description,
               version: useCaseData.version
             }}

@@ -14,7 +14,8 @@ interface UseCaseTabNavProps {
   onTabChange: (tab: UseCaseTab) => void;
   useCaseData: {
     name: string;
-    id: string;
+    useCaseId: string;
+    nodeId: string;
     description?: string;
     version?: string;
   };
@@ -56,7 +57,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       // Update the node data
       setNodes((nodes) =>
         nodes.map((node) => {
-          if (node.id === useCaseData.id) {
+          if (node.id === useCaseData.useCaseId) {
             return {
               ...node,
               data: {
@@ -72,12 +73,13 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       const diagramId = `${projectId}-${sprintId}`;
 
       // First, try to get the existing component
-      let component = await DiagramComponentService.getComponent(useCaseData.id, diagramId);
+      console.log("useCaseData", useCaseData);
+  let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
 
       if (!component) {
         // If component doesn't exist, create it
         component = await DiagramComponentService.getOrCreateComponent(
-          useCaseData.id,
+          useCaseData.useCaseId,
           diagramId,
           {
             name: useCaseData.name,

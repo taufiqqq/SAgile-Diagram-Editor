@@ -28,6 +28,7 @@ export class DiagramUseCaseSpecificationController {
   static async getByUseCaseId(req: Request, res: Response) {
     try {
       const specifications = await DiagramUseCaseSpecificationModel.findByUseCaseId(req.params.usecaseId);
+      console.log("specifications", specifications);
       res.json({ success: true, data: specifications });
     } catch (error) {
       console.error('Error getting specifications:', error);
