@@ -4,6 +4,10 @@ import { UseCaseTabNav } from "../../features/project-browser/modal/UseCaseTabNa
 import { UseCaseData, UseCaseTab, DEFAULT_USE_CASE } from "../../features/diagram-editing/types/UseCaseTypes";
 import { UseCaseDetailsForm } from "../../features/project-browser/modal/UseCaseDetailsForm";
 import { UseCaseSpecifications } from "../../features/project-browser/modal/UseCaseSpecifications";
+import { DiagramComponentService } from "../../backend/services/DiagramComponentRepositoryService";
+import { DiagramUseCaseSpecificationService } from "../../backend/services/DiagramUseCaseSpecificationService";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 interface FlowStep {
   id: string;
@@ -41,24 +45,84 @@ export const UseCaseModal: React.FC = () => {
     postconditions: [''],
     flows: [initialNormalFlow]
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { projectId, sprintId } = useParams<{ projectId: string; sprintId: string }>();
 
   // Initialize state when modal opens
   useEffect(() => {
-    if (nodeData) {
-      setUseCaseData({
-        ...DEFAULT_USE_CASE,
-        id: nodeData.id,
-        name: nodeData.label || '',
-      });
-      
-      // Reset specifications when modal opens
-      setSpecifications({
-        preconditions: [''],
-        postconditions: [''],
-        flows: [initialNormalFlow]
-      });
-    }
-  }, [nodeData]);
+    const fetchData = async () => {
+      if (nodeData && projectId && sprintId) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          // First try to find existing component
+          const existingComponent = await DiagramComponentService.getComponent(nodeData.id);
+          
+          if (existingComponent) {
+            // Update use case data with existing component
+            setUseCaseData({
+              ...DEFAULT_USE_CASE,
+              id: existingComponent.id,
+              name: existingComponent.name,
+              description: existingComponent.description || '',
+              version: existingComponent.version || ''
+            });
+
+            // Update specifications with preconditions and postconditions
+            setSpecifications(prev => ({
+              ...prev,
+              preconditions: existingComponent.preconditions && existingComponent.preconditions.length > 0 ? existingComponent.preconditions : [''],
+              postconditions: existingComponent.postconditions && existingComponent.postconditions.length > 0 ? existingComponent.postconditions : ['']
+            }));
+
+            // Fetch flows
+            const flows = await DiagramUseCaseSpecificationService.getSpecificationsByUseCaseId(existingComponent.id);
+            if (flows && flows.length > 0) {
+              setSpecifications(prev => ({
+                ...prev,
+                flows: flows.map(flow => ({
+                  id: flow.id,
+                  type: flow.type,
+                  name: flow.name,
+                  entry_point: flow.entry_point || '',
+                  exit_point: flow.exit_point || '',
+                  steps: flow.steps || []
+                }))
+              }));
+            } else {
+              // If no flows found, ensure we have at least the initial normal flow
+              setSpecifications(prev => ({
+                ...prev,
+                flows: [initialNormalFlow]
+              }));
+            }
+          } else {
+            // If no existing component, just set the initial data
+            setUseCaseData({
+              ...DEFAULT_USE_CASE,
+              id: nodeData.id,
+              name: nodeData.label || '',
+            });
+            
+            setSpecifications({
+              preconditions: [''],
+              postconditions: [''],
+              flows: [initialNormalFlow]
+            });
+          }
+        } catch (error) {
+          console.error('Error fetching use case data:', error);
+          setError('Failed to load use case data. Please try again.');
+          toast.error('Failed to load use case data');
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+  }, [nodeData, projectId, sprintId]);
 
   const handleDataChange = (changes: Partial<UseCaseData>) => {
     setUseCaseData(prev => ({
@@ -76,6 +140,67 @@ export const UseCaseModal: React.FC = () => {
   };
 
   if (!isOpen || !nodeData) return null;
+
+  if (isLoading) {
+    return (
+      <div style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 999999,
+        width: "800px",
+        backgroundColor: "white",
+        borderRadius: "12px",
+        boxShadow: "rgba(0, 0, 0, 0.08) 0px 4px 12px, rgba(0, 0, 0, 0.05) 0px 1px 4px",
+        color: "#000000",
+        height: "600px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <div>Loading use case data...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 999999,
+        width: "800px",
+        backgroundColor: "white",
+        borderRadius: "12px",
+        boxShadow: "rgba(0, 0, 0, 0.08) 0px 4px 12px, rgba(0, 0, 0, 0.05) 0px 1px 4px",
+        color: "#000000",
+        height: "600px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px"
+      }}>
+        <div style={{ color: "#ef4444", marginBottom: "16px" }}>{error}</div>
+        <button
+          onClick={closeModal}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#2563eb",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer"
+          }}
+        >
+          Close
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div

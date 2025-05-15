@@ -6,7 +6,6 @@ import diagramComponentsRoutes from './routes/diagramComponentsRoutes';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import diagramUseCaseSpecificationRoutes from './routes/diagramUseCaseSpecificationRoutes';
-import diagramUseCaseSpecificationFlowRoutes from './routes/diagramUseCaseSpecificationFlowRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -36,8 +35,7 @@ app.use(express.static(path.join(__dirname, '../../public')));
 // Routes
 app.use('/api/diagrams', diagramRoutes);
 app.use('/api/diagram-components', diagramComponentsRoutes);
-app.use('/api/diagram-usecase-specification-flows', diagramUseCaseSpecificationRoutes);
-app.use('/api/diagram-usecase-specifications', diagramUseCaseSpecificationFlowRoutes);
+app.use('/api/diagram-usecase-specifications', diagramUseCaseSpecificationRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

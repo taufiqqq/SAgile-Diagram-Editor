@@ -78,8 +78,8 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
           description: useCaseData.description || null,
           version: useCaseData.version || null,
           deletable: true,
-          preconditions: specifications?.preconditions || [],
-          postconditions: specifications?.postconditions || [],
+          preconditions: specifications?.preconditions.filter(p => p.trim() !== '') || [],
+          postconditions: specifications?.postconditions.filter(p => p.trim() !== '') || [],
           created_by: 'system',
           last_updated_by: 'system'
         }
