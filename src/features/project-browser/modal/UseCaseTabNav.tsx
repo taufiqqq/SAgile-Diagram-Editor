@@ -79,7 +79,9 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
           version: useCaseData.version || null,
           deletable: true,
           preconditions: specifications?.preconditions || [],
-          postconditions: specifications?.postconditions || []
+          postconditions: specifications?.postconditions || [],
+          created_by: 'system',
+          last_updated_by: 'system'
         }
       );
 

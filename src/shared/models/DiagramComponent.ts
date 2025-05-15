@@ -97,6 +97,17 @@ export class DiagramComponentModel {
 
   static async update(id: string, data: Partial<Omit<DiagramComponentRow, 'id' | 'created_at' | 'updated_at'>>): Promise<DiagramComponentRow | null> {
     const { name, description, version, deletable, last_updated_by, preconditions, postconditions } = data;
+    console.log('DiagramComponentModel.update - Input data:', {
+      id,
+      name,
+      description,
+      version,
+      deletable,
+      last_updated_by,
+      preconditions,
+      postconditions
+    });
+
     const updates: string[] = [];
     const values: (string | number | boolean | null)[] = [];
 
@@ -129,17 +140,24 @@ export class DiagramComponentModel {
       values.push(JSON.stringify(postconditions));
     }
 
+    console.log('DiagramComponentModel.update - SQL updates:', updates);
+    console.log('DiagramComponentModel.update - SQL values:', values);
+
     if (updates.length === 0) {
       return this.findById(id);
     }
 
     values.push(id);
-    await pool.query<ResultSetHeader>(
-      `UPDATE diagram_components SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      values
-    );
+    const query = `UPDATE diagram_components SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    console.log('DiagramComponentModel.update - SQL query:', query);
+    console.log('DiagramComponentModel.update - SQL values:', values);
+
+    const [result] = await pool.query<ResultSetHeader>(query, values);
+    console.log('DiagramComponentModel.update - Update result:', result);
     
-    return this.findById(id);
+    const updatedComponent = await this.findById(id);
+    console.log('DiagramComponentModel.update - Updated component:', updatedComponent);
+    return updatedComponent;
   }
 
   static async delete(id: string): Promise<boolean> {

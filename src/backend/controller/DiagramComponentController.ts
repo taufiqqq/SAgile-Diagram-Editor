@@ -8,6 +8,10 @@ interface CreateComponentBody {
   description?: string;
   version?: string;
   deletable?: boolean;
+  preconditions?: string[];
+  postconditions?: string[];
+  created_by?: string;
+  last_updated_by?: string;
 }
 
 interface UpdateComponentBody {
@@ -15,15 +19,32 @@ interface UpdateComponentBody {
   description?: string;
   version?: string;
   deletable?: boolean;
+  preconditions?: string[];
+  postconditions?: string[];
+  last_updated_by?: string;
 }
 
 export class DiagramComponentController {
   static async getOrCreate(req: Request<{}, {}, CreateComponentBody>, res: Response): Promise<void> {
     try {
-      const { node_id, diagram_id, name, description, version, deletable } = req.body;
+      const { node_id, diagram_id, name, description, version, deletable, preconditions, postconditions, created_by, last_updated_by } = req.body;
+      
+      console.log('getOrCreate - Request body:', {
+        node_id,
+        diagram_id,
+        name,
+        description,
+        version,
+        deletable,
+        preconditions,
+        postconditions,
+        created_by,
+        last_updated_by
+      });
 
       // Check if component already exists
       const existingComponent = await DiagramComponentModel.findByNodeAndDiagram(node_id, diagram_id);
+      console.log('getOrCreate - Existing component:', existingComponent);
 
       if (existingComponent) {
         // Update existing component
@@ -31,9 +52,14 @@ export class DiagramComponentController {
           name,
           description: description || null,
           version: version || null,
-          deletable: deletable ?? true
+          deletable: deletable ?? true,
+          preconditions: preconditions || [],
+          postconditions: postconditions || [],
+          last_updated_by: last_updated_by || 'system'
         };
+        console.log('getOrCreate - Update data:', updateData);
         const updatedComponent = await DiagramComponentModel.update(existingComponent.id, updateData);
+        console.log('getOrCreate - Updated component:', updatedComponent);
         res.json({ success: true, data: updatedComponent });
         return;
       }
@@ -45,8 +71,13 @@ export class DiagramComponentController {
         name,
         description: description || null,
         version: version || null,
-        deletable: deletable ?? true
+        deletable: deletable ?? true,
+        preconditions: preconditions || [],
+        postconditions: postconditions || [],
+        created_by: created_by || 'system',
+        last_updated_by: last_updated_by || 'system'
       });
+      console.log('getOrCreate - New component:', newComponent);
 
       res.json({ success: true, data: newComponent });
     } catch (error) {
@@ -71,12 +102,15 @@ export class DiagramComponentController {
 
   static async update(req: Request<{ id: string }, {}, UpdateComponentBody>, res: Response): Promise<void> {
     try {
-      const { name, description, version, deletable } = req.body;
+      const { name, description, version, deletable, preconditions, postconditions, last_updated_by } = req.body;
       const updateData: Partial<Omit<DiagramComponentRow, 'id' | 'created_at' | 'updated_at'>> = {
         name,
         description: description || null,
         version: version || null,
-        deletable
+        deletable,
+        preconditions,
+        postconditions,
+        last_updated_by: last_updated_by || 'system'
       };
 
       const updatedComponent = await DiagramComponentModel.update(req.params.id, updateData);
