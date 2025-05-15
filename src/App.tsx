@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { DnDProvider } from './features/diagram-editing';
 import { ModalProvider } from './shared/context/ModalContext';
-import { GlobalModal } from './shared/components/GlobalModal';
+import { UseCaseModal } from './shared/components/UseCaseModal';
 import Canvas from './shared/components/CanvasContainer';
 
 function App() {
@@ -36,7 +36,7 @@ function App() {
                 <ModalProvider>
                   <DnDProvider>
                     <Canvas />
-                    <GlobalModal />
+                    <UseCaseModal />
                   </DnDProvider>
                 </ModalProvider>
               </ReactFlowProvider>
@@ -53,7 +53,7 @@ function App() {
                 <ModalProvider>
                   <DnDProvider>
                     <Canvas />
-                    <GlobalModal />
+                    <UseCaseModal />
                   </DnDProvider>
                 </ModalProvider>
               </ReactFlowProvider>

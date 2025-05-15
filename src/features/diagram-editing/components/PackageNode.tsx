@@ -1,13 +1,13 @@
 import React from "react";
 import { memo } from "react";
-import { DiagramElementdata } from "../types/DiagramElementType.types";
+import { DiagramElementData } from "../types/DiagramElementType.types";
 import { NodeResizer, useReactFlow } from "@xyflow/react";
 import { useNodeDimensions } from "../hooks/useNodeDimensions";
 import { PackageHtml } from "../utils/shapes-html/Package-html";
 
 interface PackageNodeProps {
   id: string;
-  data: DiagramElementdata;
+  data: DiagramElementData;
   selected?: boolean;
 }
 
@@ -39,7 +39,7 @@ const PackageNode: React.FC<PackageNodeProps> = ({ id, data, selected = false })
     >
       <NodeResizer
         color="#555"
-        isVisible={selected}
+      isVisible={selected}
         minWidth={200}
         minHeight={100}
       />

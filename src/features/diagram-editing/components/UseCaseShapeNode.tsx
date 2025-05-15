@@ -1,13 +1,13 @@
 import React from 'react';
 import { Handle, Position, useReactFlow, NodeToolbar } from '@xyflow/react';
-import { DiagramElementdata } from '../types/DiagramElementType.types';
+import { DiagramElementData } from '../types/DiagramElementType.types';
 import { ActorHtml } from '../utils/shapes-html/Actor-html';
 import { UseCaseHtml } from '../utils/shapes-html/UseCase-html';
 import { useModal } from '../../../shared/context/ModalContext';
 
 interface UseCaseShapeNodeProps {
   id: string;
-  data: DiagramElementdata;
+  data: DiagramElementData;
   selected?: boolean;
   isConnectable?: boolean;
 }

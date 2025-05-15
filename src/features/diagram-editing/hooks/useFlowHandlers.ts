@@ -50,7 +50,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
         x: position.x - 75,
         y: position.y - 50,
       };
-console.log("onDrop", diagramElementType);
+
       const newNode: DiagramElementNode = {
         id: `${diagramElementType}-${Date.now()}`,
         type: diagramElementType,
@@ -59,6 +59,7 @@ console.log("onDrop", diagramElementType);
           type: shapeType,
           label: '',
         },
+        zIndex: shapeType === 'package' ? -10 : undefined,
       };
 
       return newNode;

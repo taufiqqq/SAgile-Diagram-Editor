@@ -26,7 +26,7 @@ import { useParams } from "react-router-dom";
 import {
   fetchDiagramData,
   saveDiagramData,
-} from "../../features/diagram-editing/services/diagramService";
+} from "../../features/diagram-editing/services/diagramApiService";
 import { toast } from "react-toastify";
 
 import RightSidebar from "./RightSidebar";

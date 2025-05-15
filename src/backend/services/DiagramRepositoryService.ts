@@ -1,4 +1,4 @@
-import { Diagram, DiagramModel } from '../models/Diagram';
+import { Diagram, DiagramModel } from '../../shared/models/Diagram';
 import { RowDataPacket } from 'mysql2';
 
 export class DiagramService {
