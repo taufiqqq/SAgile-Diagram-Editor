@@ -5,16 +5,44 @@ import { UseCaseData, UseCaseTab, DEFAULT_USE_CASE } from "../../features/diagra
 import { UseCaseDetailsForm } from "../../features/project-browser/modal/UseCaseDetailsForm";
 import { UseCaseSpecifications } from "../../features/project-browser/modal/UseCaseSpecifications";
 
-interface SpecificationsMap {
-  [useCaseId: string]: string[];
+interface FlowStep {
+  id: string;
+  description: string;
 }
+
+interface SequenceFlow {
+  id: string;
+  type: 'NORMAL' | 'ALTERNATIVE' | 'EXCEPTION';
+  name: string;
+  entry_point?: string;
+  exit_point?: string;
+  steps: FlowStep[];
+}
+
+interface SpecificationsData {
+  preconditions: string[];
+  postconditions: string[];
+  flows: SequenceFlow[];
+}
+
+const initialNormalFlow: SequenceFlow = {
+  id: 'normal',
+  type: 'NORMAL',
+  name: 'Normal flow',
+  steps: [{ id: 'step-1', description: '' }],
+};
 
 export const UseCaseModal: React.FC = () => {
   const { isOpen, nodeData, closeModal } = useModal();
   const [activeTab, setActiveTab] = useState<UseCaseTab>('Details');
   const [useCaseData, setUseCaseData] = useState<UseCaseData>(DEFAULT_USE_CASE);
-  const [specificationsMap, setSpecificationsMap] = useState<SpecificationsMap>({});
+  const [specifications, setSpecifications] = useState<SpecificationsData>({
+    preconditions: [''],
+    postconditions: [''],
+    flows: [initialNormalFlow]
+  });
 
+  // Initialize state when modal opens
   useEffect(() => {
     if (nodeData) {
       setUseCaseData({
@@ -23,13 +51,12 @@ export const UseCaseModal: React.FC = () => {
         name: nodeData.label || '',
       });
       
-      // Initialize specifications for this use case if not exists
-      if (!specificationsMap[nodeData.id]) {
-        setSpecificationsMap(prev => ({
-          ...prev,
-          [nodeData.id]: ['']
-        }));
-      }
+      // Reset specifications when modal opens
+      setSpecifications({
+        preconditions: [''],
+        postconditions: [''],
+        flows: [initialNormalFlow]
+      });
     }
   }, [nodeData]);
 
@@ -41,18 +68,14 @@ export const UseCaseModal: React.FC = () => {
     }));
   };
 
-  const handleSpecificationsChange = (newSpecs: string[]) => {
-    if (!nodeData) return;
-    
-    setSpecificationsMap(prev => ({
+  const handleSpecificationsChange = (changes: Partial<SpecificationsData>) => {
+    setSpecifications(prev => ({
       ...prev,
-      [nodeData.id]: newSpecs
+      ...changes
     }));
   };
 
   if (!isOpen || !nodeData) return null;
-
-  const currentSpecifications = specificationsMap[nodeData.id] || [''];
 
   return (
     <div
@@ -134,7 +157,7 @@ export const UseCaseModal: React.FC = () => {
           )}
           {activeTab === 'Specifications' && (
             <UseCaseSpecifications
-              specifications={currentSpecifications}
+              specifications={specifications}
               onChange={handleSpecificationsChange}
             />
           )}

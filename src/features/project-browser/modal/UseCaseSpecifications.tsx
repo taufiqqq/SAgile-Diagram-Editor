@@ -16,23 +16,22 @@ interface SequenceFlow {
   steps: FlowStep[];
 }
 
-interface UseCaseSpecificationsProps {
-  specifications: any; // To be typed later
-  onChange: (specs: any) => void;
+interface SpecificationsData {
+  preconditions: string[];
+  postconditions: string[];
+  flows: SequenceFlow[];
 }
 
-const initialNormalFlow: SequenceFlow = {
-  id: 'normal',
-  type: 'NORMAL',
-  name: 'Normal flow',
-  steps: [{ id: 'step-1', description: 'Step 1' }],
-};
+interface UseCaseSpecificationsProps {
+  specifications: SpecificationsData;
+  onChange: (changes: Partial<SpecificationsData>) => void;
+}
 
-export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ specifications, onChange }) => {
+export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ 
+  specifications, 
+  onChange 
+}) => {
   const [activeTab, setActiveTab] = useState<'PREPOST' | string>('PREPOST');
-  const [preconditions, setPreconditions] = useState<string[]>(['']);
-  const [postconditions, setPostconditions] = useState<string[]>(['']);
-  const [flows, setFlows] = useState<SequenceFlow[]>([initialNormalFlow]);
 
   const handleAddFlow = (type: FlowType) => {
     const newFlow: SequenceFlow = {
@@ -41,37 +40,43 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
       name: type === 'ALTERNATIVE' ? 'Alternative flow' : 'Exception flow',
       entry_point: '',
       exit_point: '',
-      steps: [{ id: `step-1`, description: 'Step 1' }],
+      steps: [{ id: `step-1`, description: '' }],
     };
-    setFlows(prev => [...prev, newFlow]);
+    onChange({ flows: [...specifications.flows, newFlow] });
     setActiveTab(newFlow.id);
   };
 
   const handleAddStep = (flowId: string) => {
-    setFlows(prev => prev.map(flow =>
-      flow.id === flowId
-        ? { ...flow, steps: [...flow.steps, { id: `step-${flow.steps.length + 1}`, description: '' }] }
-        : flow
-    ));
+    onChange({
+      flows: specifications.flows.map(flow =>
+        flow.id === flowId
+          ? { ...flow, steps: [...flow.steps, { id: `step-${flow.steps.length + 1}`, description: '' }] }
+          : flow
+      )
+    });
   };
 
   const handleStepChange = (flowId: string, stepIdx: number, value: string) => {
-    setFlows(prev => prev.map(flow =>
-      flow.id === flowId
-        ? {
-            ...flow,
-            steps: flow.steps.map((step, idx) => idx === stepIdx ? { ...step, description: value } : step)
-          }
-        : flow
-    ));
+    onChange({
+      flows: specifications.flows.map(flow =>
+        flow.id === flowId
+          ? {
+              ...flow,
+              steps: flow.steps.map((step, idx) => idx === stepIdx ? { ...step, description: value } : step)
+            }
+          : flow
+      )
+    });
   };
 
   const handleRemoveStep = (flowId: string, stepIdx: number) => {
-    setFlows(prev => prev.map(flow =>
-      flow.id === flowId
-        ? { ...flow, steps: flow.steps.filter((_, idx) => idx !== stepIdx) }
-        : flow
-    ));
+    onChange({
+      flows: specifications.flows.map(flow =>
+        flow.id === flowId
+          ? { ...flow, steps: flow.steps.filter((_, idx) => idx !== stepIdx) }
+          : flow
+      )
+    });
   };
 
   // Dropdown for adding new flow
@@ -98,7 +103,7 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
         >
           Pre&Post condition
         </button>
-        {flows.map(flow => (
+        {specifications.flows.map(flow => (
           <button
             key={flow.id}
             style={{
@@ -119,45 +124,46 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
             {flow.name}
           </button>
         ))}
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <button
-            style={{
-              border: 'none',
-              background: '#f3f4f6',
-              color: '#2563eb',
-              padding: '8px 16px',
-              borderRadius: 999,
-              fontWeight: 700,
-              fontSize: 20,
-              marginLeft: 2,
-              cursor: 'pointer',
-              boxShadow: '0 1px 4px #2563eb11',
-              transition: 'background 0.2s, color 0.2s'
-            }}
-            onClick={() => setShowDropdown(d => !d)}
-            title="Add flow"
-          >
-            +
-          </button>
-          {showDropdown && (
-            <div style={{ position: 'absolute', top: '110%', left: 0, background: 'white', border: '1px solid #d1d5db', borderRadius: 8, zIndex: 10, minWidth: 160, boxShadow: '0 2px 8px #0001' }}>
-              <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#2563eb', fontWeight: 500 }} onClick={() => { handleAddFlow('ALTERNATIVE'); setShowDropdown(false); }}>Alternative Flow</div>
-              <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#ef4444', fontWeight: 500 }} onClick={() => { handleAddFlow('EXCEPTION'); setShowDropdown(false); }}>Exception Flow</div>
-            </div>
-          )}
-        </div>
+        <button
+          style={{
+            border: 'none',
+            background: '#f3f4f6',
+            color: '#2563eb',
+            padding: '8px 16px',
+            borderRadius: 999,
+            fontWeight: 700,
+            fontSize: 20,
+            marginLeft: 2,
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px #2563eb11',
+            transition: 'background 0.2s, color 0.2s'
+          }}
+          onClick={() => setShowDropdown(d => !d)}
+          title="Add flow"
+        >
+          +
+        </button>
+        {showDropdown && (
+          <div style={{ position: 'absolute', top: '110%', left: 0, background: 'white', border: '1px solid #d1d5db', borderRadius: 8, zIndex: 10, minWidth: 160, boxShadow: '0 2px 8px #0001' }}>
+            <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#2563eb', fontWeight: 500 }} onClick={() => { handleAddFlow('ALTERNATIVE'); setShowDropdown(false); }}>Alternative Flow</div>
+            <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#ef4444', fontWeight: 500 }} onClick={() => { handleAddFlow('EXCEPTION'); setShowDropdown(false); }}>Exception Flow</div>
+          </div>
+        )}
       </div>
+
       {/* Tab content */}
       {activeTab === 'PREPOST' && (
         <div style={{ maxWidth: 600 }}>
           <div style={{ marginBottom: 24 }}>
             <label style={{ fontWeight: 600, marginBottom: 10, display: 'block', fontSize: 16 }}>Preconditions</label>
-            {preconditions.map((cond, idx) => (
+            {specifications.preconditions.map((cond, idx) => (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
                 <input
                   type="text"
                   value={cond}
-                  onChange={e => setPreconditions(prev => prev.map((c, i) => i === idx ? e.target.value : c))}
+                  onChange={e => onChange({
+                    preconditions: specifications.preconditions.map((c, i) => i === idx ? e.target.value : c)
+                  })}
                   style={{
                     flex: 1,
                     marginRight: 8,
@@ -171,7 +177,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
                   placeholder={`Precondition ${idx + 1}`}
                 />
                 <button
-                  onClick={() => setPreconditions(prev => prev.filter((_, i) => i !== idx))}
+                  onClick={() => onChange({
+                    preconditions: specifications.preconditions.filter((_, i) => i !== idx)
+                  })}
                   style={{
                     color: '#ef4444',
                     border: 'none',
@@ -185,7 +193,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
               </div>
             ))}
             <button
-              onClick={() => setPreconditions(prev => [...prev, ''])}
+              onClick={() => onChange({
+                preconditions: [...specifications.preconditions, '']
+              })}
               style={{
                 marginTop: 8,
                 fontSize: 15,
@@ -204,12 +214,14 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
           </div>
           <div>
             <label style={{ fontWeight: 600, marginBottom: 10, display: 'block', fontSize: 16 }}>Postconditions</label>
-            {postconditions.map((cond, idx) => (
+            {specifications.postconditions.map((cond, idx) => (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
                 <input
                   type="text"
                   value={cond}
-                  onChange={e => setPostconditions(prev => prev.map((c, i) => i === idx ? e.target.value : c))}
+                  onChange={e => onChange({
+                    postconditions: specifications.postconditions.map((c, i) => i === idx ? e.target.value : c)
+                  })}
                   style={{
                     flex: 1,
                     marginRight: 8,
@@ -223,7 +235,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
                   placeholder={`Postcondition ${idx + 1}`}
                 />
                 <button
-                  onClick={() => setPostconditions(prev => prev.filter((_, i) => i !== idx))}
+                  onClick={() => onChange({
+                    postconditions: specifications.postconditions.filter((_, i) => i !== idx)
+                  })}
                   style={{
                     color: '#ef4444',
                     border: 'none',
@@ -237,7 +251,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
               </div>
             ))}
             <button
-              onClick={() => setPostconditions(prev => [...prev, ''])}
+              onClick={() => onChange({
+                postconditions: [...specifications.postconditions, '']
+              })}
               style={{
                 marginTop: 8,
                 fontSize: 15,
@@ -256,11 +272,12 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
           </div>
         </div>
       )}
-      {activeTab !== 'PREPOST' && flows.find(f => f.id === activeTab) && (
+
+      {activeTab !== 'PREPOST' && (
         <div style={{ maxWidth: 600 }}>
           <div style={{ marginBottom: 18 }}>
             <label style={{ fontWeight: 600, marginBottom: 10, display: 'block', fontSize: 16 }}>Sequence Steps</label>
-            {flows.find(f => f.id === activeTab)?.steps.map((step, idx) => (
+            {specifications.flows.find(f => f.id === activeTab)?.steps.map((step, idx) => (
               <div key={step.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
                 <input
                   type="text"
@@ -305,10 +322,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ sp
                 fontWeight: 600,
                 cursor: 'pointer',
                 boxShadow: '0 1px 4px #2563eb22',
-                transition: 'background 0.2s, color 0.2s',
-                marginBottom: 8
+                transition: 'background 0.2s, color 0.2s'
               }}
-            >+ Add Step</button>
+            >+ Add step</button>
           </div>
         </div>
       )}

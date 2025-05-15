@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import pool from '../server/config/database';
+import pool from '../../backend/config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export enum FlowType {

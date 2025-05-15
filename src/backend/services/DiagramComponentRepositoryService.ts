@@ -1,4 +1,4 @@
-import { DiagramComponent } from '../models/DiagramComponent';
+import { DiagramComponent } from '../../shared/models/DiagramComponent';
 
 export interface ComponentUpdateData {
   name?: string;

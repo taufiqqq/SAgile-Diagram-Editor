@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { DiagramService } from '../../services/DiagramService';
+import { DiagramService } from '../services/DiagramRepositoryService';
 import { parsePlantUML } from "../../features/parsing/plantuml-use-case/GenerateNodes";
 
-import { Diagram } from '../../models/Diagram';
+import { Diagram } from '../../shared/models/Diagram';
 import pool from '../config/database';
 
 export class DiagramController {

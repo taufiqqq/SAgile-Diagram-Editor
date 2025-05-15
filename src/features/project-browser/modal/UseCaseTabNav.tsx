@@ -3,10 +3,10 @@ import { UseCaseTab } from '../../diagram-editing/types/UseCaseTypes';
 import { useReactFlow } from '@xyflow/react';
 import { useModal } from '../../../shared/context/ModalContext';
 import { useParams } from 'react-router-dom';
-import { saveDiagramData } from '../../diagram-editing/services/diagramService';
+import { saveDiagramData } from '../../diagram-editing/services/diagramApiService';
 import { toast } from 'react-toastify';
 import { ParsedEdge, ShapeNode } from '../../diagram-editing/types';
-import { DiagramComponentService } from '../../../services/DiagramComponentService';
+import { DiagramComponentService } from '../../../backend/services/DiagramComponentRepositoryService';
 
 interface UseCaseTabNavProps {
   activeTab: UseCaseTab;
