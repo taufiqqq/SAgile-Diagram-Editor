@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export type FlowType = 'NORMAL' | 'ALTERNATIVE' | 'EXCEPTION';
 
@@ -32,6 +32,21 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
   onChange 
 }) => {
   const [activeTab, setActiveTab] = useState<'PREPOST' | string>('PREPOST');
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleAddFlow = (type: FlowType) => {
     const newFlow: SequenceFlow = {
@@ -79,12 +94,9 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
     });
   };
 
-  // Dropdown for adding new flow
-  const [showDropdown, setShowDropdown] = useState(false);
-
   return (
     <div style={{ padding: '24px 32px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24, position: 'relative' }}>
         <button
           style={{
             border: 'none',
@@ -124,31 +136,66 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
             {flow.name}
           </button>
         ))}
-        <button
-          style={{
-            border: 'none',
-            background: '#f3f4f6',
-            color: '#2563eb',
-            padding: '8px 16px',
-            borderRadius: 999,
-            fontWeight: 700,
-            fontSize: 20,
-            marginLeft: 2,
-            cursor: 'pointer',
-            boxShadow: '0 1px 4px #2563eb11',
-            transition: 'background 0.2s, color 0.2s'
-          }}
-          onClick={() => setShowDropdown(d => !d)}
-          title="Add flow"
-        >
-          +
-        </button>
-        {showDropdown && (
-          <div style={{ position: 'absolute', top: '110%', left: 0, background: 'white', border: '1px solid #d1d5db', borderRadius: 8, zIndex: 10, minWidth: 160, boxShadow: '0 2px 8px #0001' }}>
-            <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#2563eb', fontWeight: 500 }} onClick={() => { handleAddFlow('ALTERNATIVE'); setShowDropdown(false); }}>Alternative Flow</div>
-            <div style={{ padding: 12, cursor: 'pointer', fontSize: 15, color: '#ef4444', fontWeight: 500 }} onClick={() => { handleAddFlow('EXCEPTION'); setShowDropdown(false); }}>Exception Flow</div>
-          </div>
-        )}
+        <div ref={dropdownRef} style={{ position: 'relative' }}>
+          <button
+            style={{
+              border: 'none',
+              background: '#f3f4f6',
+              color: '#2563eb',
+              padding: '8px 16px',
+              borderRadius: 999,
+              fontWeight: 700,
+              fontSize: 20,
+              marginLeft: 2,
+              cursor: 'pointer',
+              boxShadow: '0 1px 4px #2563eb11',
+              transition: 'background 0.2s, color 0.2s'
+            }}
+            onClick={() => setShowDropdown(d => !d)}
+            title="Add flow"
+          >
+            +
+          </button>
+          {showDropdown && (
+            <div style={{ 
+              position: 'absolute', 
+              top: '100%', 
+              right: 0, 
+              background: 'white', 
+              border: '1px solid #d1d5db', 
+              borderRadius: 8, 
+              zIndex: 1000, 
+              minWidth: 160, 
+              boxShadow: '0 2px 8px #0001',
+              marginTop: 4
+            }}>
+              <div 
+                style={{ 
+                  padding: 12, 
+                  cursor: 'pointer', 
+                  fontSize: 15, 
+                  color: '#2563eb', 
+                  fontWeight: 500
+                }} 
+                onClick={() => { handleAddFlow('ALTERNATIVE'); setShowDropdown(false); }}
+              >
+                Alternative Flow
+              </div>
+              <div 
+                style={{ 
+                  padding: 12, 
+                  cursor: 'pointer', 
+                  fontSize: 15, 
+                  color: '#ef4444', 
+                  fontWeight: 500
+                }} 
+                onClick={() => { handleAddFlow('EXCEPTION'); setShowDropdown(false); }}
+              >
+                Exception Flow
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tab content */}

@@ -11,6 +11,6 @@ CREATE TABLE IF NOT EXISTS diagram_components (
     preconditions JSON,
     postconditions JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_node_diagram (node_id, diagram_id)
 ); 
