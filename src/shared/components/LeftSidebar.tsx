@@ -69,7 +69,7 @@ const Sidebar: React.FC = () => {
       icon: (
         <div style={{ display: 'flex', alignItems: 'center', width: 64 }}>
           <div style={{ flex: 1, borderTop: "2px dashed #222", height: 0, marginRight: 4 }} />
-          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: '#fff', padding: '0 2px' }}>«extends»</span>
+          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: 'transparent' }}>«extends»</span>
         </div>
       ),
     },
@@ -79,7 +79,7 @@ const Sidebar: React.FC = () => {
       icon: (
         <div style={{ display: 'flex', alignItems: 'center', width: 64 }}>
           <div style={{ flex: 1, borderTop: "2px dashed #222", height: 0, marginRight: 4 }} />
-          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: '#fff', padding: '0 2px' }}>«include»</span>
+          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: 'transparent' }}>«include»</span>
         </div>
       ),
     },
@@ -141,7 +141,7 @@ const Sidebar: React.FC = () => {
           marginBottom: 8,
         }}
       >
-        <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 2 }}>
+        <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 2, color: "black"}}>
           Use Case Diagram
         </div>
       </div>
@@ -176,8 +176,10 @@ const Sidebar: React.FC = () => {
             {nodeFactory.createDraggableNode("usecaseshape", "actor", onDragStart)}
             {nodeFactory.createDraggableNode("package", "package", onDragStart)}
         </div>
+
+
         {/* Edge/Line Types */}
-        <div
+<div
           style={{
             marginBottom: 4,
             fontWeight: 500,
@@ -187,7 +189,24 @@ const Sidebar: React.FC = () => {
         >
           Edges/Relations
         </div>
-        {edgeTypes.map((edge) => (
+        <div
+          style={{
+            border: "1px solid #b0b0b0",
+            borderRadius: 8,
+            background: "#fafbfc",
+            padding: "16px 12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+            marginBottom: 18,
+            height: "40%",
+            minHeight: 120,
+            maxHeight: "50%",
+            overflowY: "auto",
+            color: '#111',
+          }}
+        >
+            {edgeTypes.map((edge) => (
           <div
             key={edge.key}
             style={{
@@ -202,6 +221,9 @@ const Sidebar: React.FC = () => {
             <span style={{ fontSize: 14, color: '#111', whiteSpace: 'nowrap' }}>{edge.label}</span>
           </div>
         ))}
+        </div>
+        
+        
       </div>
     </div>
   );
