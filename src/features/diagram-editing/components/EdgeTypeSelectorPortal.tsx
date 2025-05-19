@@ -154,7 +154,35 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
       >
         Generalization
       </button>
-      
+      <button
+        onClick={() => handleTypeChange('composition')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '4px',
+          background: currentType === 'composition' ? '#A78BFA' : 'white', // purple-400
+          color: currentType === 'composition' ? 'white' : 'black',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Composition
+      </button>
+      <button
+        onClick={() => handleTypeChange('aggregation')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '4px',
+          background: currentType === 'aggregation' ? '#FEF9C3' : 'white', // light yellow
+          color: currentType === 'aggregation' ? '#92400E' : 'black', // dark yellow text if selected
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Aggregation
+      </button>
+
     </div>,
     document.body
   );

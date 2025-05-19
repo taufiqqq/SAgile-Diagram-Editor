@@ -3,8 +3,10 @@ import GeneralizationEdge from '../utils/edges-react-flow/GeneralizationEdge';
 import AssociationEdge from '../utils/edges-react-flow/AssociationEdge';
 import IncludeEdge from '../utils/edges-react-flow/IncludeEdge';
 import ExcludeEdge from '../utils/edges-react-flow/ExcludeEdge';
+import CompositionEdge from '../utils/edges-react-flow/CompositionEdge';
+import AggregationEdge from '../utils/edges-react-flow/AggregationEdge';
 
-export type EdgeType = 'association' | 'include' | 'exclude' | 'generalization';
+export type EdgeType = string;
 
 export interface EdgeData {
   type: EdgeType;
@@ -14,8 +16,9 @@ export interface EdgeData {
 export const edgeTypes = {
   default: AssociationEdge,
   straight: AssociationEdge,
-  // custom: AssociationEdge,
+  composition: CompositionEdge,
   association: AssociationEdge,
+  aggregation: AggregationEdge,
   include: IncludeEdge,
   exclude: ExcludeEdge,
   generalization: GeneralizationEdge
