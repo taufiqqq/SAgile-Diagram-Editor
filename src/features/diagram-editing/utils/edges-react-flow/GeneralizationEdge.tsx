@@ -118,9 +118,6 @@ const GeneralizationEdge: React.FC<EdgeProps> = ({
     tipY -
     size * Math.sin(angle + Math.PI) +
     (size / 2) * Math.cos(angle + Math.PI);
-  console.log("baseLeftX", baseLeftX);
-  console.log("baseLeftY", baseLeftY);
-  console.log("baseRightX", baseRightX);
   return (
     <g>
       <path
