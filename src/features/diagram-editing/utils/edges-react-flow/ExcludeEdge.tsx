@@ -25,14 +25,14 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
           markerHeight="6"
           orient="auto-start-reverse"
         >
-          <path d="M 0 0 L 10 5 L 0 10 z" fill="#EF4444" />
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#000000" />
         </marker>
       </defs>
       <path
         id={id}
         style={{
           ...style,
-          stroke: '#EF4444',
+          stroke: '#000000',
           strokeWidth: 2,
           fill: 'none',
           strokeDasharray: '5 5',
@@ -47,7 +47,7 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
         y={(sourceY + targetY) / 2 - 10}
         textAnchor="middle"
         style={{
-          fill: '#EF4444',
+          fill: '#000000',
           fontFamily: 'monospace',
           fontSize: '12px',
           pointerEvents: 'none',
