@@ -146,8 +146,8 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
           padding: '4px 8px',
           border: '1px solid #e5e7eb',
           borderRadius: '4px',
-          background: currentType === 'exclude' ? '#EF4444' : 'white',
-          color: currentType === 'exclude' ? 'white' : 'black',
+          background: currentType === 'generalization' ? '#06B6D4' : 'white', // cyan-500
+          color: currentType === 'generalization' ? 'white' : 'black',
           cursor: 'pointer',
           fontSize: '12px'
         }}
