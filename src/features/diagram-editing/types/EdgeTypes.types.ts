@@ -1,6 +1,8 @@
 import { Edge } from '@xyflow/react';
-import CustomEdge from '../components/CustomEdge';
-import GeneralizationEdge from '../components/GeneralizationEdge';
+import GeneralizationEdge from '../utils/edges-react-flow/GeneralizationEdge';
+import AssociationEdge from '../utils/edges-react-flow/AssociationEdge';
+import IncludeEdge from '../utils/edges-react-flow/IncludeEdge';
+import ExcludeEdge from '../utils/edges-react-flow/ExcludeEdge';
 
 export type EdgeType = 'association' | 'include' | 'exclude' | 'generalization';
 
@@ -9,12 +11,13 @@ export interface EdgeData {
   [key: string]: unknown;
 }
 
-export type CustomEdgeType = Edge<EdgeData>;
-
 export const edgeTypes = {
-  default: CustomEdge,
-  straight: CustomEdge,
-  custom: CustomEdge,
+  default: AssociationEdge,
+  straight: AssociationEdge,
+  // custom: AssociationEdge,
+  association: AssociationEdge,
+  include: IncludeEdge,
+  exclude: ExcludeEdge,
   generalization: GeneralizationEdge
 };
 
