@@ -1,9 +1,9 @@
-import React from 'react';
-import { Handle, Position, useReactFlow, NodeToolbar } from '@xyflow/react';
-import { DiagramElementData } from '../types/DiagramElementType.types';
-import { ActorHtml } from '../utils/shapes-html/Actor-html';
-import { UseCaseHtml } from '../utils/shapes-html/UseCase-html';
-import { useModal } from '../../../shared/context/ModalContext';
+import React from "react";
+import { Handle, Position, useReactFlow, NodeToolbar } from "@xyflow/react";
+import { DiagramElementData } from "../types/DiagramElementType.types";
+import { ActorHtml } from "../utils/shapes-html/Actor-html";
+import { UseCaseHtml } from "../utils/shapes-html/UseCase-html";
+import { useModal } from "../../../shared/context/ModalContext";
 
 interface UseCaseShapeNodeProps {
   id: string;
@@ -12,20 +12,25 @@ interface UseCaseShapeNodeProps {
   isConnectable?: boolean;
 }
 
-const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({ data, selected = false, isConnectable = true, id }) => {
+const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({
+  data,
+  selected = false,
+  isConnectable = true,
+  id,
+}) => {
   const { setNodes } = useReactFlow();
   const { openModal } = useModal();
 
   const handleLabelChange = (newLabel: string) => {
-    setNodes((nodes) => 
+    setNodes((nodes) =>
       nodes.map((node) => {
         if (node.id === id) {
           return {
             ...node,
             data: {
               ...node.data,
-              label: newLabel
-            }
+              label: newLabel,
+            },
           };
         }
         return node;
@@ -35,45 +40,56 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({ data, selected = fa
 
   const renderShape = () => {
     switch (data.type) {
-      case 'actor':
-        return <ActorHtml label={data.label} selected={selected} onLabelChange={handleLabelChange} />;
-      case 'usecase':
-        return <UseCaseHtml label={data.label} selected={selected} onLabelChange={handleLabelChange} />;
+      case "actor":
+        return (
+          <ActorHtml
+            label={data.label}
+            selected={selected}
+            onLabelChange={handleLabelChange}
+          />
+        );
+      case "usecase":
+        return (
+          <UseCaseHtml
+            label={data.label}
+            selected={selected}
+            onLabelChange={handleLabelChange}
+          />
+        );
       default:
         return null;
     }
   };
 
   const handleStyle = {
-    background: selected ? 'red' : '#555',
-    width: '8px',
-    height: '8px',
-    border: '1px solid #fff'
+    background: selected ? "red" : "#555",
+    width: "8px",
+    height: "8px",
+    border: "1px solid #fff",
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: "relative" }}>
       <NodeToolbar position={Position.Top} align="end">
         <button
           onClick={() => openModal({ type: data.type, label: data.label, id })}
           style={{
-            border: 'none',
-            background: '#000000',
-            cursor: 'pointer',
-            padding: '4px 8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderRadius: '4px',
-            color: 'white',
-            fontSize: '12px',
-            fontWeight: '500'
+            border: "none",
+            background: "#000000",
+            cursor: "pointer",
+            padding: "4px 8px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "4px",
+            color: "white",
+            fontSize: "12px",
+            fontWeight: "500",
           }}
         >
           Edit
         </button>
       </NodeToolbar>
-      
       <Handle
         id="left"
         type="source"
@@ -81,9 +97,16 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({ data, selected = fa
         style={handleStyle}
         isConnectable={isConnectable}
       />
-      
+      {data.type === "actor" && (
+        <Handle
+          id="top"
+          type="source"
+          position={Position.Top}
+          style={handleStyle}
+          isConnectable={isConnectable}
+        />
+      )}
       {renderShape()}
-      
       <Handle
         id="right"
         type="source"
@@ -91,8 +114,18 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({ data, selected = fa
         style={handleStyle}
         isConnectable={isConnectable}
       />
+      
+      {data.type === "actor" && (
+        <Handle
+          id="bottom"
+          type="source"
+          position={Position.Bottom}
+          style={handleStyle}
+          isConnectable={isConnectable}
+        />
+      )}
     </div>
   );
 };
 
-export default UseCaseShapeNode; 
+export default UseCaseShapeNode;
