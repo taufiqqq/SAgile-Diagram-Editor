@@ -53,7 +53,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       if (!projectId || !sprintId) {
         throw new Error('Project ID and Sprint ID are required');
       }
-
+      console.log("useCaseData", useCaseData);
       // Update the node data
       setNodes((nodes) =>
         nodes.map((node) => {
