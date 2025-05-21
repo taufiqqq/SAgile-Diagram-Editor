@@ -124,10 +124,7 @@ const Canvas: React.FC = () => {
   
       const sourceNode = nodes.find((n) => n.id === connection.source);
       const targetNode = nodes.find((n) => n.id === connection.target);
-      console.log("sourceNode", sourceNode);
-      console.log("targetNode", targetNode);
-      console.log("selectedEdgeType", selectedEdgeType);
-      // Use the selectedEdgeType from your state/context
+      
       if (
         selectedEdgeType === "association" &&
         sourceNode?.type === "usecaseshape" &&

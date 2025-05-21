@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
-import { useReactFlow, MarkerType } from '@xyflow/react';
+import React, { useState } from 'react';
+import { useReactFlow } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
 
 interface EdgeTypeSelectorPortalProps {
@@ -13,6 +12,15 @@ interface EdgeTypeSelectorPortalProps {
   currentType: EdgeType;
 }
 
+const EDGE_TYPES: EdgeType[] = [
+  'association',
+  'include',
+  'extend',
+  'generalization',
+  'composition',
+  'aggregation',
+];
+
 const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   id,
   selected,
@@ -23,168 +31,108 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   currentType,
 }) => {
   const { setEdges } = useReactFlow();
-  const [mounted, setMounted] = useState(false);
-  const [screenCoords, setScreenCoords] = useState({ x: 0, y: 0 });
+  const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
-  }, []);
+  if (!selected) return null;
 
-  useEffect(() => {
-    if (selected && mounted) {
-      // Calculate the center position of the edge
-      const centerX = (sourceX + targetX) / 2;
-      const centerY = (sourceY + targetY) / 2;
+  // Calculate the center position of the edge in flow coordinates
+  const centerX = (sourceX + targetX) / 2;
+  const centerY = (sourceY + targetY) / 2;
 
-      // Convert SVG coordinates to screen coordinates
-      const svgElement = document.querySelector('.react-flow__viewport');
-      if (svgElement) {
-        const svgRect = svgElement.getBoundingClientRect();
-        const transform = svgElement.getAttribute('transform');
-        
-        // Parse the transform matrix to get the scale and translation
-        let scale = 1;
-        let translateX = 0;
-        let translateY = 0;
-        
-        if (transform) {
-          const match = transform.match(/matrix\(([^,]+),([^,]+),([^,]+),([^,]+),([^,]+),([^,]+)\)/);
-          if (match) {
-            scale = parseFloat(match[1]);
-            translateX = parseFloat(match[5]);
-            translateY = parseFloat(match[6]);
-          }
-        }
-        
-        // Calculate screen coordinates
-        const screenX = svgRect.left + (centerX * scale + translateX);
-        const screenY = svgRect.top + (centerY * scale + translateY);
-        
-        setScreenCoords({ x: screenX, y: screenY });
-      }
-    }
-  }, [selected, mounted, sourceX, sourceY, targetX, targetY]);
+  // Define the dimensions for the foreignObject to contain the dropdown
+  // Adjust these based on your dropdown's actual size
+  const foWidth = 150; // Example width, make sure it's wide enough for the dropdown
+  const foHeight = open ? 200 : 32; // Height needed for button vs open dropdown
+
+  // Position the foreignObject
+  const foX = centerX - foWidth / 2;
+  const foY = centerY - (open ? foHeight : 32) / 2 - 10; // Adjust Y to position button or dropdown top
 
   const handleTypeChange = (type: EdgeType) => {
-  setEdges((eds) =>
-    eds.map((edge) => {
-      if (edge.id === id) {
-        return {
-          ...edge,
-          type, // <-- update the edge type for React Flow
-          data: { ...edge.data, type }, // <-- update the data type for your logic
-        };
-      }
-      return edge;
-    })
-  );
-};
+    setEdges((eds) =>
+      eds.map((edge) =>
+        edge.id === id
+          ? { ...edge, type, data: { ...edge.data, type } }
+          : edge
+      )
+    );
+    setOpen(false);
+  };
 
-  if (!mounted || !selected) return null;
-
-  return createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        left: screenCoords.x - 75,
-        top: screenCoords.y - 20,
-        zIndex: 99999,
-        background: 'white',
-        padding: '4px',
-        borderRadius: '4px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-        display: 'flex',
-        gap: '4px',
-      }}
+  return (
+    <foreignObject
+      x={foX}
+      y={foY}
+      width={foWidth}
+      height={foHeight}
+      style={{ overflow: 'visible', pointerEvents: 'all' }}
     >
-      <button
-        onClick={() => handleTypeChange('association')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'association' ? '#3b82f6' : 'white',
-          color: currentType === 'association' ? 'white' : 'black',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Association
-      </button>
-      <button
-        onClick={() => handleTypeChange('include')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'include' ? '#10B981' : 'white',
-          color: currentType === 'include' ? 'white' : 'black',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Include
-      </button>
-      <button
-        onClick={() => handleTypeChange('extend')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'extend' ? '#EF4444' : 'white',
-          color: currentType === 'extend' ? 'white' : 'black',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Extend
-      </button>
-      <button
-        onClick={() => handleTypeChange('generalization')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'generalization' ? '#06B6D4' : 'white', // cyan-500
-          color: currentType === 'generalization' ? 'white' : 'black',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Generalization
-      </button>
-      <button
-        onClick={() => handleTypeChange('composition')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'composition' ? '#A78BFA' : 'white', // purple-400
-          color: currentType === 'composition' ? 'white' : 'black',
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Composition
-      </button>
-      <button
-        onClick={() => handleTypeChange('aggregation')}
-        style={{
-          padding: '4px 8px',
-          border: '1px solid #e5e7eb',
-          borderRadius: '4px',
-          background: currentType === 'aggregation' ? '#FEF9C3' : 'white', // light yellow
-          color: currentType === 'aggregation' ? '#92400E' : 'black', // dark yellow text if selected
-          cursor: 'pointer',
-          fontSize: '12px'
-        }}
-      >
-        Aggregation
-      </button>
-
-    </div>,
-    document.body
+      <div className="edge-selector-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <button
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: '50%',
+            border: '1px solid #ccc',
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+            position: 'absolute',
+            left: (foWidth - 28) / 2,
+            top: (foHeight - 28) / 2 + (open ? (foHeight - 32)/2 : 0),
+          }}
+          onClick={() => setOpen((o) => !o)}
+        >
+          <svg width="16" height="16" fill="none" stroke="#222" strokeWidth="2" viewBox="0 0 24 24">
+            <path d="M12 20h9" />
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+          </svg>
+        </button>
+        {open && (
+          <div
+            style={{
+              position: 'absolute',
+              top: (foHeight - 32)/2,
+              left: (foWidth - 120) / 2,
+              background: '#fff',
+              border: '1px solid #e5e7eb',
+              borderRadius: 4,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+              zIndex: 10,
+              minWidth: 120,
+              padding: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              pointerEvents: 'all',
+            }}
+          >
+            {EDGE_TYPES.map((type) => (
+              <button
+                key={type}
+                onClick={() => handleTypeChange(type)}
+                style={{
+                  padding: '4px 8px',
+                  background: currentType === type ? '#3b82f6' : 'white',
+                  color: currentType === type ? 'white' : 'black',
+                  border: 'none',
+                  borderRadius: 3,
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  fontSize: '12px',
+                  pointerEvents: 'all',
+                }}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </foreignObject>
   );
 };
 
