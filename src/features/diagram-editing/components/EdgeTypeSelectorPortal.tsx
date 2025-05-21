@@ -39,14 +39,15 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   const centerX = (sourceX + targetX) / 2;
   const centerY = (sourceY + targetY) / 2;
 
-  // Define the dimensions for the foreignObject to contain the dropdown
-  // Adjust these based on your dropdown's actual size
-  const foWidth = 150; // Example width, make sure it's wide enough for the dropdown
-  const foHeight = open ? 200 : 32; // Height needed for button vs open dropdown
+  // Define a fixed size for the foreignObject large enough for the dropdown
+  const foWidth = 150; 
+  const foHeight = 200; // Make this large enough to contain the open dropdown
+  
+  const verticalOffset = 17; // Pixels to move the button/dropdown down from the edge center
 
-  // Position the foreignObject
-  const foX = centerX - foWidth / 2;
-  const foY = centerY - (open ? foHeight : 32) / 2 - 10; // Adjust Y to position button or dropdown top
+  // Position the foreignObject centered on the edge
+  const foX = centerX - foWidth / 2; 
+  const foY = centerY - foHeight / 2; 
 
   const handleTypeChange = (type: EdgeType) => {
     setEdges((eds) =>
@@ -59,6 +60,9 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
     setOpen(false);
   };
 
+  const buttonSize = 28;
+  const dropdownMinWidth = 120;
+
   return (
     <foreignObject
       x={foX}
@@ -70,8 +74,8 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
       <div className="edge-selector-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
         <button
           style={{
-            width: 28,
-            height: 28,
+            width: buttonSize,
+            height: buttonSize,
             borderRadius: '50%',
             border: '1px solid #ccc',
             background: '#fff',
@@ -81,8 +85,10 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
             cursor: 'pointer',
             boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
             position: 'absolute',
-            left: (foWidth - 28) / 2,
-            top: (foHeight - 28) / 2 + (open ? (foHeight - 32)/2 : 0),
+            // Center button horizontally in FO, then center on edge center
+            left: (foWidth / 2) - (buttonSize / 2),
+            // Center button vertically in FO, then offset from edge center
+            top: (foHeight / 2) - (buttonSize / 2) + verticalOffset, 
           }}
           onClick={() => setOpen((o) => !o)}
         >
@@ -95,14 +101,15 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
           <div
             style={{
               position: 'absolute',
-              top: (foHeight - 32)/2,
-              left: (foWidth - 120) / 2,
+              // Position dropdown below button
+              top: (foHeight / 2) + (buttonSize / 2) + verticalOffset + 5, // 5px spacing below button
+              left: (foWidth / 2) - (dropdownMinWidth / 2), // Center dropdown horizontally
               background: '#fff',
               border: '1px solid #e5e7eb',
               borderRadius: 4,
               boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
               zIndex: 10,
-              minWidth: 120,
+              minWidth: dropdownMinWidth,
               padding: 4,
               display: 'flex',
               flexDirection: 'column',
