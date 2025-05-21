@@ -2,7 +2,7 @@ import { Edge } from '@xyflow/react';
 import GeneralizationEdge from '../utils/edges-react-flow/GeneralizationEdge';
 import AssociationEdge from '../utils/edges-react-flow/AssociationEdge';
 import IncludeEdge from '../utils/edges-react-flow/IncludeEdge';
-import ExcludeEdge from '../utils/edges-react-flow/ExcludeEdge';
+import ExtendEdge from '../utils/edges-react-flow/ExtendsEdge';
 import CompositionEdge from '../utils/edges-react-flow/CompositionEdge';
 import AggregationEdge from '../utils/edges-react-flow/AggregationEdge';
 
@@ -20,7 +20,7 @@ export const edgeTypes = {
   association: AssociationEdge,
   aggregation: AggregationEdge,
   include: IncludeEdge,
-  exclude: ExcludeEdge,
+  extend: ExtendEdge,
   generalization: GeneralizationEdge
 };
 

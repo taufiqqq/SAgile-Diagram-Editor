@@ -95,18 +95,18 @@ zIndex: 1000000,
           Include
         </button>
         <button
-          onClick={() => handleTypeChange('exclude')}
+          onClick={() => handleTypeChange('extend')}
           style={{
             padding: '4px 8px',
             border: '1px solid #e5e7eb',
             borderRadius: '4px',
-            background: currentType === 'exclude' ? '#EF4444' : 'white',
-            color: currentType === 'exclude' ? 'white' : 'black',
+            background: currentType === 'extend' ? '#EF4444' : 'white',
+            color: currentType === 'extend' ? 'white' : 'black',
             cursor: 'pointer',
             fontSize: '12px'
           }}
         >
-          Exclude
+          Extend
         </button>
       </div>
     </foreignObject>

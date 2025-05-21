@@ -2,7 +2,7 @@ import React from 'react';
 import { EdgeProps, getStraightPath } from '@xyflow/react';
 import EdgeTypeSelectorPortal from '../../components/EdgeTypeSelectorPortal';
 
-const ExcludeEdge: React.FC<EdgeProps> = ({
+const ExtendEdge: React.FC<EdgeProps> = ({
   id,
   sourceX,
   sourceY,
@@ -17,7 +17,7 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
     <>
       <defs>
         <marker
-          id="exclude-arrow"
+          id="extend-arrow"
           viewBox="0 0 10 10"
           refX="9"
           refY="5"
@@ -40,7 +40,7 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
         }}
         className="react-flow__edge-path"
         d={edgePath}
-        markerEnd="url(#exclude-arrow)"
+        markerEnd="url(#extend-arrow)"
       />
       <text
         x={(sourceX + targetX) / 2}
@@ -53,7 +53,7 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
           pointerEvents: 'none',
         }}
       >
-        {'«exclude»'}
+        {'«extend»'}
       </text>
       {selected && (
         <EdgeTypeSelectorPortal
@@ -63,11 +63,11 @@ const ExcludeEdge: React.FC<EdgeProps> = ({
           sourceY={sourceY}
           targetX={targetX}
           targetY={targetY}
-          currentType="exclude"
+          currentType="extend"
         />
       )}
     </>
   );
 };
 
-export default ExcludeEdge;
+export default ExtendEdge;

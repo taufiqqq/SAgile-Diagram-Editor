@@ -1,10 +1,12 @@
 import React from "react";
 import { useDnD } from "../../features/diagram-editing/hooks/useDnD";
+import { useEdgeType } from "../../features/diagram-editing/hooks/useEdgeType";
 import { nodeFactory } from "../factories/node-factory";
 import { assertWithLog } from "../utils/assertWithLog";
 
 const Sidebar: React.FC = () => {
   const { setType, setShapeType } = useDnD();
+  const { selectedEdgeType, handleEdgeTypeChange } = useEdgeType();
 
   const onDragStart = (
     event: React.DragEvent,
@@ -55,8 +57,8 @@ const Sidebar: React.FC = () => {
   // Edge/line UI placeholder
   const edgeTypes = [
     {
-      key: "interaction",
-      label: "Interaction",
+      key: "association",
+      label: "Association",
       icon: (
         <div style={{ display: 'flex', alignItems: 'center', width: 48 }}>
           <div style={{ flex: 1, borderTop: "2px solid #222", height: 0 }} />
@@ -64,12 +66,12 @@ const Sidebar: React.FC = () => {
       ),
     },
     {
-      key: "extends",
-      label: "Extends",
+      key: "extend",
+      label: "Extend",
       icon: (
         <div style={{ display: 'flex', alignItems: 'center', width: 64 }}>
           <div style={{ flex: 1, borderTop: "2px dashed #222", height: 0, marginRight: 4 }} />
-          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: 'transparent' }}>«extends»</span>
+          <span style={{ fontSize: 13, fontStyle: 'italic', whiteSpace: 'nowrap', background: 'transparent' }}>«extend»</span>
         </div>
       ),
     },
@@ -179,7 +181,7 @@ const Sidebar: React.FC = () => {
 
 
         {/* Edge/Line Types */}
-<div
+        <div
           style={{
             marginBottom: 4,
             fontWeight: 500,
@@ -215,8 +217,17 @@ const Sidebar: React.FC = () => {
               gap: 12,
               padding: "2px 0",
               color: '#111',
+              cursor: 'pointer',
             }}
+            onClick={() => handleEdgeTypeChange(edge.key as any)}
           >
+            <input
+              type="radio"
+              name="edgeType"
+              checked={selectedEdgeType === edge.key}
+              onChange={() => handleEdgeTypeChange(edge.key as any)}
+              style={{ margin: 0 }}
+            />
             {edge.icon}
             <span style={{ fontSize: 14, color: '#111', whiteSpace: 'nowrap' }}>{edge.label}</span>
           </div>
