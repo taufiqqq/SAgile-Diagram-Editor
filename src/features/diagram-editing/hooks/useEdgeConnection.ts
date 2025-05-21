@@ -6,11 +6,16 @@ export const useEdgeConnection = (baseOnConnect: (connection: Connection) => voi
   const { selectedEdgeType } = useEdgeType();
 
   const onConnect = useCallback((connection: Connection) => {
+    console.log('[useEdgeConnection] Creating connection with type:', selectedEdgeType);
+    console.log('[useEdgeConnection] Original connection:', connection);
+    
     // Add the selected edge type to the connection
     const connectionWithType = {
       ...connection,
       type: selectedEdgeType,
     };
+    
+    console.log('[useEdgeConnection] Modified connection:', connectionWithType);
     
     // Call the base onConnect handler with the modified connection
     baseOnConnect(connectionWithType);
