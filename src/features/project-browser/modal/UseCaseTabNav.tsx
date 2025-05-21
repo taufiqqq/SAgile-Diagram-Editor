@@ -57,7 +57,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       // Update the node data
       setNodes((nodes) =>
         nodes.map((node) => {
-          if (node.id === useCaseData.useCaseId) {
+          if (node.id === useCaseData.nodeId) {
             return {
               ...node,
               data: {
