@@ -73,8 +73,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       const diagramId = `${projectId}-${sprintId}`;
 
       // First, try to get the existing component
-      console.log("useCaseData", useCaseData);
-  let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
+      let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
 
       if (!component) {
         // If component doesn't exist, create it
