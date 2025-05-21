@@ -16,6 +16,7 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
 import { useFlowHandlers } from "../../features/diagram-editing/hooks/useFlowHandlers";
+import { useEdgeConnection } from "../../features/diagram-editing/hooks/useEdgeConnection";
 import { FlowControls } from "../../features/diagram-editing/components/FlowControl";
 import {
   diagramElementTypes,
@@ -49,10 +50,12 @@ const Canvas: React.FC = () => {
     takeSnapshot,
   } = useFlowState();
 
-  const { onConnect, onDragOver, onDrop } = useFlowHandlers({
+  const { onConnect: baseOnConnect, onDragOver, onDrop } = useFlowHandlers({
     setNodes: setNodes as (nodes: DiagramElementNode[]) => void,
     setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
+
+  const { onConnect: enhancedOnConnect } = useEdgeConnection(baseOnConnect);
 
   useEffect(() => {
     const loadDiagramData = async () => {
@@ -115,9 +118,11 @@ const Canvas: React.FC = () => {
   const handleConnect: OnConnect = React.useCallback(
     (connection) => {
       takeSnapshot();
-      onConnect(connection);
+      enhancedOnConnect(connection);
+      console.log("connection", connection);
+
     },
-    [onConnect, takeSnapshot]
+    [enhancedOnConnect, takeSnapshot]
   );
 
   const handleDrop = React.useCallback(
@@ -169,6 +174,7 @@ const Canvas: React.FC = () => {
           }}
         >
           <ReactFlow
+            colorMode="light"
             nodes={nodes}
             edges={edges}
             onNodesChange={handleNodesChange}

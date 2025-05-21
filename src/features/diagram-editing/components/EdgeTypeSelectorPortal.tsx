@@ -67,31 +67,19 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   }, [selected, mounted, sourceX, sourceY, targetX, targetY]);
 
   const handleTypeChange = (type: EdgeType) => {
-    setEdges((eds) =>
-      eds.map((edge) => {
-        if (edge.id === id) {
-          return {
-            ...edge,
-            data: { ...edge.data, type },
-            style: { 
-              ...edge.style,
-              strokeDasharray: type === 'association' ? undefined : '5 5' 
-            },
-            label: type === 'association' ? undefined : `«${type}»`,
-            labelStyle: { fill: '#000', fontFamily: 'monospace' },
-            animated: false,
-            markerEnd: type === 'association' ? undefined : {
-              type: MarkerType.ArrowClosed,
-              width: 20,
-              height: 20,
-              color: '#b1b1b7',
-            },
-          };
-        }
-        return edge;
-      })
-    );
-  };
+  setEdges((eds) =>
+    eds.map((edge) => {
+      if (edge.id === id) {
+        return {
+          ...edge,
+          type, // <-- update the edge type for React Flow
+          data: { ...edge.data, type }, // <-- update the data type for your logic
+        };
+      }
+      return edge;
+    })
+  );
+};
 
   if (!mounted || !selected) return null;
 
@@ -139,19 +127,62 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
         Include
       </button>
       <button
-        onClick={() => handleTypeChange('exclude')}
+        onClick={() => handleTypeChange('extend')}
         style={{
           padding: '4px 8px',
           border: '1px solid #e5e7eb',
           borderRadius: '4px',
-          background: currentType === 'exclude' ? '#EF4444' : 'white',
-          color: currentType === 'exclude' ? 'white' : 'black',
+          background: currentType === 'extend' ? '#EF4444' : 'white',
+          color: currentType === 'extend' ? 'white' : 'black',
           cursor: 'pointer',
           fontSize: '12px'
         }}
       >
-        Exclude
+        Extend
       </button>
+      <button
+        onClick={() => handleTypeChange('generalization')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '4px',
+          background: currentType === 'generalization' ? '#06B6D4' : 'white', // cyan-500
+          color: currentType === 'generalization' ? 'white' : 'black',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Generalization
+      </button>
+      <button
+        onClick={() => handleTypeChange('composition')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '4px',
+          background: currentType === 'composition' ? '#A78BFA' : 'white', // purple-400
+          color: currentType === 'composition' ? 'white' : 'black',
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Composition
+      </button>
+      <button
+        onClick={() => handleTypeChange('aggregation')}
+        style={{
+          padding: '4px 8px',
+          border: '1px solid #e5e7eb',
+          borderRadius: '4px',
+          background: currentType === 'aggregation' ? '#FEF9C3' : 'white', // light yellow
+          color: currentType === 'aggregation' ? '#92400E' : 'black', // dark yellow text if selected
+          cursor: 'pointer',
+          fontSize: '12px'
+        }}
+      >
+        Aggregation
+      </button>
+
     </div>,
     document.body
   );

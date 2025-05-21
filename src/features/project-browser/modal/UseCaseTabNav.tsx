@@ -53,11 +53,11 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       if (!projectId || !sprintId) {
         throw new Error('Project ID and Sprint ID are required');
       }
-
+      console.log("useCaseData", useCaseData);
       // Update the node data
       setNodes((nodes) =>
         nodes.map((node) => {
-          if (node.id === useCaseData.useCaseId) {
+          if (node.id === useCaseData.nodeId) {
             return {
               ...node,
               data: {
@@ -73,8 +73,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       const diagramId = `${projectId}-${sprintId}`;
 
       // First, try to get the existing component
-      console.log("useCaseData", useCaseData);
-  let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
+      let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
 
       if (!component) {
         // If component doesn't exist, create it
