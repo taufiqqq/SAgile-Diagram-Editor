@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
-import { toast } from 'react-toastify';
+import EdgeTypeSelectorModal from './EdgeTypeSelectorModal';
 
 interface EdgeTypeSelectorPortalProps {
   id: string;
@@ -37,6 +37,7 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
 }) => {
   const { setEdges } = useReactFlow();
   const [open, setOpen] = useState(false);
+  const [modalPosition, setModalPosition] = useState({ x: 0, y: 0 });
 
   if (!selected) return null;
 
@@ -44,22 +45,28 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   const centerX = (sourceX + targetX) / 2;
   const centerY = (sourceY + targetY) / 2;
 
-  // Define a fixed size for the foreignObject large enough for the dropdown
-  const foWidth = 150; 
-  const foHeight = 400; // Increased height to accommodate all dropdown items
-  
-  const verticalOffset = 17; // Pixels to move the button/dropdown down from the edge center
+  const buttonSize = 28;
+  const verticalOffset = 17;
 
-  // Position the foreignObject centered on the edge
-  const foX = centerX - foWidth / 2; 
-  const foY = centerY - foHeight / 2; 
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Get the click position relative to the viewport
+    const rect = e.currentTarget.getBoundingClientRect();
+    const viewportX = rect.left + window.scrollX;
+    const viewportY = rect.bottom + window.scrollY;
+    
+    setModalPosition({
+      x: viewportX,
+      y: viewportY + 5 // Position it 5px below the button
+    });
+    setOpen(true);
+  };
 
   const handleTypeChange = (type: EdgeType) => {
     // Check if both source and target are use cases
     if (type === 'association' && 
         source.toString().toLowerCase().startsWith('usecase') && 
         target.toString().toLowerCase().startsWith('usecase')) {
-      toast.error('Cannot create association between use cases');
       setOpen(false);
       return;
     }
@@ -74,17 +81,15 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
     setOpen(false);
   };
 
-  const buttonSize = 28;
-  const dropdownMinWidth = 120;
   return (
-    <foreignObject
-      x={foX}
-      y={foY}
-      width={foWidth}
-      height={foHeight}
-      style={{ overflow: 'visible', pointerEvents: 'all' }}
-    >
-      <div className="edge-selector-container" style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <>
+      <foreignObject
+        x={centerX - buttonSize / 2}
+        y={centerY - buttonSize / 2 + verticalOffset}
+        width={buttonSize}
+        height={buttonSize}
+        style={{ overflow: 'visible', pointerEvents: 'all' }}
+      >
         <button
           style={{
             width: buttonSize,
@@ -97,64 +102,26 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
             justifyContent: 'center',
             cursor: 'pointer',
             boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-            position: 'absolute',
-            // Center button horizontally in FO, then center on edge center
-            left: (foWidth / 2) - (buttonSize / 2),
-            // Center button vertically in FO, then offset from edge center
-            top: (foHeight / 2) - (buttonSize / 2) + verticalOffset, 
           }}
-          onClick={() => setOpen((o) => !o)}
+          onClick={handleButtonClick}
         >
           <svg width="16" height="16" fill="none" stroke="#222" strokeWidth="2" viewBox="0 0 24 24">
             <path d="M12 20h9" />
             <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
           </svg>
         </button>
-        {open && (
-          <div
-            style={{
-              position: 'absolute',
-              // Position dropdown below button
-              top: (foHeight / 2) + (buttonSize / 2) + verticalOffset + 5, // 5px spacing below button
-              left: (foWidth / 2) - (dropdownMinWidth / 2), // Center dropdown horizontally
-              background: '#fff',
-              border: '1px solid #e5e7eb',
-              borderRadius: 4,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-              zIndex: 10,
-              minWidth: dropdownMinWidth,
-              padding: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              pointerEvents: 'all',
-              maxHeight: '200px', // Add max height to prevent dropdown from being too long
-              overflowY: 'auto', // Add scrolling if needed
-            }}
-          >
-            {EDGE_TYPES.map((type) => (
-              <button
-                key={type}
-                onClick={() => handleTypeChange(type)}
-                style={{
-                  padding: '4px 8px',
-                  background: currentType === type ? '#3b82f6' : 'white',
-                  color: currentType === type ? 'white' : 'black',
-                  border: 'none',
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontSize: '12px',
-                  pointerEvents: 'all',
-                }}
-              >
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </foreignObject>
+      </foreignObject>
+      {open && (
+        <EdgeTypeSelectorModal
+          position={modalPosition}
+          onClose={() => setOpen(false)}
+          onSelect={handleTypeChange}
+          currentType={currentType}
+          source={source.toString()}
+          target={target.toString()}
+        />
+      )}
+    </>
   );
 };
 
