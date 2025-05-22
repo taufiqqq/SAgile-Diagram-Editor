@@ -46,7 +46,7 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
 
   // Define a fixed size for the foreignObject large enough for the dropdown
   const foWidth = 150; 
-  const foHeight = 200; // Make this large enough to contain the open dropdown
+  const foHeight = 400; // Increased height to accommodate all dropdown items
   
   const verticalOffset = 17; // Pixels to move the button/dropdown down from the edge center
 
@@ -128,6 +128,8 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
               flexDirection: 'column',
               gap: 2,
               pointerEvents: 'all',
+              maxHeight: '200px', // Add max height to prevent dropdown from being too long
+              overflowY: 'auto', // Add scrolling if needed
             }}
           >
             {EDGE_TYPES.map((type) => (
