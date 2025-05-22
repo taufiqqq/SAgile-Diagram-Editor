@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { EdgeType } from '../types/EdgeTypes.types';
+import { toast } from 'react-toastify';
 
 interface EdgeTypeSelectorPortalProps {
   id: string;
@@ -10,6 +11,8 @@ interface EdgeTypeSelectorPortalProps {
   targetX: number;
   targetY: number;
   currentType: EdgeType;
+  source: String;
+  target: String;
 }
 
 const EDGE_TYPES: EdgeType[] = [
@@ -29,6 +32,8 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   targetX,
   targetY,
   currentType,
+  source,
+  target,
 }) => {
   const { setEdges } = useReactFlow();
   const [open, setOpen] = useState(false);
@@ -50,6 +55,15 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
   const foY = centerY - foHeight / 2; 
 
   const handleTypeChange = (type: EdgeType) => {
+    // Check if both source and target are use cases
+    if (type === 'association' && 
+        source.toString().toLowerCase().startsWith('usecase') && 
+        target.toString().toLowerCase().startsWith('usecase')) {
+      toast.error('Cannot create association between use cases');
+      setOpen(false);
+      return;
+    }
+
     setEdges((eds) =>
       eds.map((edge) =>
         edge.id === id
@@ -62,7 +76,6 @@ const EdgeTypeSelectorPortal: React.FC<EdgeTypeSelectorPortalProps> = ({
 
   const buttonSize = 28;
   const dropdownMinWidth = 120;
-
   return (
     <foreignObject
       x={foX}

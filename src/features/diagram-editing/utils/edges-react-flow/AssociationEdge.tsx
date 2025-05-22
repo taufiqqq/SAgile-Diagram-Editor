@@ -10,6 +10,8 @@ const AssociationEdge: React.FC<EdgeProps> = ({
   targetY,
   style = {},
   selected,
+  target,
+  source
 }) => {
   const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY });
 
@@ -36,6 +38,8 @@ return (
           targetX={targetX}
           targetY={targetY}
           currentType="association"
+          target={target}
+          source={source}
         />
       )}
     </>
