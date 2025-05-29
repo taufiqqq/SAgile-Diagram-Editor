@@ -38,6 +38,7 @@ import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
 import LeftSidebar from "./LeftSidebar";
 import Header from "./Header";
+import { useEdgeType } from "../../features/diagram-editing/hooks/useEdgeType";
 
 function downloadImage(dataUrl: string) {
   const a = document.createElement('a');
@@ -95,7 +96,8 @@ const Canvas: React.FC = () => {
   });
 
   const { onConnect: enhancedOnConnect } = useEdgeConnection(baseOnConnect);
-
+  const { selectedEdgeType } = useEdgeType();
+  
   useEffect(() => {
     const loadDiagramData = async () => {
       if (!projectId || !sprintId) {
@@ -154,11 +156,28 @@ const Canvas: React.FC = () => {
 
   const handleConnect: OnConnect = React.useCallback(
     (connection) => {
+      console.log("connection", connection);
+      console.log("nodes", nodes);
+  
+      const sourceNode = nodes.find((n) => n.id === connection.source);
+      const targetNode = nodes.find((n) => n.id === connection.target);
+      
+      if (
+        selectedEdgeType === "association" &&
+        sourceNode?.type === "usecaseshape" &&
+        sourceNode?.data?.type === "usecase" &&
+        targetNode?.type === "usecaseshape" &&
+        targetNode?.data?.type === "usecase"
+      ) {
+        toast.error("No association allowed between use case nodes.");
+        return;
+      }
+
       takeSnapshot();
       enhancedOnConnect(connection);
       console.log("connection", connection);
     },
-    [enhancedOnConnect, takeSnapshot]
+    [enhancedOnConnect, takeSnapshot, selectedEdgeType, nodes]
   );
 
   const handleDrop = React.useCallback(

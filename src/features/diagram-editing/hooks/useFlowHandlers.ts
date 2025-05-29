@@ -14,21 +14,21 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
   const { diagramElementType, shapeType } = useDnD();
   const { selectedEdgeType } = useEdgeType();
 
-  console.log('[useFlowHandlers] Using edge type:', selectedEdgeType);
+  // console.log('[useFlowHandlers] Using edge type:', selectedEdgeType);
 
   const onConnect = useCallback(
     (params: Connection) => {
-      console.log('[useFlowHandlers] onConnect called with params:', params);
-      console.log('[useFlowHandlers] Using edge type:', selectedEdgeType);
+      // console.log('[useFlowHandlers] onConnect called with params:', params);
+      // console.log('[useFlowHandlers] Using edge type:', selectedEdgeType);
       
       setEdges((currentEdges: Edge[]) => {
-        console.log('[useFlowHandlers] Current edges:', currentEdges);
+        // console.log('[useFlowHandlers] Current edges:', currentEdges);
         
         const newEdge = { ...params, type: selectedEdgeType };
-        console.log('[useFlowHandlers] Creating new edge with config:', newEdge);
+        // console.log('[useFlowHandlers] Creating new edge with config:', newEdge);
         
         const newEdges: Edge[] = addEdge<Edge>(newEdge, currentEdges);
-        console.log('[useFlowHandlers] New edges after addEdge:', newEdges);
+        // console.log('[useFlowHandlers] New edges after addEdge:', newEdges);
         
         return newEdges;
       });

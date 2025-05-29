@@ -10,6 +10,8 @@ const ExtendEdge: React.FC<EdgeProps> = ({
   targetY,
   style = {},
   selected,
+  target,
+  source
 }) => {
   const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY });
 
@@ -64,6 +66,8 @@ const ExtendEdge: React.FC<EdgeProps> = ({
           targetX={targetX}
           targetY={targetY}
           currentType="extend"
+          target={target}
+          source={source}
         />
       )}
     </>

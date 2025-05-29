@@ -1,9 +1,8 @@
 import { useState, useCallback } from 'react';
 
-export type EdgeType = 'default' | 'extend' | 'include' | 'generalization' | 'composition' | 'aggregation';
-
+export type EdgeType = 'extend' | 'include' | 'generalization' | 'composition' | 'aggregation' | 'association';
 // Shared state at module level
-let sharedEdgeType: EdgeType = 'default';
+let sharedEdgeType: EdgeType = 'association';
 let listeners: Array<() => void> = [];
 
 const notifyListeners = () => {

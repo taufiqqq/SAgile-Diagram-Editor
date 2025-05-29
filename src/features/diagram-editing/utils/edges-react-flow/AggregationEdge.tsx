@@ -10,6 +10,8 @@ const AggregationEdge: React.FC<EdgeProps> = ({
   targetY,
   style = {},
   selected,
+  target,
+  source
 }) => {
   const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY });
 
@@ -45,7 +47,7 @@ const AggregationEdge: React.FC<EdgeProps> = ({
       />
       {/* Add the EdgeTypeSelectorPortal when the edge is selected */}
       {selected && (
-        <EdgeTypeSelectorPortal
+    <EdgeTypeSelectorPortal
           id={id}
           selected={selected}
           sourceX={sourceX}
@@ -53,6 +55,8 @@ const AggregationEdge: React.FC<EdgeProps> = ({
           targetX={targetX}
           targetY={targetY}
           currentType="aggregation"
+          target={target}
+          source={source}
         />
       )}
     </g>
