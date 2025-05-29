@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   ConnectionMode,
   NodeTypes,
@@ -12,6 +12,9 @@ import {
   OnNodesDelete,
   OnEdgesDelete,
   Edge,
+  useReactFlow,
+  getNodesBounds,
+  getViewportForBounds,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
@@ -29,12 +32,20 @@ import {
   saveDiagramData,
 } from "../../features/diagram-editing/services/diagramApiService";
 import { toast } from "react-toastify";
+import { toPng } from 'html-to-image';
 
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
 import LeftSidebar from "./LeftSidebar";
 import Header from "./Header";
 import { useEdgeType } from "../../features/diagram-editing/hooks/useEdgeType";
+
+function downloadImage(dataUrl: string) {
+  const a = document.createElement('a');
+  a.setAttribute('download', 'diagram.png');
+  a.setAttribute('href', dataUrl);
+  a.click();
+}
 
 const Canvas: React.FC = () => {
   const { projectId, sprintId } = useParams<{
@@ -50,6 +61,34 @@ const Canvas: React.FC = () => {
     setEdges,
     takeSnapshot,
   } = useFlowState();
+
+  const { getNodes } = useReactFlow();
+
+  const handleExportImage = useCallback(() => {
+    const nodesBounds = getNodesBounds(getNodes());
+    const imageWidth = nodesBounds.x + nodesBounds.width;
+    const imageHeight = nodesBounds.y + nodesBounds.height;
+
+    const viewport = getViewportForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2, 20);
+
+    const reactFlowWrapper = document.querySelector('.react-flow__viewport');
+
+    if (reactFlowWrapper instanceof HTMLElement) {
+      toPng(reactFlowWrapper, {
+        backgroundColor: '#ffffff',
+        width: imageWidth,
+        height: imageHeight,
+        style: {
+          width: `${imageWidth}px`,
+          height: `${imageHeight}px`,
+          transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+        },
+        pixelRatio: 3,  
+      }).then(downloadImage);
+    } else {
+      console.error('React Flow viewport element not found or is not an HTMLElement.');
+    }
+  }, [getNodes]);
 
   const { onConnect: baseOnConnect, onDragOver, onDrop } = useFlowHandlers({
     setNodes: setNodes as (nodes: DiagramElementNode[]) => void,
@@ -84,7 +123,6 @@ const Canvas: React.FC = () => {
     loadDiagramData();
   }, [projectId, sprintId, setNodes, setEdges]);
 
-  // Save diagram data when changes are made
   useEffect(() => {
     const saveDiagram = async () => {
       if (!projectId || !sprintId) return;
@@ -98,7 +136,6 @@ const Canvas: React.FC = () => {
       }
     };
   
-    // Debounce the save operation
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);
   }, [projectId, sprintId, nodes, edges]);
@@ -139,7 +176,6 @@ const Canvas: React.FC = () => {
       takeSnapshot();
       enhancedOnConnect(connection);
       console.log("connection", connection);
-
     },
     [enhancedOnConnect, takeSnapshot, selectedEdgeType, nodes]
   );
@@ -177,7 +213,7 @@ const Canvas: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      <Header />
+      <Header onExportImage={handleExportImage} />
       <div
         className="main-content"
         style={{ flex: 1, position: "relative", minHeight: 0 }}

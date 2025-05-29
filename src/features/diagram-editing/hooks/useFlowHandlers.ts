@@ -73,7 +73,7 @@ export function useFlowHandlers({ setEdges }: FlowHandlersProps) {
 
       return newNode;
     },
-    [screenToFlowPosition, diagramElementType]
+    [screenToFlowPosition, diagramElementType, shapeType]
   );
 
   return { onConnect, onDragOver, onDrop };
