@@ -82,6 +82,7 @@ const Canvas: React.FC = () => {
           height: `${imageHeight}px`,
           transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
         },
+        pixelRatio: 3,  
       }).then(downloadImage);
     } else {
       console.error('React Flow viewport element not found or is not an HTMLElement.');
