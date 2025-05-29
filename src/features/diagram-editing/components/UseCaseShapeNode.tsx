@@ -3,6 +3,7 @@ import { Handle, Position, useReactFlow, NodeToolbar } from "@xyflow/react";
 import { DiagramElementData } from "../types/DiagramElementType.types";
 import { ActorHtml } from "../utils/shapes-html/Actor-html";
 import { UseCaseHtml } from "../utils/shapes-html/UseCase-html";
+import { RectangularActorHtml } from "../utils/shapes-html/RectangularActor-html";
 import { useModal } from "../../../shared/context/ModalContext";
 
 interface UseCaseShapeNodeProps {
@@ -56,6 +57,14 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({
             onLabelChange={handleLabelChange}
           />
         );
+      case "rectangularactor":
+        return (
+          <RectangularActorHtml
+            label={data.label}
+            selected={selected}
+            onLabelChange={handleLabelChange}
+          />
+        );
       default:
         return null;
     }
@@ -97,7 +106,7 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({
         style={handleStyle}
         isConnectable={isConnectable}
       />
-      {data.type === "actor" && (
+      {(data.type === "actor"  || data.type === 'rectangularactor')&& (
         <Handle
           id="top"
           type="source"
@@ -115,7 +124,7 @@ const UseCaseShapeNode: React.FC<UseCaseShapeNodeProps> = ({
         isConnectable={isConnectable}
       />
       
-      {data.type === "actor" && (
+      {(data.type === "actor"  || data.type === 'rectangularactor' )&& (
         <Handle
           id="bottom"
           type="source"

@@ -176,6 +176,7 @@ const Sidebar: React.FC = () => {
         >
             {nodeFactory.createDraggableNode("usecaseshape", "usecase", onDragStart)}
             {nodeFactory.createDraggableNode("usecaseshape", "actor", onDragStart)}
+            {nodeFactory.createDraggableNode("usecaseshape", "rectangularactor", onDragStart)}
             {nodeFactory.createDraggableNode("package", "package", onDragStart)}
         </div>
 

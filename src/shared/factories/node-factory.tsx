@@ -3,8 +3,9 @@ import {ReactNode} from 'react';
 import { UseCaseHtml } from '../../features/diagram-editing/utils/shapes-html/UseCase-html';
 import { ActorHtml } from '../../features/diagram-editing/utils/shapes-html/Actor-html';
 import { PackageHtml } from '../../features/diagram-editing/utils/shapes-html/Package-html';
+import { RectangularActorHtml } from '../../features/diagram-editing/utils/shapes-html/RectangularActor-html';
 
-type DiagramElement = 'usecase'  | 'actor' | 'package' | string;
+type DiagramElement = 'usecase'  | 'actor' | 'package' | 'rectangularactor' | string;
 
 interface DiagramElementConfig {
   type: DiagramElement;
@@ -35,6 +36,13 @@ export const createNodeFactory = () => {
       type: 'package',
       displayName: "Package",
       html: <PackageHtml label={''} width={100} height={100} hidePlaceholder={true}/>,
+      width: 150,
+      height: 100,
+    },
+    rectangularactor: {
+      type: 'rectangularactor',
+      displayName: "Rectangular Actor",
+      html: <RectangularActorHtml label={''} selected={false} hidePlaceholder={true}/>,
       width: 150,
       height: 100,
     },
