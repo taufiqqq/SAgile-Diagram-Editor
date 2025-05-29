@@ -12,6 +12,8 @@ const GeneralizationEdge: React.FC<EdgeProps> = ({
   targetPosition = Position.Bottom,
   style = {},
   selected,
+  target,
+  source
 }) => {
   // Get smooth step path
   const [edgePath] = getSmoothStepPath({
@@ -148,6 +150,8 @@ const GeneralizationEdge: React.FC<EdgeProps> = ({
           targetX={targetX}
           targetY={targetY}
           currentType="generalization"
+          target={target}
+          source={source}
         />
       )}
     </g>

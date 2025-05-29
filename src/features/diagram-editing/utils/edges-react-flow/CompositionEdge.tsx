@@ -10,6 +10,8 @@ const CompositionEdge: React.FC<EdgeProps> = ({
   targetY,
   style = {},
   selected,
+  target,
+  source
 }) => {
   const [edgePath] = getStraightPath({ sourceX, sourceY, targetX, targetY });
 
@@ -53,6 +55,8 @@ const CompositionEdge: React.FC<EdgeProps> = ({
           targetX={targetX}
           targetY={targetY}
           currentType="composition"
+          target={target}
+          source={source}
         />
       )}
     </g>
