@@ -98,6 +98,12 @@ const Canvas: React.FC = () => {
   const { onConnect: enhancedOnConnect } = useEdgeConnection(baseOnConnect);
   const { selectedEdgeType } = useEdgeType();
   
+  const deleteNode = useCallback((nodeId: string) => {
+    takeSnapshot();
+    setNodes((nds) => nds.filter(node => node.id !== nodeId));
+    setEdges((eds) => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges, takeSnapshot]);
+
   useEffect(() => {
     const loadDiagramData = async () => {
       if (!projectId || !sprintId) {
@@ -257,6 +263,7 @@ const Canvas: React.FC = () => {
               nodes: DiagramElementNode[] | ((nodes: DiagramElementNode[]) => DiagramElementNode[])
             ) => void
           }
+          deleteNode={deleteNode}
         />
       </div>
       <Footer />
