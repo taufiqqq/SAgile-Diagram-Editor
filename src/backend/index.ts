@@ -48,7 +48,7 @@ app.listen(PORT, () => {
   console.log('Available routes:');
   console.log('- GET /health');
   console.log('- POST /api/diagrams/process-plantuml');
-  console.log('- GET /api/diagrams/:projectId/:sprintId');
+  console.log('- GET /api/diagrams/:projectId');
   console.log('- POST /api/diagram-components/get-or-create');
   console.log('- GET /api/diagram-components/:id');
   console.log('- PATCH /api/diagram-components/:id');

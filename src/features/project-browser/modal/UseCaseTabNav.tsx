@@ -46,12 +46,12 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
 }) => {
   const { setNodes, getNodes, getEdges } = useReactFlow<ShapeNode, ParsedEdge>();
   const { closeModal } = useModal();
-  const { projectId, sprintId } = useParams<{ projectId: string; sprintId: string }>();
+  const { projectId } = useParams<{ projectId: string;}>();
 
   const handleSave = async () => {
     try {
-      if (!projectId || !sprintId) {
-        throw new Error('Project ID and Sprint ID are required');
+      if (!projectId) {
+        throw new Error('Project ID are required');
       }
       console.log("useCaseData", useCaseData);
       // Update the node data
@@ -70,7 +70,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
         })
       );
 
-      const diagramId = `${projectId}-${sprintId}`;
+      const diagramId = `${projectId}`;
 
       // First, try to get the existing component
       let component = await DiagramComponentService.getComponent(useCaseData.nodeId, diagramId);
@@ -173,7 +173,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       }
 
       // Save the diagram data
-      await saveDiagramData(projectId, sprintId, getNodes(), getEdges());
+      await saveDiagramData(projectId, getNodes(), getEdges());
       toast.success('Changes saved successfully');
       closeModal();
     } catch (error) {

@@ -10,15 +10,14 @@ interface DiagramData {
 }
 
 /**
- * Fetches diagram data from the backend based on project and sprint IDs
+ * Fetches diagram data from the backend based on project IDs
  * @param projectId The project ID
- * @param sprintId The sprint ID
  * @returns The diagram data
  */
-export async function fetchDiagramData(projectId: string, sprintId: string): Promise<DiagramData | null> {
+export async function fetchDiagramData(projectId: string): Promise<DiagramData | null> {
   try {
-    const response = await fetch(`/api/diagrams/${projectId}/${sprintId}`);
-    console.log('Fetching diagram data:', { projectId, sprintId });
+    const response = await fetch(`/api/diagrams/${projectId}`);
+    console.log('Fetching diagram data:', { projectId });
     if (!response.ok) {
       if (response.status === 404) {
         // Diagram not found
@@ -53,14 +52,12 @@ export async function fetchDiagramData(projectId: string, sprintId: string): Pro
 /**
  * Saves diagram data to the backend
  * @param projectId The project ID
- * @param sprintId The sprint ID
  * @param nodes The nodes to save
  * @param edges The edges to save
  * @returns The response from the server
  */
 export async function saveDiagramData(
   projectId: string,
-  sprintId: string,
   nodes: ShapeNode[],
   edges: ParsedEdge[],
   isEditing: boolean = false
@@ -71,7 +68,7 @@ export async function saveDiagramData(
       return;
     }
 
-    console.log('Saving diagram data:', { projectId, sprintId, nodes, edges });
+    console.log('Saving diagram data:', { projectId, nodes, edges });
 
     const response = await fetch('/api/diagrams/save', {
       method: 'POST',
@@ -80,7 +77,6 @@ export async function saveDiagramData(
       },
       body: JSON.stringify({
         project_id: projectId,
-        sprint_id: sprintId,
         nodes,
         edges,
         isCreating: false
@@ -107,11 +103,10 @@ export async function saveDiagramData(
 /**
  * Sends PlantUML data to the backend for processing
  * @param projectId The project ID
- * @param sprintId The sprint ID
  * @param plantuml The PlantUML string
  * @returns The response from the server
  */
-export async function processPlantUML(projectId: string, sprintId: string, plantuml: string): Promise<any> {
+export async function processPlantUML(projectId: string, plantuml: string): Promise<any> {
   try {
     const response = await fetch('/api/diagrams/process-plantuml', {
       method: 'POST',
@@ -120,7 +115,6 @@ export async function processPlantUML(projectId: string, sprintId: string, plant
       },
       body: JSON.stringify({
         project_id: projectId,
-        sprint_id: sprintId,
         plantuml
       })
     });

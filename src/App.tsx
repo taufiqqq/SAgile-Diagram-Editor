@@ -25,7 +25,7 @@ function App() {
       <Router>
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
-          <Route path="/:projectId/:sprintId" element={
+          <Route path="/:projectId" element={
             <div style={{ 
               width: '100%', 
               height: '100%', 

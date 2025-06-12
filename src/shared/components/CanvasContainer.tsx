@@ -48,9 +48,8 @@ function downloadImage(dataUrl: string) {
 }
 
 const Canvas: React.FC = () => {
-  const { projectId, sprintId } = useParams<{
+  const { projectId } = useParams<{
     projectId: string;
-    sprintId: string;
   }>();
   const {
     nodes,
@@ -106,13 +105,13 @@ const Canvas: React.FC = () => {
 
   useEffect(() => {
     const loadDiagramData = async () => {
-      if (!projectId || !sprintId) {
-        toast.error('Project ID and Sprint ID are required');
+      if (!projectId) {
+        toast.error('Project ID are required');
         return;
       }
   
       try {
-        const diagramData = await fetchDiagramData(projectId, sprintId);
+        const diagramData = await fetchDiagramData(projectId);
   
         if (diagramData) {
           setNodes(diagramData.nodes);
@@ -127,15 +126,15 @@ const Canvas: React.FC = () => {
     };
   
     loadDiagramData();
-  }, [projectId, sprintId, setNodes, setEdges]);
+  }, [projectId, setNodes, setEdges]);
 
   useEffect(() => {
     const saveDiagram = async () => {
-      if (!projectId || !sprintId) return;
+      if (!projectId) return;
   
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, sprintId, nodes, edges, true);
+        await saveDiagramData(projectId, nodes, edges, true);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');
@@ -144,7 +143,7 @@ const Canvas: React.FC = () => {
   
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);
-  }, [projectId, sprintId, nodes, edges]);
+  }, [projectId, nodes, edges]);
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
