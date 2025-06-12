@@ -16,10 +16,10 @@ export class DiagramController {
       const { project_id, sprint_id, plantuml } = req.body;
   
       // Validate required fields
-      if (!project_id || !sprint_id || !plantuml) {
+      if (!project_id || !plantuml) {
         res.status(400).json({
           success: false,
-          message: "Missing required fields: project_id, sprint_id, or plantuml",
+          message: "Missing required fields: project_id or plantuml",
         });
         return;
       }
@@ -30,7 +30,7 @@ export class DiagramController {
       // Save the diagram to the database
       const diagram = await DiagramService.getOrCreateDiagram(
         project_id,
-        sprint_id,
+        sprint_id || '', // Keep sprint_id for backward compatibility
         plantuml,
         { nodes, edges }
       );
@@ -58,7 +58,7 @@ export class DiagramController {
   }
   
   /**
-   * Get diagram data by project and sprint ID
+   * Get diagram data by project ID
    */
   static async getDiagram(req: Request, res: Response): Promise<void> {
     try {
@@ -67,16 +67,16 @@ export class DiagramController {
       const sprintId = req.params.sprintId || req.params.sprint_id;
       
       // Validate required fields
-      if (!projectId || !sprintId) {
+      if (!projectId) {
         res.status(400).json({
           success: false,
-          message: 'Missing required parameters: projectId/project_id or sprintId/sprint_id'
+          message: 'Missing required parameter: projectId/project_id'
         });
         return;
       }
       
       // Get diagram from database
-      const diagram = await DiagramService.getDiagram(projectId.toString(), sprintId.toString());
+      const diagram = await DiagramService.getDiagram(projectId.toString(), sprintId?.toString() || '');
       
       if (!diagram) {
         res.status(404).json({
@@ -128,10 +128,10 @@ export class DiagramController {
       const { project_id, sprint_id, nodes, edges, isCreating} = req.body;
       
       // Validate required fields
-      if (!project_id || !sprint_id || !nodes || !edges) {
+      if (!project_id || !nodes || !edges) {
         res.status(400).json({
           success: false,
-          message: 'Missing required fields: project_id, sprint_id, nodes, or edges'
+          message: 'Missing required fields: project_id, nodes, or edges'
         });
         return;
       }
@@ -139,7 +139,7 @@ export class DiagramController {
       // Create or update diagram
       const diagram = await DiagramService.getOrCreateDiagram(
         project_id,
-        sprint_id,
+        sprint_id || '', // Keep sprint_id for backward compatibility
         '', // Empty PlantUML for now
         { nodes, edges },
         isCreating

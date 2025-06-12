@@ -40,6 +40,14 @@ export class DiagramModel {
     return rows[0] || null;
   }
 
+  static async findByProject(projectId: string): Promise<Diagram | null> {
+    const [rows] = await pool.query<Diagram[]>(
+      'SELECT * FROM diagrams WHERE project_id = ?',
+      [projectId]
+    );
+    return rows[0] || null;
+  }
+
   static async update(id: string, data: Partial<Diagram>): Promise<Diagram | null> {
     const { project_id, sprint_id, diagram_element, original_plantuml } = data;
     const updates = [];
