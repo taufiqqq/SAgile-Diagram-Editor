@@ -31,6 +31,9 @@ interface UseCaseSpecificationsProps {
   onSave?: () => void;
 }
 
+const TEST_MODE = false; // Set to true to use static Gemini text for testing
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
 export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({ 
   specifications, 
   onChange,
@@ -40,6 +43,8 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
   const [activeTab, setActiveTab] = useState<'PREPOST' | string>('PREPOST');
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [diagramImage, setDiagramImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleAddFlow = (type: FlowType) => {
     const newFlow: SequenceFlow = {
@@ -62,6 +67,149 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
           : flow
       )
     });
+  };
+
+  const generateSequenceImage = async () => {
+    console.log('[generateSequenceImage] Start');
+    setLoading(true);
+    setDiagramImage(null);
+
+    // 1. Get the steps for the active flow
+    const activeFlow = specifications.flows.find(f => f.id === activeTab);
+    if (!activeFlow) {
+      toast.error('No active flow selected.');
+      setLoading(false);
+      console.log('[generateSequenceImage] No active flow selected.');
+      return;
+    }
+    const stepsText = activeFlow.steps.map(step => step.description).join('\n').trim();
+    console.log('[generateSequenceImage] Extracted stepsText:', stepsText);
+    if (!stepsText) {
+      toast.error('No steps to generate.');
+      setLoading(false);
+      console.log('[generateSequenceImage] No steps to generate.');
+      return;
+    }
+
+    // 2. Build the Gemini prompt
+    const geminiPrompt = `
+Transform the following plain English use case steps into a structured flow in this exact format:
+Primary Actors: ActorName <<stereotype>>  
+Secondary Actors: ActorName <<stereotype>>  
+
+Alternate Flow: NameOfAlternateFlow  
+sender -> receiver: actions/message  
+...  
+else NameOfAlternateFlow  
+sender -> receiver: actions/message  
+...  
+end  
+
+Main Flow:  
+sender -> receiver: actions/message  
+...  
+loop LoopName  
+end  
+sender -> receiver: actions/message  
+...  
+startconcurrency  
+sender -> receiver: actions/message  
+...  
+endconcurrency
+
+[Additional info, implement MVC architecture heuristic. Stereotypes are : actor, boundary, controller, entity.]
+
+Example:
+Input:
+Manager clicks uploadMaterialsButton at UploadMaterialsPageView.  
+Manager require UploadMaterial at UploadMaterialsPageView.  
+UploadMaterialsPageView shows materialsForm at 
+UploadMaterialsPageView.  
+Manager fills fillForm at UploadMaterialsPageView.  
+Manager uploads uploadMaterials at UploadMaterialsPageView.  
+UploadMaterialsPageView validates UploadForm at 
+UploadMaterialsController.  
+UploadMaterialsController sends MaterialContent at MaterialModel. 
+UploadMaterialsController shows successMessage at 
+UploadMaterialsPageView. 
+If the uploadForm is fails, UploadMaterialsController shows an 
+errorMessage at UploadMaterialsPageView. 
+
+Output:
+Primary Actor: Manager<<Actor>> 
+Secondary Actor: UploadMaterialsPage<<boundary>>, 
+UploadMaterialsController<<controller>>, Material<<entity>> 
+Main Flow: 
+Manager-> UploadMaterialsPage: Click uploadMaterialsButton() 
+Manager-> UploadMaterialsPage: requestsUploadMaterials() 
+UploadMaterialsPage->UploadMaterialsPage:  displayUploadMaterialsForm() 
+Manager-> UploadMaterialsPage: fillForm() 
+Manager-> UploadMaterialsPage: uploadMaterials() 
+UploadMaterialsPage-> UploadMaterialsController:  validatesUploadForm() 
+ 
+Alternate Flow: validatesUploadMaterialsForm()==true 
+  UploadMaterialsController->Material: uploadMaterials() 
+  UploadMaterialsController->UploadMaterialsPage: displaySuccess() 
+else validatesUploadMaterialsForm()==false 
+  UploadMaterialsController-> UploadMaterialsPage: 
+  displayError() 
+end 
+
+Now convert this input:
+${stepsText},
+`;
+
+    // 3. Call Gemini API using fetch or use static text in test mode
+    let geminiText = '';
+    if (TEST_MODE) {
+      geminiText = `Primary Actor: ProjectManager<<actor>>\nSecondary Actor: CreateTeamView<<boundary>>, TeamController<<controller>>, TeamModel<<entity>>\n\nAlternate Flow: Invalid Team Input\n  CreateTeamView -> TeamController: validatesTeamName()\n  else Invalid Team Input\n    TeamController -> CreateTeamView: displayErrorMessage()\n  end\n\nMain Flow:\n  ProjectManager -> CreateTeamView: fillInTeamName()\n  ProjectManager -> CreateTeamView: clickCreateTeamButton()\n  CreateTeamView -> TeamController: validatesTeamName()\n  TeamController -> TeamModel: createTeam()\n  TeamModel -> TeamController: passCreatedTeamData()\n  TeamController -> CreateTeamView: sendCreatedTeamData()\n  CreateTeamView -> ProjectManager: showCreatedTeamData()`;
+      console.log('[generateSequenceImage] Using static Gemini text for testing:', geminiText);
+    } else {
+      try {
+        console.log('[generateSequenceImage] Calling Gemini API...');
+        const geminiResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: geminiPrompt }] }]
+            })
+          }
+        );
+        const geminiData = await geminiResponse.json();
+        geminiText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        console.log('[generateSequenceImage] Gemini API response:', geminiText);
+      } catch (err) {
+        toast.error('Failed to get response from Gemini API');
+        setLoading(false);
+        console.error('[generateSequenceImage] Gemini API error:', err);
+        return;
+      }
+    }
+
+// 3.5. Clean Gemini output
+    const cleanedText = geminiText.replace(/^```[a-zA-Z]*\n?/, '').replace(/```$/, '').trim();
+    console.log('[generateSequenceImage] Cleaned Gemini text:', cleanedText);
+
+    // 4. Call your local diagram API using fetch
+    try {
+      console.log('[generateSequenceImage] Calling diagram API...');
+  const diagramResponse = await fetch('http://localhost:7000/api/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: cleanedText })
+      });
+      const arrayBuffer = await diagramResponse.arrayBuffer();
+      const base64Image = `data:image/png;base64,${btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))}`;
+      setDiagramImage(base64Image);
+      console.log('[generateSequenceImage] Diagram image set.');
+    } catch (error) {
+      toast.error('Failed to generate diagram image');
+      console.error('[generateSequenceImage] Diagram API error:', error);
+    }
+    setLoading(false);
+    console.log('[generateSequenceImage] End');
   };
 
   const handleStepChange = (flowId: string, stepIdx: number, value: string) => {
@@ -127,10 +275,10 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
               }}
               onClick={() => setActiveTab(flow.id)}
             >
-              {flow.name}
+              Use Case Specification
             </button>
           ))}
-          <div ref={dropdownRef} style={{ position: 'relative' }}>
+          {/* <div ref={dropdownRef} style={{ position: 'relative' }}>
             <button
               style={{
                 border: 'none',
@@ -189,7 +337,7 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -317,10 +465,10 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
 
       {activeTab !== 'PREPOST' && (
         <div style={{ maxWidth: 600 }}>
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: 0 }}>
             <label style={{ fontWeight: 600, marginBottom: 10, display: 'block', fontSize: 16 }}>Sequence Steps</label>
             {specifications.flows.find(f => f.id === activeTab)?.steps.map((step, idx) => (
-              <div key={step.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 10 }}>
+              <div key={step.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 0 }}>
                 <input
                   type="text"
                   value={step.description}
@@ -367,7 +515,33 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
                 transition: 'background 0.2s, color 0.2s'
               }}
             >+ Add step</button>
+            <button
+              onClick={generateSequenceImage}
+              style={{
+                marginTop: 8,
+                marginLeft: 8,
+                fontSize: 15,
+                background: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 6,
+                padding: '8px 18px',
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                boxShadow: '0 1px 4px #2563eb22',
+                transition: 'background 0.2s, color 0.2s'
+              }}
+              disabled={loading}
+            >
+              {loading ? 'Generating...' : 'Generate Sequence Image'}
+            </button>
           </div>
+          {loading && <div>Generating diagram...</div>}
+          {diagramImage && (
+            <div style={{ marginTop: 16 }}>
+              <img src={diagramImage} alt="Generated Sequence Diagram" style={{ maxWidth: '100%' }} />
+            </div>
+          )}
         </div>
       )}
     </div>
