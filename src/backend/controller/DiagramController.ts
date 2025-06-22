@@ -31,7 +31,7 @@ export class DiagramController {
         system_name,
         project_id,
         plantuml,
-        create_new ?  { nodes, edges }: undefined,
+        { nodes, edges },
         create_new
       ); 
 
@@ -136,7 +136,7 @@ export class DiagramController {
       }
 
       // Create or update diagram
-      const diagram = await DiagramService.getOrCreateDiagram(
+      const diagram = await DiagramService.updateDiagram(
         '',
         project_id,
         '', // Empty PlantUML for now

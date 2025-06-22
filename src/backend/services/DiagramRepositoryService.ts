@@ -35,23 +35,13 @@ export class DiagramService {
       });
     }
     if (!diagram) {
-      console.log("DOING: THROWING ERROR");
-      throw new Error("No diagram found and not creating");
-    }
-    if (diagramData) {
-      console.log("Diagram data:", JSON.stringify(diagramData, null, 2));
-      console.log("DOING: UPDATE");
-      await DiagramModel.update(diagram.id, {
+      console.log("DOING: NO DIAGRAM, WHETHER CREATING OR NOT, WE CREATE");
+      return await DiagramModel.create({
+        name: systemName,
+        project_id: projectId,
         diagram_element: diagramData,
-      } as Partial<Diagram>);
-
-      // Get updated diagram
-      diagram = await DiagramModel.findByProject(projectId);
-
-      if (!diagram) {
-        throw new Error("No diagram found and not creating");
-      }
-      return diagram;
+        original_plantuml: plantuml,
+      });
     }
 
     console.log("DOING: RETURNING EXISTING");
@@ -66,5 +56,30 @@ export class DiagramService {
    */
   static async getDiagram(projectId: string): Promise<Diagram | null> {
     return await DiagramModel.findByProject(projectId);
+  }
+
+  static async updateDiagram(
+    systemName: string,
+    projectId: string,
+    plantuml: string,
+    diagramData: any,
+    isCreating: boolean = true
+  ): Promise<Diagram> {
+    let diagram = await DiagramModel.findByProject(projectId);
+
+    if (!diagram) {
+      throw new Error("No diagram found and not creating");
+    }
+    await DiagramModel.update(diagram.id, {
+      diagram_element: diagramData,
+    } as Partial<Diagram>);
+
+    // Get updated diagram
+    diagram = await DiagramModel.findByProject(projectId);
+
+    if (!diagram) {
+      throw new Error("No diagram found and not creating");
+    }
+    return diagram;
   }
 }
