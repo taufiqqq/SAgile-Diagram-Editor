@@ -1,4 +1,4 @@
-import { DiagramComponent } from '../../shared/models/DiagramComponent';
+import { DiagramComponent } from "../../shared/models/DiagramComponent";
 
 export interface ComponentUpdateData {
   name?: string;
@@ -8,7 +8,7 @@ export interface ComponentUpdateData {
 }
 
 export class DiagramComponentService {
-  static API_BASE = '/api/diagram-components';
+  static API_BASE = "/api/diagram-components";
 
   /**
    * Get or create a diagram component for a node
@@ -23,19 +23,19 @@ export class DiagramComponentService {
     data: Partial<DiagramComponent>
   ): Promise<DiagramComponent> {
     const response = await fetch(`${this.API_BASE}/get-or-create`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         node_id: nodeId,
         diagram_id: diagramId,
-        ...data
+        ...data,
       }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to get or create diagram component');
+      throw new Error("Failed to get or create diagram component");
     }
 
     const result = await response.json();
@@ -48,19 +48,29 @@ export class DiagramComponentService {
    * @param diagramId The diagram ID
    * @returns The component or null if not found
    */
-  static async getComponent(nodeId: string, diagramId: string): Promise<DiagramComponent | null> {
-    console.log("nodeId", nodeId);
-    const response = await fetch(`${this.API_BASE}/by-node-and-diagram?node_id=${nodeId}&diagram_id=${diagramId}`);
+  static async getComponent(
+    nodeId: string,
+    diagramId: string
+  ): Promise<DiagramComponent | null> {
+    try {
+      console.log("nodeId", nodeId);
+      const response = await fetch(
+        `${this.API_BASE}/by-node-and-diagram?node_id=${nodeId}&diagram_id=${diagramId}`
+      );
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        return null;
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error("Failed to get diagram component");
       }
-      throw new Error('Failed to get diagram component');
-    }
 
-    const result = await response.json();
-    return result.data;
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Error fetching component:", error);
+      return null;
+    }
   }
 
   /**
@@ -74,15 +84,15 @@ export class DiagramComponentService {
     data: Partial<DiagramComponent>
   ): Promise<DiagramComponent> {
     const response = await fetch(`${this.API_BASE}/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to update diagram component');
+      throw new Error("Failed to update diagram component");
     }
 
     const result = await response.json();
@@ -91,11 +101,11 @@ export class DiagramComponentService {
 
   static async deleteComponent(id: string): Promise<void> {
     const response = await fetch(`${this.API_BASE}/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete component');
+      throw new Error("Failed to delete component");
     }
   }
-} 
+}
