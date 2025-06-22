@@ -4,6 +4,7 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 export interface Diagram extends RowDataPacket {
   id: string;
+  name: string;
   project_id: string;
   diagram_element: any;
   original_plantuml: string;
@@ -13,11 +14,11 @@ export interface Diagram extends RowDataPacket {
 
 export class DiagramModel {
   static async create(data: Omit<Diagram, 'id' | 'created_at' | 'updated_at'>): Promise<Diagram> {
-    const { project_id, diagram_element, original_plantuml } = data;
+    const {name, project_id, diagram_element, original_plantuml } = data;
     const id = uuidv4();
     await pool.query<ResultSetHeader>(
-      'INSERT INTO diagrams (id, project_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?)',
-      [id, project_id, JSON.stringify(diagram_element), original_plantuml]
+      'INSERT INTO diagrams (id, name, project_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?, ?)',
+      [id, name, project_id, JSON.stringify(diagram_element), original_plantuml]
     );
     const diagram = await this.findById(id);
     if (!diagram) {
