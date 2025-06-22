@@ -175,7 +175,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
       // Save the diagram data
       await saveDiagramData(projectId, getNodes(), getEdges());
       toast.success('Changes saved successfully');
-      closeModal();
+      // closeModal();
     } catch (error) {
       console.error('Error saving changes:', error);
       toast.error('Failed to save changes');

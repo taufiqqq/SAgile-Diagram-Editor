@@ -117,7 +117,11 @@ sender -> receiver: actions/message
 ...  
 endconcurrency
 
-[Additional info, implement MVC architecture heuristic. Stereotypes are : actor, boundary, controller, entity.]
+[Additional info, implement three tiered layered architecture heuristic. Stereotypes are : actor, boundary, controller, entity.
+There are three layers in the layered architecture: presentation map with the boundary, business map with the controller, data layer map with entity.
+Data layer will store all the data related to the function and the business layer will be named functionName+Handler
+Business layer will be based on the functionality and the data layer will be based on the data model.
+Make sure each function are named like functionName() and need to has parameter]
 
 Example:
 Input:
