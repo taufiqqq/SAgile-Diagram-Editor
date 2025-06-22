@@ -117,11 +117,16 @@ sender -> receiver: actions/message
 ...  
 endconcurrency
 
-[Additional info, implement three tiered layered architecture heuristic. Stereotypes are : actor, boundary, controller, entity.
-There are three layers in the layered architecture: presentation map with the boundary, business map with the controller, data layer map with entity.
-Data layer will store all the data related to the function and the business layer will be named functionName+Handler
-Business layer will be based on the functionality and the data layer will be based on the data model.
-Make sure each function are named like functionName() and need to has parameter]
+[Additional info, implement MVC (Model-View-Controller) architecture. Stereotypes are: actor, boundary, controller, entity.
+The MVC architecture consists of three components:
+- View layer corresponds to the presentation components that users interact with directly.
+- Controller layer handles user requests, processes input, and coordinates between View and Model.
+- Model layer manages application data, business logic, and data persistence.
+Controllers should be named based on their functionality (e.g., UserController).
+Models should represent domain objects and data structures (e.g., UserModel).
+Views should represent UI components (e.g., UserProfileView).
+Make sure each function is named like functionName() and includes appropriate parameters.
+For actor use naming Actor, for model/entity use naming AbcModel, and make sure there is no duplicate between any model or actor]
 
 Example:
 Input:
@@ -199,7 +204,7 @@ ${stepsText},
     // 4. Call your local diagram API using fetch
     try {
       console.log('[generateSequenceImage] Calling diagram API...');
-  const diagramResponse = await fetch('http://localhost:7000/api/', {
+  const diagramResponse = await fetch('https://sagile-sequence-generator.vercel.app/api/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: cleanedText })
@@ -551,3 +556,11 @@ ${stepsText},
     </div>
   );
 }; 
+
+/*
+Additional info, implement three tiered layered architecture heuristic. Stereotypes are : actor, boundary, controller, entity.
+There are three layers in the layered architecture: presentation map with the boundary, business map with the controller, data layer map with entity.
+Data layer will store all the data related to the function and the business layer will be named functionName+Handler
+Business layer will be based on the functionality and the data layer will be based on the data model.
+Make sure each function are named like functionName() and need to has parameter
+*/
