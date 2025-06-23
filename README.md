@@ -38,3 +38,6 @@ thank you for using my lacklusting webapp
 docker compose down
 docker compose build --no-cache
 docker compose up
+
+# deployment reference
+https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-github-actions/
