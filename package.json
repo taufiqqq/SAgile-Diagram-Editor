@@ -11,11 +11,10 @@
     "dev:server": "nodemon --exec tsx src/backend/index.ts",
     "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
     "build:client": "vite build",
-    "build:server": "tsc -p tsconfig.server.json",
+    "build:server": "tsup",
     "build": "npm run build:client && npm run build:server",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "migrate": "tsx src/scripts/runMigration.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@xyflow/react": "^12.1.0",
@@ -28,6 +27,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.5.1",
     "react-toastify": "^11.0.5",
+    "tsup": "^8.5.0",
     "uuid": "^9.0.0",
     "ws": "^8.16.0"
   },

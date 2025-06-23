@@ -30,3 +30,9 @@ notes.md
 .env
 .env.local
 .env.*.local
+.env.production
+
+# Ignore build output
+dist/
+dist-server/
+dist-client/

@@ -47,17 +47,17 @@ export const UseCaseModal: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { projectId, sprintId } = useParams<{ projectId: string; sprintId: string }>();
+  const { projectId } = useParams<{ projectId: string;}>();
 
   // Initialize state when modal opens
   useEffect(() => {
     const fetchData = async () => {
-      if (nodeData && projectId && sprintId) {
+      if (nodeData && projectId) {
         setIsLoading(true);
         setError(null);
         console.log("nodeData", nodeData);
         try {
-          const diagramId = `${projectId}-${sprintId}`;
+          const diagramId = `${projectId}`;
           // First try to find existing component
           const existingComponent = await DiagramComponentService.getComponent(nodeData.id, diagramId);
           
@@ -127,7 +127,7 @@ export const UseCaseModal: React.FC = () => {
     };
 
     fetchData();
-  }, [nodeData, projectId, sprintId]);
+  }, [nodeData, projectId]);
 
   const handleDataChange = (changes: Partial<UseCaseData>) => {
     setUseCaseData(prev => ({

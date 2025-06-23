@@ -2,9 +2,6 @@ import { Request, Response } from 'express';
 import { DiagramService } from '../services/DiagramRepositoryService';
 import { parsePlantUML } from "../../features/parsing/plantuml-use-case/GenerateNodes";
 
-import { Diagram } from '../../shared/models/Diagram';
-import pool from '../config/database';
-
 export class DiagramController {
   /**
    * Process PlantUML and save diagram data
@@ -13,13 +10,13 @@ export class DiagramController {
     try {
       console.log("Processing PlantUML:", req.body);
 
-      const { project_id, sprint_id, plantuml } = req.body;
+      const { project_id, plantuml, system_name, create_new } = req.body;
   
       // Validate required fields
-      if (!project_id || !sprint_id || !plantuml) {
+      if (!project_id || !plantuml) {
         res.status(400).json({
           success: false,
-          message: "Missing required fields: project_id, sprint_id, or plantuml",
+          message: "Missing required fields: project_id or plantuml",
         });
         return;
       }
@@ -27,13 +24,16 @@ export class DiagramController {
       // Parse the PlantUML string
       const { nodes, edges } = parsePlantUML(plantuml);
   
+      console.log("create new is "+ create_new);
+
       // Save the diagram to the database
-      const diagram = await DiagramService.getOrCreateDiagram(
+     const diagram = await DiagramService.getOrCreateDiagram(
+        system_name,
         project_id,
-        sprint_id,
         plantuml,
-        { nodes, edges }
-      );
+        { nodes, edges },
+        create_new
+      ); 
 
       console.log("Diagram saved to database:", diagram);
   
@@ -58,25 +58,24 @@ export class DiagramController {
   }
   
   /**
-   * Get diagram data by project and sprint ID
+   * Get diagram data by project ID
    */
   static async getDiagram(req: Request, res: Response): Promise<void> {
     try {
       // Handle both parameter naming conventions and types
       const projectId = req.params.projectId || req.params.project_id;
-      const sprintId = req.params.sprintId || req.params.sprint_id;
       
       // Validate required fields
-      if (!projectId || !sprintId) {
+      if (!projectId) {
         res.status(400).json({
           success: false,
-          message: 'Missing required parameters: projectId/project_id or sprintId/sprint_id'
+          message: 'Missing required parameter: projectId/project_id'
         });
         return;
       }
       
       // Get diagram from database
-      const diagram = await DiagramService.getDiagram(projectId.toString(), sprintId.toString());
+      const diagram = await DiagramService.getDiagram(projectId.toString());
       
       if (!diagram) {
         res.status(404).json({
@@ -125,21 +124,21 @@ export class DiagramController {
    */
   static async saveDiagram(req: Request, res: Response): Promise<void> {
     try {
-      const { project_id, sprint_id, nodes, edges, isCreating} = req.body;
+      const { project_id, nodes, edges, isCreating} = req.body;
       
       // Validate required fields
-      if (!project_id || !sprint_id || !nodes || !edges) {
+      if (!project_id || !nodes || !edges) {
         res.status(400).json({
           success: false,
-          message: 'Missing required fields: project_id, sprint_id, nodes, or edges'
+          message: 'Missing required fields: project_id, nodes, or edges'
         });
         return;
       }
 
       // Create or update diagram
-      const diagram = await DiagramService.getOrCreateDiagram(
+      const diagram = await DiagramService.updateDiagram(
+        '',
         project_id,
-        sprint_id,
         '', // Empty PlantUML for now
         { nodes, edges },
         isCreating
