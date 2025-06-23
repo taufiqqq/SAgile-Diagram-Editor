@@ -33,6 +33,7 @@ interface UseCaseSpecificationsProps {
 
 const TEST_MODE = false; // Set to true to use static Gemini text for testing
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+console.log("Test mode " + TEST_MODE.toString());
 
 export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
   specifications,
@@ -174,7 +175,7 @@ else validatesUploadMaterialsForm()==false
 end 
 
 Now convert this input:
-${stepsText},
+${stepsText}
 `;
 
     // 3. Call Gemini API using fetch or use static text in test mode
@@ -188,24 +189,25 @@ ${stepsText},
     } else {
       try {
         console.log("[generateSequenceImage] Calling Gemini API...");
-        const geminiResponse = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: geminiPrompt }] }],
-            }),
-          }
-        );
+        const geminiResponse = await fetch("/api/gemini/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            geminiPrompt:
+              geminiPrompt
+          }),
+        });
+
         const geminiData = await geminiResponse.json();
+        console.log("Gemini response:", geminiData);
+
         geminiText =
-          geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          geminiData.data.candidates?.[0]?.content?.parts?.[0]?.text || "";
         console.log("[generateSequenceImage] Gemini API response:", geminiText);
       } catch (err) {
         toast.error("Failed to get response from Gemini API");
         setLoading(false);
-        console.error("[generateSequenceImage] Gemini API error:", err);
+        // console.error("[generateSequenceImage] Gemini API error:", err);
         return;
       }
     }
@@ -215,9 +217,9 @@ ${stepsText},
       .replace(/^```[a-zA-Z]*\n?/, "") // Remove opening backticks
       .replace(/```\s*$/gm, "") // Remove closing backticks anywhere with trailing whitespace
       .trim(); // Final trim
-     
-    console.log('[generateSequenceImage] Cleaned Gemini text:', cleanedText);
-    
+
+    console.log("[generateSequenceImage] Cleaned Gemini text:", cleanedText);
+
     // 4. Call your local diagram API using fetch
     try {
       console.log("[generateSequenceImage] Calling diagram API...");

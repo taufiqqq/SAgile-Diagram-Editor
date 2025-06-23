@@ -1,5 +1,4 @@
 {
-  //lmao i just let the damn ai to deal with this config
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",

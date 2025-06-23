@@ -32,3 +32,9 @@ DB_USER=YOURUSER
 DB_PASSWORD=YOURPASSWORD
 
 thank you for using my lacklusting webapp
+
+
+# Docker configuration
+docker compose down
+docker compose build --no-cache
+docker compose up

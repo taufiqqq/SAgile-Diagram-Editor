@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import { DiagramController } from '../controller/DiagramController';
 
 const router = express.Router();
