@@ -10,7 +10,7 @@ interface RightSidebarProps {
 
 const RightSidebar: React.FC<RightSidebarProps> = ({ nodes, deleteNode }) => {
   const [open, setOpen] = useState(true);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const { openModal } = useModal();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
