@@ -47,7 +47,7 @@ export const UseCaseTabNav: React.FC<UseCaseTabNavProps> = ({
   const { setNodes, getNodes, getEdges } = useReactFlow<ShapeNode, ParsedEdge>();
   const { closeModal } = useModal();
   const { projectId } = useParams<{ projectId: string;}>();
-
+  
   const handleSave = async () => {
     try {
       if (!projectId) {

@@ -178,6 +178,17 @@ const Canvas: React.FC = () => {
         return;
       }
 
+      if (
+        (selectedEdgeType === "extend" ||selectedEdgeType === "association" ||selectedEdgeType === "include" ||selectedEdgeType === "aggregation" ||selectedEdgeType === "composition")&&
+        sourceNode?.type === "usecaseshape" &&
+        sourceNode?.data?.type === "actor" &&
+        targetNode?.type === "usecaseshape" &&
+        targetNode?.data?.type === "actor"
+      ) {
+        toast.error("Relationship is invalid between actor nodes.");
+        return;
+      }
+
       takeSnapshot();
       enhancedOnConnect(connection);
       console.log("connection", connection);
