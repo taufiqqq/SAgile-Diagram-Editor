@@ -320,7 +320,7 @@ export const UseCaseModal: React.FC = () => {
               useCaseId: useCaseData.id,
               nodeId: nodeData.id,
               description: useCaseData.description,
-              version: useCaseData.version
+              version: useCaseData.version,
             }}
             specifications={specifications}
           />
