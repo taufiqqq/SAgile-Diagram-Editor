@@ -11,7 +11,8 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME || 'kanban',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  ssl: { rejectUnauthorized: process.env.REQUIRE_SSL === 'true' || true }
 });
 
 export default pool; 
