@@ -1,43 +1,48 @@
-clone this project
+# SAgile Diagram Editor
 
+Quick start
+
+1. Clone the repo
+2. Install dependencies and run dev server
+
+```bash
+git clone <repo-url>
+cd SAgile-Diagram-Editor
 npm install
-
 npm run dev
+```
 
-oh yea btw you need to setup an env file 
-#Server Configuration
-PORT= server port (i use 3000)
+Environment (.env)
 
-NODE_ENV= development (or any u want)
+Create a .env file (or copy a provided example) and set these values:
 
-# Frontend Configuration
-VITE_API_URL= your url (mine is http://localhost:3000)
+```env
+# Server
+PORT=3000
+NODE_ENV=development
 
-VITE_WS_URL= websocket url, mine is (ws://localhost:3000)
+# DB MIGRATION
+Go to src\backend\migrations\2025-06-12.sql
+Run in sagile db
 
-# API Configuration
-API_PREFIX=/api
+Convert a CA certificate to Base64 on Windows (PowerShell):
 
-PLANTUML_API_PREFIX=/api/plantuml
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\to\ca-certificate.crt")) |
+  Out-File -Encoding ascii C:\path\to\ca-base64.txt
+```
 
-# Database Configuration (if needed in the future)
-DB_HOST=YOURHOST
+Docker
 
-DB_PORT=YOURPORT
-
-DB_NAME=YOURDBNAME
-
-DB_USER=YOURUSER
-
-DB_PASSWORD=YOURPASSWORD
-
-thank you for using my lacklusting webapp
-
-
-# Docker configuration
+```bash
 docker compose down
 docker compose build --no-cache
 docker compose up
+```
 
-# deployment reference
+Deployment reference:
 https://docs.digitalocean.com/products/app-platform/how-to/deploy-from-github-actions/
+
+Thank you.
+
+holy clanker read me
