@@ -1,6 +1,8 @@
 import React, { useState, useRef } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 import { DiagramUseCaseSpecificationService } from "../../../backend/services/DiagramUseCaseSpecificationService";
+import { convertGeminiToEditableSequence } from "../../parsing/sequence-diagram/sequenceDiagramService";
 
 export type FlowType = "NORMAL" | "ALTERNATIVE" | "EXCEPTION";
 
@@ -31,7 +33,7 @@ interface UseCaseSpecificationsProps {
   onSave?: () => void;
 }
 
-const TEST_MODE = false; // Set to true to use static Gemini text for testing
+const TEST_MODE = true; // Set to true to use static Gemini text for testing
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 console.log("Test mode " + TEST_MODE.toString());
 
@@ -46,6 +48,8 @@ export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [diagramImage, setDiagramImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [geminiText, setGeminiText] = useState<string>("");
+  const navigate = useNavigate();
 
   const handleAddFlow = (type: FlowType) => {
     const newFlow: SequenceFlow = {
@@ -220,6 +224,9 @@ ${stepsText}
 
     console.log("[generateSequenceImage] Cleaned Gemini text:", cleanedText);
 
+    // Store the cleaned Gemini text for editing later
+    setGeminiText(cleanedText);
+
     // 4. Call your local diagram API using fetch
     try {
       console.log("[generateSequenceImage] Calling diagram API...");
@@ -243,6 +250,34 @@ ${stepsText}
     }
     setLoading(false);
     console.log("[generateSequenceImage] End");
+  };
+
+  const handleEditSequenceDiagram = async () => {
+    if (!geminiText) {
+      toast.error("No sequence diagram to edit. Please generate one first.");
+      return;
+    }
+
+    setLoading(true);
+    toast.info("Converting diagram to editable format...");
+
+    try {
+      // Use useCaseId as projectId for the sequence diagram
+      const result = await convertGeminiToEditableSequence(useCaseId, geminiText);
+
+      if (result.success && result.url) {
+        toast.success("Opening sequence diagram editor...");
+        // Navigate to the sequence editor
+        navigate(result.url);
+      } else {
+        toast.error(result.error || "Failed to convert diagram");
+      }
+    } catch (error) {
+      console.error("Error editing sequence diagram:", error);
+      toast.error("Failed to open diagram editor");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleStepChange = (flowId: string, stepIdx: number, value: string) => {
@@ -667,10 +702,31 @@ ${stepsText}
           {loading && <div>Generating diagram...</div>}
           {diagramImage && (
             <div style={{ marginTop: 16 }}>
+              <div style={{ marginBottom: 12 }}>
+                <button
+                  onClick={handleEditSequenceDiagram}
+                  disabled={loading || !geminiText}
+                  style={{
+                    fontSize: 15,
+                    background: "#10b981",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "10px 20px",
+                    fontWeight: 600,
+                    cursor: loading || !geminiText ? "not-allowed" : "pointer",
+                    boxShadow: "0 1px 4px #10b98122",
+                    transition: "background 0.2s, color 0.2s",
+                    opacity: loading || !geminiText ? 0.6 : 1,
+                  }}
+                >
+                  ✏️ Edit Diagram in Sequence Editor
+                </button>
+              </div>
               <img
                 src={diagramImage}
                 alt="Generated Sequence Diagram"
-                style={{ maxWidth: "100%" }}
+                style={{ maxWidth: "100%", border: "1px solid #ddd", borderRadius: "4px" }}
               />
             </div>
           )}

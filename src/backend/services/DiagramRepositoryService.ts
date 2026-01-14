@@ -68,8 +68,17 @@ export class DiagramService {
     let diagram = await DiagramModel.findByProject(projectId);
 
     if (!diagram) {
-      throw new Error("No diagram found and not creating");
+      // Create a new diagram if it doesn't exist
+      console.log("No diagram found, creating new one for project:", projectId);
+      return await DiagramModel.create({
+        name: systemName || projectId,
+        project_id: projectId,
+        diagram_element: diagramData,
+        original_plantuml: plantuml,
+      });
     }
+
+    // Update existing diagram
     await DiagramModel.update(diagram.id, {
       diagram_element: diagramData,
     } as Partial<Diagram>);
@@ -78,7 +87,7 @@ export class DiagramService {
     diagram = await DiagramModel.findByProject(projectId);
 
     if (!diagram) {
-      throw new Error("No diagram found and not creating");
+      throw new Error("Failed to update diagram");
     }
     return diagram;
   }
