@@ -60,7 +60,8 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
   diagramType = 'usecase'
 }) => {
   const { projectId } = useParams<{ projectId: string }>();
-  const [currentDiagramType, setCurrentDiagramType] = useState<DiagramType>(diagramType);
+  const currentDiagramType = diagramType;
+  const [isLoadingDiagram, setIsLoadingDiagram] = useState(true);
 
   // Use case diagram state
   const useCaseFlow = useFlowState();
@@ -122,42 +123,52 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
     setEdges((eds) => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
   }, [setNodes, setEdges, takeSnapshot]);
 
-  // Load diagram data
+  // Load diagram data — re-runs when projectId or diagramType changes
   useEffect(() => {
     const loadDiagramData = async () => {
       if (!projectId) {
         toast.error('Project ID is required');
+        setIsLoadingDiagram(false);
         return;
       }
 
+      setIsLoadingDiagram(true);
       try {
-        const diagramData = await fetchDiagramData(projectId);
+        const diagramData = await fetchDiagramData(projectId, diagramType);
 
         if (diagramData) {
-          setNodes(diagramData.nodes);
+          const loadedNodes = diagramType === 'sequence'
+            ? diagramData.nodes.map((node: any) => ({
+                ...node,
+                position: { ...node.position, y: LOCKED_Y_POSITION },
+              }))
+            : diagramData.nodes;
+          setNodes(loadedNodes);
           setEdges(diagramData.edges);
-          // TODO: Detect diagram type from loaded data
-          // For now, we'll keep the initial diagram type
         } else {
           toast.info('No diagram found. Starting with an empty diagram.');
         }
       } catch (err) {
         console.error('Error loading diagram:', err);
         toast.error('Failed to load diagram data');
+      } finally {
+        setIsLoadingDiagram(false);
       }
     };
 
     loadDiagramData();
-  }, [projectId, setNodes, setEdges]);
+  }, [projectId, diagramType, setNodes, setEdges]);
 
-  // Auto-save diagram
+  // Auto-save diagram — suppressed while loading to prevent overwriting on type switch
   useEffect(() => {
+    if (isLoadingDiagram) return;
+
     const saveDiagram = async () => {
       if (!projectId) return;
 
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, nodes, edges, true);
+        await saveDiagramData(projectId, nodes, edges, true, diagramType);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');
@@ -166,15 +177,16 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
 
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);
-  }, [projectId, nodes, edges]);
+  }, [projectId, nodes, edges, diagramType, isLoadingDiagram]);
+
+  const LOCKED_Y_POSITION = 50;
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
       // For sequence diagrams, lock Y position during drag
       if (currentDiagramType === 'sequence') {
-        const LOCKED_Y_POSITION = 50;
         const modifiedChanges = changes.map((change) => {
-          if (change.type === 'position' && change.dragging && change.position) {
+          if (change.type === 'position' && change.position) {
             return {
               ...change,
               position: {

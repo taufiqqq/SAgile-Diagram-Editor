@@ -31,6 +31,7 @@ export const useUndoRedo: UseUndoRedo = ({
   enableShortcuts = defaultOptions.enableShortcuts,
 } = defaultOptions) => {
   // the past and future arrays store the states that we can jump to
+  
   const [past, setPast] = useState<HistoryItem[]>([]);
   const [future, setFuture] = useState<HistoryItem[]>([]);
 

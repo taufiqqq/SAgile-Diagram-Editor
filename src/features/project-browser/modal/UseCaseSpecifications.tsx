@@ -30,6 +30,7 @@ interface UseCaseSpecificationsProps {
   specifications: SpecificationsData;
   onChange: (changes: Partial<SpecificationsData>) => void;
   useCaseId: string;
+  projectId: string;
   onSave?: () => void;
 }
 
@@ -40,7 +41,7 @@ console.log("Test mode " + TEST_MODE.toString());
 export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
   specifications,
   onChange,
-  useCaseId,
+  projectId,
   onSave,
 }) => {
   const [activeTab, setActiveTab] = useState<"PREPOST" | string>("PREPOST");
@@ -262,8 +263,7 @@ ${stepsText}
     toast.info("Converting diagram to editable format...");
 
     try {
-      // Use useCaseId as projectId for the sequence diagram
-      const result = await convertGeminiToEditableSequence(useCaseId, geminiText);
+      const result = await convertGeminiToEditableSequence(projectId, geminiText);
 
       if (result.success && result.url) {
         toast.success("Opening sequence diagram editor...");

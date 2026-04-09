@@ -54,8 +54,8 @@ export class DiagramService {
    * @param projectId The project ID
    * @returns The diagram or null if not found
    */
-  static async getDiagram(projectId: string): Promise<Diagram | null> {
-    return await DiagramModel.findByProject(projectId);
+  static async getDiagram(projectId: string, diagramType: string = 'usecase'): Promise<Diagram | null> {
+    return await DiagramModel.findByProjectAndType(projectId, diagramType as 'usecase' | 'sequence');
   }
 
   static async updateDiagram(
@@ -63,9 +63,10 @@ export class DiagramService {
     projectId: string,
     plantuml: string,
     diagramData: any,
-    isCreating: boolean = true
+    isCreating: boolean = true,
+    diagramType: 'usecase' | 'sequence' = 'usecase'
   ): Promise<Diagram> {
-    let diagram = await DiagramModel.findByProject(projectId);
+    let diagram = await DiagramModel.findByProjectAndType(projectId, diagramType);
 
     if (!diagram) {
       // Create a new diagram if it doesn't exist
@@ -73,6 +74,7 @@ export class DiagramService {
       return await DiagramModel.create({
         name: systemName || projectId,
         project_id: projectId,
+        diagram_type: diagramType,
         diagram_element: diagramData,
         original_plantuml: plantuml,
       });

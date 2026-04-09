@@ -10,7 +10,7 @@
 DROP TABLE IF EXISTS sequence_diagram_messages;
 DROP TABLE IF EXISTS sequence_diagram_elements;
 
-CREATE TABLE sequence_diagram_elements (
+CREATE TABLE IF NOT EXISTS sequence_diagram_elements (
   id VARCHAR(36) PRIMARY KEY,
   diagram_id VARCHAR(36) NOT NULL,
   element_type ENUM('actor', 'boundary', 'control', 'entity') NOT NULL,
@@ -27,10 +27,10 @@ CREATE TABLE sequence_diagram_elements (
   INDEX idx_diagram_id (diagram_id),
   INDEX idx_element_type (element_type),
   CONSTRAINT fk_seq_elem_diagram FOREIGN KEY (diagram_id) REFERENCES diagrams(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Step 3: Create sequence_diagram_messages table (edges/connections)
-CREATE TABLE sequence_diagram_messages (
+CREATE TABLE IF NOT EXISTS sequence_diagram_messages (
   id VARCHAR(36) PRIMARY KEY,
   diagram_id VARCHAR(36) NOT NULL,
   source_element_id VARCHAR(36) NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE sequence_diagram_messages (
   CONSTRAINT fk_seq_msg_diagram FOREIGN KEY (diagram_id) REFERENCES diagrams(id) ON DELETE CASCADE,
   CONSTRAINT fk_seq_msg_source FOREIGN KEY (source_element_id) REFERENCES sequence_diagram_elements(id) ON DELETE CASCADE,
   CONSTRAINT fk_seq_msg_target FOREIGN KEY (target_element_id) REFERENCES sequence_diagram_elements(id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Verification queries (uncomment to test)
 -- SELECT * FROM diagrams WHERE diagram_type = 'sequence';
