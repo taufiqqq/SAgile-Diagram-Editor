@@ -34,7 +34,7 @@ interface UseCaseSpecificationsProps {
   onSave?: () => void;
 }
 
-const TEST_MODE = true; // Set to true to use static Gemini text for testing
+const TEST_MODE = false; // Set to true to use static Gemini text for testing
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 console.log("Test mode " + TEST_MODE.toString());
 
