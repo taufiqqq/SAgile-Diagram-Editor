@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   ConnectionMode,
   NodeTypes,
@@ -8,10 +8,13 @@ import {
   OnNodesChange,
   OnEdgesChange,
   OnConnect,
+  OnConnectStart,
+  OnConnectEnd,
   OnNodeDrag,
   OnNodesDelete,
   OnEdgesDelete,
   Edge,
+  Connection,
   useReactFlow,
   getNodesBounds,
   getViewportForBounds,
@@ -61,7 +64,9 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
 }) => {
   const { projectId } = useParams<{ projectId: string }>();
   const currentDiagramType = diagramType;
-  const [isLoadingDiagram, setIsLoadingDiagram] = useState(true);
+  // Ref is set synchronously at the start of the load effect so the save effect
+  // (which runs after in the same flush) sees it immediately and skips saving.
+  const isLoadingDiagramRef = React.useRef(true);
 
   // Use case diagram state
   const useCaseFlow = useFlowState();
@@ -117,30 +122,52 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
   const { onConnect: enhancedOnConnect } = useEdgeConnection(baseOnConnect);
   const { selectedEdgeType } = useEdgeType();
 
+  // Track the source node of an in-progress sequence connection drag.
+  // Using a ref (not state) so handleConnectEnd always reads the latest value
+  // without a stale-closure problem.
+  const connectingNodeIdRef = React.useRef<string | null>(null);
+
   const deleteNode = useCallback((nodeId: string) => {
     if (takeSnapshot) takeSnapshot();
-    setNodes((nds) => nds.filter(node => node.id !== nodeId));
-    setEdges((eds) => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
+    setNodes((nds: any[]) => nds.filter((node: any) => node.id !== nodeId));
+    setEdges((eds: any[]) => eds.filter((edge: any) => edge.source !== nodeId && edge.target !== nodeId));
   }, [setNodes, setEdges, takeSnapshot]);
 
-  // Load diagram data — re-runs when projectId or diagramType changes
+  // Load diagram data — re-runs when projectId or diagramType changes.
+  // The `cancelled` flag prevents a stale async fetch (from a previous diagramType)
+  // from resetting the ref or state after the new load has already started.
   useEffect(() => {
+    let cancelled = false;
+
+    // Set synchronously so the save effect (which runs after in the same flush)
+    // sees it immediately and skips saving during the load.
+    isLoadingDiagramRef.current = true;
+
     const loadDiagramData = async () => {
       if (!projectId) {
         toast.error('Project ID is required');
-        setIsLoadingDiagram(false);
+        if (!cancelled) {
+          isLoadingDiagramRef.current = false;
+        }
         return;
       }
 
-      setIsLoadingDiagram(true);
       try {
         const diagramData = await fetchDiagramData(projectId, diagramType);
+
+        if (cancelled) return; // stale fetch — a newer load is in progress
 
         if (diagramData) {
           const loadedNodes = diagramType === 'sequence'
             ? diagramData.nodes.map((node: any) => ({
                 ...node,
-                position: { ...node.position, y: LOCKED_Y_POSITION },
+                // Lifelines lock to y=50; fragments keep their saved y position.
+                // zIndex ensures lifelines always render above fragments so they
+                // intercept mouse events when the two overlap.
+                position: node.type === 'sequenceFragment'
+                  ? node.position
+                  : { ...node.position, y: LOCKED_Y_POSITION },
+                zIndex: node.type === 'sequenceFragment' ? 0 : 1,
               }))
             : diagramData.nodes;
           setNodes(loadedNodes);
@@ -149,26 +176,38 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
           toast.info('No diagram found. Starting with an empty diagram.');
         }
       } catch (err) {
+        if (cancelled) return;
         console.error('Error loading diagram:', err);
         toast.error('Failed to load diagram data');
       } finally {
-        setIsLoadingDiagram(false);
+        if (!cancelled) {
+          isLoadingDiagramRef.current = false;
+        }
       }
     };
 
     loadDiagramData();
+
+    return () => {
+      // Mark this fetch as stale so its finally block doesn't reset the ref
+      // after a newer load effect has already taken ownership.
+      cancelled = true;
+    };
   }, [projectId, diagramType, setNodes, setEdges]);
 
-  // Auto-save diagram — suppressed while loading to prevent overwriting on type switch
+  // Auto-save diagram — suppressed while loading to prevent overwriting on type switch.
+  // isLoadingDiagramRef is checked (not state) because the ref is set synchronously
+  // in the load effect before this effect runs, closing the race window where
+  // isLoadingDiagram state is still false when diagramType changes.
   useEffect(() => {
-    if (isLoadingDiagram) return;
+    if (isLoadingDiagramRef.current) return;
 
     const saveDiagram = async () => {
       if (!projectId) return;
 
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, nodes, edges, true, diagramType);
+        await saveDiagramData(projectId, nodes as any[], edges as any[], true, diagramType);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');
@@ -177,16 +216,19 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
 
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);
-  }, [projectId, nodes, edges, diagramType, isLoadingDiagram]);
+  }, [projectId, nodes, edges, diagramType]); // isLoadingDiagram deliberately omitted — we read the ref, not state
 
   const LOCKED_Y_POSITION = 50;
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
-      // For sequence diagrams, lock Y position during drag
+      // For sequence diagrams, lock Y only for lifeline nodes (sequenceElement).
+      // Fragment nodes (sequenceFragment) can move freely on both axes.
       if (currentDiagramType === 'sequence') {
         const modifiedChanges = changes.map((change) => {
           if (change.type === 'position' && change.position) {
+            const node = nodes.find((n) => n.id === change.id);
+            if (node?.type === 'sequenceFragment') return change;
             return {
               ...change,
               position: {
@@ -202,7 +244,7 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
         onNodesChange(changes as NodeChange<any>[]);
       }
     },
-    [onNodesChange, currentDiagramType]
+    [onNodesChange, currentDiagramType, nodes]
   );
 
   const handleEdgesChange: OnEdgesChange = React.useCallback(
@@ -212,42 +254,105 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
     [onEdgesChange]
   );
 
+  // ── Sequence diagram connection via X-proximity ────────────────────────────
+  // When the user drags a connection in sequence mode, React Flow's handle-
+  // snapping makes it impossible to reach a lifeline that lies behind another
+  // one (the intermediate handle intercepts the drag).  Instead we:
+  //   1. Record the source node on drag-start.
+  //   2. Skip all edge creation in onConnect (so the snapped handle is ignored).
+  //   3. On drag-end, find whichever lifeline centre-X is closest to the cursor
+  //      and create the edge there.
+
+  // Ref to the canvas div — used to toggle the sequence-connecting CSS class that
+  // disables pointer-events on all handles during a drag so intermediate lifelines
+  // cannot intercept the cursor.
+  const canvasRef = React.useRef<HTMLDivElement>(null);
+
+  const handleConnectStart: OnConnectStart = React.useCallback(
+    (_event, { nodeId }) => {
+      if (currentDiagramType === 'sequence') {
+        connectingNodeIdRef.current = nodeId ?? null;
+        // Freeze all handles so the cursor passes through them freely
+        canvasRef.current?.classList.add('sequence-connecting');
+      }
+    },
+    [currentDiagramType]
+  );
+
+  const handleConnectEnd: OnConnectEnd = React.useCallback(
+    (event) => {
+      // Re-enable handle interaction immediately
+      canvasRef.current?.classList.remove('sequence-connecting');
+
+      const sourceId = connectingNodeIdRef.current;
+      connectingNodeIdRef.current = null;
+
+      if (currentDiagramType !== 'sequence' || !sourceId) return;
+
+      const mouseEvent = event as MouseEvent;
+      const { x: cursorX } = screenToFlowPosition({
+        x: mouseEvent.clientX,
+        y: mouseEvent.clientY,
+      });
+
+      // Find the lifeline whose centre-X is closest to the cursor
+      let closestNode: (typeof nodes)[number] | null = null;
+      let closestDist = Infinity;
+      for (const node of nodes) {
+        if (node.id === sourceId) continue;
+        const w = ((node as any).measured?.width ?? 100) as number;
+        const centerX = node.position.x + w / 2;
+        const dist = Math.abs(centerX - cursorX);
+        if (dist < closestDist) { closestDist = dist; closestNode = node; }
+      }
+
+      // Ignore drops that are too far from any lifeline
+      if (!closestNode || closestDist > 100) return;
+
+      const connection: Connection = {
+        source: sourceId,
+        target: closestNode.id,
+        sourceHandle: 'lifeline',
+        targetHandle: 'lifeline',
+      };
+
+      // Type-rule validation
+      if ('isValidConnection' in sequenceFlow) {
+        if (!sequenceFlow.isValidConnection(connection)) {
+          toast.error('Invalid connection between sequence elements');
+          return;
+        }
+      }
+
+      if (takeSnapshot) takeSnapshot();
+      setEdges((eds: Edge[]) => [
+        ...eds,
+        {
+          ...connection,
+          id: `edge-${Date.now()}`,
+          type: 'sequenceMessage',
+          data: {
+            message_type: selectedEdgeType,
+            message_text: 'message()',
+            parameters: '',
+            sequence_number: eds.length + 1,
+            yPosition: 200 + (eds.length * 50),
+          },
+        },
+      ]);
+    },
+    [
+      currentDiagramType, nodes,
+      sequenceFlow, setEdges, selectedEdgeType,
+      takeSnapshot, screenToFlowPosition,
+    ]
+  );
+
   const handleConnect: OnConnect = React.useCallback(
     (connection) => {
-      console.log("connection", connection);
-      console.log("nodes", nodes);
-
-      // For sequence diagrams, use sequence validation
-      if (currentDiagramType === 'sequence') {
-        const sourceNode = nodes.find((n) => n.id === connection.source);
-        const targetNode = nodes.find((n) => n.id === connection.target);
-
-        if (sourceNode && targetNode && 'isValidConnection' in sequenceFlow) {
-          const isValid = sequenceFlow.isValidConnection(connection);
-          if (!isValid) {
-            toast.error("Invalid connection between sequence elements");
-            return;
-          }
-        }
-
-        if (takeSnapshot) takeSnapshot();
-        setEdges((eds) => {
-          const newEdge = {
-            ...connection,
-            id: `edge-${Date.now()}`,
-            type: 'sequenceMessage',
-            data: {
-              message_type: selectedEdgeType,
-              message_text: 'message()',
-              parameters: '',
-              sequence_number: eds.length + 1,
-              yPosition: 200 + (eds.length * 80),
-            }
-          };
-          return [...eds, newEdge];
-        });
-        return;
-      }
+      // Sequence diagram edges are created in handleConnectEnd (X-proximity),
+      // so we skip creation here to avoid connecting to the wrong (snapped) node.
+      if (currentDiagramType === 'sequence') return;
 
       // For use case diagrams, use existing validation
       const sourceNode = nodes.find((n) => n.id === connection.source);
@@ -295,7 +400,36 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
 
         if (!shapeType) return;
 
-        // Map shape types to element types for sequence diagrams
+        const position = screenToFlowPosition({
+          x: event.clientX,
+          y: event.clientY,
+        });
+
+        // ── Combined Fragment drop ───────────────────────────────────
+        if (shapeType.startsWith('fragment-')) {
+          const operator = shapeType.replace('fragment-', '');
+          const newNode = {
+            id: `fragment-${operator}-${Date.now()}`,
+            type: 'sequenceFragment',
+            // Fragments sit behind lifeline nodes (zIndex 0 < lifeline zIndex 1)
+            // so lifelines remain selectable when they overlap a fragment.
+            zIndex: 0,
+            position: {
+              x: position.x - 100,
+              y: position.y - 60,
+            },
+            style: { width: 300, height: 180 },
+            data: {
+              operator,
+              guard: '',
+              altGuard: '',
+            },
+          };
+          setNodes((nds: any[]) => [...nds, newNode]);
+          return;
+        }
+
+        // ── Lifeline (sequenceElement) drop ──────────────────────────
         const elementTypeMap: Record<string, string> = {
           'sequenceactor': 'actor',
           'boundary': 'boundary',
@@ -305,14 +439,10 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
 
         const elementType = elementTypeMap[shapeType] || shapeType;
 
-        const position = screenToFlowPosition({
-          x: event.clientX,
-          y: event.clientY,
-        });
-
         const newNode = {
           id: `seq-${elementType}-${Date.now()}`,
           type: 'sequenceElement',
+          zIndex: 1, // always above fragment nodes (zIndex 0)
           position: {
             x: position.x - 60,
             y: 50,
@@ -359,9 +489,11 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
     ? sequenceEdgeTypes
     : edgeTypes;
 
-  // Get isValidConnection for sequence diagrams
-  const isValidConnection = currentDiagramType === 'sequence' && 'isValidConnection' in sequenceFlow
-    ? sequenceFlow.isValidConnection
+  // For sequence diagrams, edges are created in handleConnectEnd using X-proximity,
+  // so isValidConnection only needs to show self-connections as invalid (red).
+  // All cross-node handles show green so the user gets visual feedback while dragging.
+  const isValidConnection = currentDiagramType === 'sequence'
+    ? (conn: Edge | Connection) => conn.source !== conn.target
     : undefined;
 
   return (
@@ -381,6 +513,7 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
       >
         <LeftSidebar diagramType={currentDiagramType} />
         <div
+          ref={canvasRef}
           className="canvas"
           style={{
             flex: 1,
@@ -396,6 +529,8 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
             onNodesChange={handleNodesChange}
             onEdgesChange={handleEdgesChange}
             onConnect={handleConnect}
+            onConnectStart={handleConnectStart}
+            onConnectEnd={handleConnectEnd}
             onDragOver={onDragOver}
             onDrop={handleDrop}
             onNodeDragStart={handleNodeDragStart}
@@ -412,19 +547,25 @@ const UnifiedCanvasContainer: React.FC<UnifiedCanvasContainerProps> = ({
             <FlowControls />
           </ReactFlow>
 
-          {/* Show connection rules helper for sequence diagrams */}
+          {/* Show connection rules helper for sequence diagrams
           {currentDiagramType === 'sequence' && (
             <ConnectionRulesHelper position="top-right" />
-          )}
+          )} */}
         </div>
         <RightSidebar
-          nodes={nodes}
+          nodes={nodes as DiagramElementNode[]}
           setNodes={
             setNodes as (
               nodes: DiagramElementNode[] | ((nodes: DiagramElementNode[]) => DiagramElementNode[])
             ) => void
           }
           deleteNode={deleteNode}
+          diagramType={currentDiagramType}
+          edges={edges}
+          deleteEdge={(edgeId) => {
+            if (takeSnapshot) takeSnapshot();
+            setEdges((eds: Edge[]) => eds.filter((e: Edge) => e.id !== edgeId));
+          }}
         />
       </div>
       <Footer />

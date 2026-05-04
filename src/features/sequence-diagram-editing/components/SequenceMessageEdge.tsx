@@ -72,22 +72,16 @@ export const SequenceMessageEdge: React.FC<EdgeProps> = ({
   const sourceNode = nodes.find(n => n.id === source);
   const targetNode = nodes.find(n => n.id === target);
 
-  // Calculate lifeline X positions (center of each participant)
-  // Actor is 75px wide (icon) - center at 37.5px from position
-  // Boundary/Control/Entity are 120px wide - center at 60px from position
-  const getNodeCenterOffset = (node: any) => {
-    if (!node?.data?.elementType) return 60; // Default
-    const elementType = node.data.elementType;
-
-    if (elementType === 'actor') {
-      return 37.5; // Actor icon is 75px wide, center at 37.5px
-    } else {
-      return 60; // Boundary/Control/Entity are 120px wide, center at 60px
-    }
+  // Use the node's measured width (set by React Flow after render) to find
+  // the true horizontal centre of each lifeline stem.
+  const getLifelineX = (node: any, fallback: number) => {
+    const width = (node?.measured?.width ?? node?.width) as number | undefined;
+    if (width != null) return node.position.x + width / 2;
+    return fallback;
   };
 
-  const sourceLifelineX = sourceNode ? sourceNode.position.x + getNodeCenterOffset(sourceNode) : sourceX;
-  const targetLifelineX = targetNode ? targetNode.position.x + getNodeCenterOffset(targetNode) : targetX;
+  const sourceLifelineX = sourceNode ? getLifelineX(sourceNode, sourceX) : sourceX;
+  const targetLifelineX = targetNode ? getLifelineX(targetNode, targetX) : targetX;
 
   // Calculate horizontal line between lifelines
   const startX = sourceLifelineX;
@@ -102,7 +96,7 @@ export const SequenceMessageEdge: React.FC<EdgeProps> = ({
 
   // Label position (middle of the line, slightly above)
   const labelX = (startX + endX) / 2;
-  const labelY = startY - 10;
+  const labelY = startY - 14;
 
   // Determine arrow style based on message type
   const getArrowStyle = () => {
@@ -209,6 +203,7 @@ export const SequenceMessageEdge: React.FC<EdgeProps> = ({
             pointerEvents: 'all',
             fontSize: 12,
             fontFamily: 'Arial, sans-serif',
+            zIndex: 1000,
           }}
           className="nodrag nopan"
         >

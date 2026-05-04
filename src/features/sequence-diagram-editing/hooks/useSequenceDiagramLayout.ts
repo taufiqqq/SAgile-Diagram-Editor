@@ -37,12 +37,12 @@ export function useSequenceDiagramLayout() {
     edges: Edge[],
     nodes: Node<SequenceNodeData>[]
   ): Edge[] => {
-    const EDGE_VERTICAL_SPACING = 80;
+    const EDGE_VERTICAL_SPACING = 50;
     const EDGE_START_Y = 200;
 
     const sortedEdges = [...edges].sort((a, b) => {
-      const seqA = a.data?.sequence_number || 0;
-      const seqB = b.data?.sequence_number || 0;
+      const seqA = (a.data?.sequence_number as number) || 0;
+      const seqB = (b.data?.sequence_number as number) || 0;
       return seqA - seqB;
     });
 
@@ -66,7 +66,7 @@ export function useSequenceDiagramLayout() {
     const arrangedNodes = arrangeNodes(nodes);
     const positionedEdges = calculateEdgePositions(edges, arrangedNodes);
 
-    const maxLifelineLength = 200 + (positionedEdges.length * 80);
+    const maxLifelineLength = 200 + (positionedEdges.length * 50);
     const updatedNodes = arrangedNodes.map(node => ({
       ...node,
       data: {

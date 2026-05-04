@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import { Handle, Position } from '@xyflow/react';
 import NodeLabel from "../../../diagram-editing/utils/shapes-react-flow/Label";
 
 interface SequenceBoundaryHtmlProps {
   label: string;
-  width?: number;
-  height?: number;
   selected: boolean;
   onLabelChange?: (newLabel: string) => void;
   hidePlaceholder?: boolean;
   hasLifeline?: boolean;
   lifelineLength?: number;
+  isConnectable?: boolean;
 }
 
 export const SequenceBoundaryHtml = ({
   label,
   selected,
-  width = 120,
-  height = 80,
   onLabelChange,
   hidePlaceholder = false,
   hasLifeline = true,
-  lifelineLength = 400
+  lifelineLength = 400,
+  isConnectable = true,
 }: SequenceBoundaryHtmlProps) => {
   const [currentLabel, setCurrentLabel] = useState(label);
 
@@ -41,62 +40,59 @@ export const SequenceBoundaryHtml = ({
     }
   };
 
+  const color = selected ? '#E60000' : '#333';
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      {/* Boundary/View Circle with Rectangle */}
-      <div
-        style={{
-          position: 'relative',
-          width: `${width}px`,
-          height: `${height}px`,
-          border: `2px solid ${selected ? '#E60000' : '#333'}`,
-          borderRadius: '8px',
-          backgroundColor: '#fff',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '8px'
-        }}
-      >
-        {/* Circle icon on the left */}
-        <div
-          style={{
-            position: 'absolute',
-            left: '-15px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '30px',
-            height: '30px',
-            border: `2px solid ${selected ? '#E60000' : '#333'}`,
-            borderRadius: '50%',
-            backgroundColor: '#fff'
-          }}
+      {/* Boundary icon: vertical bar on left connected to a circle  |—○ */}
+      <svg width="64" height="50" viewBox="0 0 64 50" style={{ display: 'block', overflow: 'visible' }}>
+        {/* Vertical bar */}
+        <line x1="8" y1="5" x2="8" y2="45" stroke={color} strokeWidth="2" />
+        {/* Horizontal connector */}
+        <line x1="8" y1="25" x2="20" y2="25" stroke={color} strokeWidth="2" />
+        {/* Circle */}
+        <circle cx="38" cy="25" r="17" fill="white" stroke={color} strokeWidth="2" />
+      </svg>
+      <div onClick={handleLabelContainerClick}>
+        <NodeLabel
+          placeholder="View Name"
+          value={currentLabel}
+          onChange={handleLabelChange}
+          hidePlaceholder={hidePlaceholder}
         />
-        <div style={{ fontSize: '10px', color: '#666', marginBottom: '4px' }}>
-          &lt;&lt;boundary&gt;&gt;
-        </div>
-        <div onClick={handleLabelContainerClick}>
-          <NodeLabel
-            placeholder="View Name"
-            value={currentLabel}
-            onChange={handleLabelChange}
-            hidePlaceholder={hidePlaceholder}
-          />
-        </div>
       </div>
       {hasLifeline && (
-        <div
-          style={{
-            width: '2px',
-            height: `${lifelineLength}px`,
-            backgroundColor: selected ? '#E60000' : '#333',
-            marginTop: '8px',
-            borderStyle: 'dashed',
-            borderWidth: '0 1px 0 0',
-            borderColor: selected ? '#E60000' : '#666'
-          }}
-        />
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+          <div
+            style={{
+              width: '2px',
+              height: `${lifelineLength}px`,
+              backgroundColor: selected ? '#E60000' : '#333',
+              borderStyle: 'dashed',
+              borderWidth: '0 1px 0 0',
+              borderColor: selected ? '#E60000' : '#666',
+              pointerEvents: 'none',
+            }}
+          />
+          <Handle
+            id="lifeline"
+            type="source"
+            position={Position.Right}
+            isConnectable={isConnectable}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: '50%',
+              right: 'auto',
+              transform: 'translateX(-50%)',
+              width: '16px',
+              height: `${lifelineLength}px`,
+              opacity: 0,
+              cursor: 'crosshair',
+              borderRadius: 0,
+            }}
+          />
+        </div>
       )}
     </div>
   );

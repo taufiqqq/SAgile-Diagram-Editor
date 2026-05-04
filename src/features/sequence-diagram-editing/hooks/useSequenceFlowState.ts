@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { useNodesState, useEdgesState, Connection, addEdge, Node, Edge } from '@xyflow/react';
 import { isValidSequenceConnection, getConnectionValidationError } from '../utils/validation/connectionValidation';
 import { SequenceNodeData } from '../types/SequenceElementTypes';
@@ -19,6 +19,10 @@ export function useSequenceFlowState({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<SequenceNodeData>>(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
+  // Keep a ref to the latest nodes so isValidConnection never has a stale closure
+  const nodesRef = useRef(nodes);
+  useEffect(() => { nodesRef.current = nodes; }, [nodes]);
+
   // Layout management hook
   const layout = useSequenceDiagramLayout();
 
@@ -26,12 +30,12 @@ export function useSequenceFlowState({
    * Validates and creates a connection between two nodes
    */
   const onConnect = useCallback((connection: Connection) => {
-    // Validate the connection
-    const isValid = isValidSequenceConnection(connection, nodes);
+    // Validate the connection using the ref so newly added nodes are visible
+    const isValid = isValidSequenceConnection(connection, nodesRef.current);
 
     if (!isValid) {
-      const sourceNode = nodes.find(n => n.id === connection.source);
-      const targetNode = nodes.find(n => n.id === connection.target);
+      const sourceNode = nodesRef.current.find(n => n.id === connection.source);
+      const targetNode = nodesRef.current.find(n => n.id === connection.target);
 
       if (sourceNode && targetNode) {
         const errorMessage = getConnectionValidationError(
@@ -58,14 +62,18 @@ export function useSequenceFlowState({
       };
       return addEdge(newEdge, eds);
     });
-  }, [nodes, setEdges, selectedMessageType]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [setEdges, selectedMessageType]);
 
   /**
-   * Checks if a connection is valid
+   * Checks if a connection is valid — uses a ref so it always sees the latest
+   * nodes even when called during a React Flow drag interaction that captured
+   * an earlier version of this callback.
    */
   const isValidConnection = useCallback((connection: Connection) => {
-    return isValidSequenceConnection(connection, nodes);
-  }, [nodes]);
+    return isValidSequenceConnection(connection, nodesRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Updates a node's data

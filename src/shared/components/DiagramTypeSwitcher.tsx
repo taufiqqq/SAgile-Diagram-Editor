@@ -60,7 +60,7 @@ export const DiagramTypeSwitcher: React.FC<DiagramTypeSwitcherProps> = ({
           }
         }}
       >
-        📋 Use Case
+        Use Case
       </button>
 
       <button
@@ -87,7 +87,7 @@ export const DiagramTypeSwitcher: React.FC<DiagramTypeSwitcherProps> = ({
           }
         }}
       >
-        🔄 Sequence
+        Sequence
       </button>
     </div>
   );

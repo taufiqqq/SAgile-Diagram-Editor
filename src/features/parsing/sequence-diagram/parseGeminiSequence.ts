@@ -167,7 +167,7 @@ export function parseGeminiSequenceDiagram(geminiText: string): {
       message_text: msg.message,
       parameters: '',
       sequence_number: index + 1,
-      yPosition: 200 + (index * 80), // Initial Y position (will be recalculated by layout hook)
+      yPosition: 200 + (index * 50), // Initial Y position (will be recalculated by layout hook)
     },
     animated: false,
   }));
