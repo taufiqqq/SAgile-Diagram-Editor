@@ -2,9 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import pool from '../../backend/config/database';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
+export type DiagramType = 'usecase' | 'sequence';
+
 export interface Diagram extends RowDataPacket {
   id: string;
   name: string;
+  diagram_type: DiagramType;
   project_id: string;
   diagram_element: any;
   original_plantuml: string;
@@ -14,11 +17,11 @@ export interface Diagram extends RowDataPacket {
 
 export class DiagramModel {
   static async create(data: Omit<Diagram, 'id' | 'created_at' | 'updated_at'>): Promise<Diagram> {
-    const {name, project_id, diagram_element, original_plantuml } = data;
+    const {name, diagram_type = 'usecase', project_id, diagram_element, original_plantuml } = data;
     const id = uuidv4();
     await pool.query<ResultSetHeader>(
-      'INSERT INTO diagrams (id, name, project_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?, ?)',
-      [id, name, project_id, JSON.stringify(diagram_element), original_plantuml]
+      'INSERT INTO diagrams (id, name, diagram_type, project_id, diagram_element, original_plantuml) VALUES (?, ?, ?, ?, ?, ?)',
+      [id, name, diagram_type, project_id, JSON.stringify(diagram_element), original_plantuml]
     );
     const diagram = await this.findById(id);
     if (!diagram) {
@@ -41,10 +44,14 @@ export class DiagramModel {
   }
 
   static async update(id: string, data: Partial<Diagram>): Promise<Diagram | null> {
-    const { project_id, diagram_element, original_plantuml } = data;
+    const { diagram_type, project_id, diagram_element, original_plantuml } = data;
     const updates = [];
     const values = [];
 
+    if (diagram_type !== undefined) {
+      updates.push('diagram_type = ?');
+      values.push(diagram_type);
+    }
     if (project_id !== undefined) {
       updates.push('project_id = ?');
       values.push(project_id);
@@ -68,6 +75,14 @@ export class DiagramModel {
       values
     );
     return this.findById(id);
+  }
+
+  static async findByProjectAndType(projectId: string, diagramType: DiagramType): Promise<Diagram | null> {
+    const [rows] = await pool.query<Diagram[]>(
+      'SELECT * FROM diagrams WHERE project_id = ? AND diagram_type = ?',
+      [projectId, diagramType]
+    );
+    return rows[0] || null;
   }
 
   static async delete(id: string): Promise<boolean> {

@@ -1,5 +1,12 @@
 /* App.css */
 
+/* While a sequence diagram connection is being dragged, freeze all handle
+   hit areas so intermediate lifelines cannot intercept the cursor.
+   The target is determined by X-proximity in onConnectEnd instead. */
+.sequence-connecting .react-flow__handle {
+  pointer-events: none !important;
+}
+
 /* General Styles */
 body,
 html {

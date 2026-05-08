@@ -8,6 +8,7 @@ import { DnDProvider } from './features/diagram-editing';
 import { ModalProvider } from './shared/context/ModalContext';
 import { UseCaseModal } from './shared/components/UseCaseModal';
 import Canvas from './shared/components/CanvasContainer';
+import UnifiedCanvasContainer from './shared/components/UnifiedCanvasContainer';
 
 function App() {
   return (
@@ -25,10 +26,49 @@ function App() {
       <Router>
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
+          {/* Use case diagram routes */}
+          <Route path="/usecase/:projectId" element={
+            <div style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              flex: 1
+            }}>
+              <ReactFlowProvider>
+                <ModalProvider>
+                  <DnDProvider>
+                    <UnifiedCanvasContainer diagramType="usecase" />
+                    <UseCaseModal />
+                  </DnDProvider>
+                </ModalProvider>
+              </ReactFlowProvider>
+            </div>
+          } />
+
+          {/* Sequence diagram routes */}
+          <Route path="/sequence/:projectId" element={
+            <div style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative',
+              flex: 1
+            }}>
+              <ReactFlowProvider>
+                <ModalProvider>
+                  <DnDProvider>
+                    <UnifiedCanvasContainer diagramType="sequence" />
+                    <UseCaseModal />
+                  </DnDProvider>
+                </ModalProvider>
+              </ReactFlowProvider>
+            </div>
+          } />
+
+          {/* Legacy route - defaults to use case diagram */}
           <Route path="/:projectId" element={
-            <div style={{ 
-              width: '100%', 
-              height: '100%', 
+            <div style={{
+              width: '100%',
+              height: '100%',
               position: 'relative',
               flex: 1
             }}>
@@ -42,10 +82,11 @@ function App() {
               </ReactFlowProvider>
             </div>
           } />
+
           <Route path="/" element={
-            <div style={{ 
-              width: '100%', 
-              height: '100%', 
+            <div style={{
+              width: '100%',
+              height: '100%',
               position: 'relative',
               flex: 1
             }}>
