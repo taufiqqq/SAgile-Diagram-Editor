@@ -1,7 +1,7 @@
 
 export class GeminiService {
   static async getGeminiResponse(prompt: string): Promise<any> {
-    const key = process.env.VITE_GEMINI_API_KEY;
+    const key = process.env.GEMINI_API_KEY;
     if (!key) throw new Error("GEMINI_API_KEY is not set");
 
     console.log("Prompt is : " + prompt);
