@@ -290,6 +290,7 @@ export const UseCaseModal: React.FC = () => {
               specifications={specifications}
               onChange={handleSpecificationsChange}
               useCaseId={nodeData.id}
+              projectId={projectId ?? ''}
             />
           )}
           {activeTab === 'Others' && (

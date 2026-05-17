@@ -1,17 +1,23 @@
 import React from 'react';
 import '../../App';
 import '../../App.css';
+import { DiagramTypeSwitcher } from './DiagramTypeSwitcher';
+import { DiagramType } from '../models/Diagram';
 
 interface HeaderProps {
   onExportImage?: () => void;
+  diagramType?: DiagramType;
 }
 
-const Header: React.FC<HeaderProps> = ({ onExportImage }) => {
+const Header: React.FC<HeaderProps> = ({ onExportImage, diagramType = 'usecase' }) => {
   return (
     <div className="header">
       {/* Title at the top */}
       <div className="header-title">
         SAgile Diagram Editor
+        <div style={{ marginLeft: '20px', display: 'inline-block' }}>
+          <DiagramTypeSwitcher currentType={diagramType} />
+        </div>
       </div>
       {/* Menu bar at the bottom left */}
       <div className="header-bottom-left">
