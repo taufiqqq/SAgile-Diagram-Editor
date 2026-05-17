@@ -48,6 +48,11 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
+// Health check endpoint
+app.get("/api/healthcheck", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Define the absolute path to the frontend build
 const clientBuildPath = path.join(process.cwd(), "dist/client");
 
@@ -64,6 +69,7 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log("Available routes:");
   console.log("- GET /health");
+  console.log("- GET /api/healthcheck");
   console.log("- POST /api/diagrams/process-plantuml");
   console.log("- GET /api/diagrams/:projectId");
   console.log("- POST /api/diagram-components/get-or-create");
