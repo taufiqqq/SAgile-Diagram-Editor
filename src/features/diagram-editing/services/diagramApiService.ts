@@ -12,11 +12,12 @@ interface DiagramData {
 /**
  * Fetches diagram data from the backend based on project IDs
  * @param projectId The project ID
+ * @param diagramType The diagram type ('usecase' | 'sequence')
  * @returns The diagram data
  */
-export async function fetchDiagramData(projectId: string): Promise<DiagramData | null> {
+export async function fetchDiagramData(projectId: string, diagramType: string = 'usecase'): Promise<DiagramData | null> {
   try {
-    const response = await fetch(`/api/diagrams/${projectId}`);
+    const response = await fetch(`/api/diagrams/${projectId}?diagram_type=${diagramType}`);
     console.log('Fetching diagram data:', { projectId });
     if (!response.ok) {
       if (response.status === 404) {
@@ -54,13 +55,16 @@ export async function fetchDiagramData(projectId: string): Promise<DiagramData |
  * @param projectId The project ID
  * @param nodes The nodes to save
  * @param edges The edges to save
+ * @param isEditing Whether this is an edit operation
+ * @param diagramType The diagram type ('usecase' | 'sequence')
  * @returns The response from the server
  */
 export async function saveDiagramData(
   projectId: string,
   nodes: ShapeNode[],
   edges: ParsedEdge[],
-  isEditing: boolean = false
+  isEditing: boolean = false,
+  diagramType: string = 'usecase'
 ): Promise<any> {
   try {
     if (nodes.length === 0 && edges.length === 0 && !isEditing) {
@@ -68,7 +72,7 @@ export async function saveDiagramData(
       return;
     }
 
-    console.log('Saving diagram data:', { projectId, nodes, edges });
+    console.log('Saving diagram data:', { projectId, nodes, edges, diagramType });
 
     const response = await fetch('/api/diagrams/save', {
       method: 'POST',
@@ -79,7 +83,8 @@ export async function saveDiagramData(
         project_id: projectId,
         nodes,
         edges,
-        isCreating: false
+        isCreating: false,
+        diagram_type: diagramType,
       }),
     });
 

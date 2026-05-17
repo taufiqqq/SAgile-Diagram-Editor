@@ -74,8 +74,10 @@ export class DiagramController {
         return;
       }
       
+      const diagramType = (req.query.diagram_type as string) || 'usecase';
+
       // Get diagram from database
-      const diagram = await DiagramService.getDiagram(projectId.toString());
+      const diagram = await DiagramService.getDiagram(projectId.toString(), diagramType);
       
       if (!diagram) {
         res.status(404).json({
@@ -124,8 +126,8 @@ export class DiagramController {
    */
   static async saveDiagram(req: Request, res: Response): Promise<void> {
     try {
-      const { project_id, nodes, edges, isCreating} = req.body;
-      
+      const { project_id, nodes, edges, isCreating, diagram_type = 'usecase' } = req.body;
+
       // Validate required fields
       if (!project_id || !nodes || !edges) {
         res.status(400).json({
@@ -141,7 +143,8 @@ export class DiagramController {
         project_id,
         '', // Empty PlantUML for now
         { nodes, edges },
-        isCreating
+        isCreating,
+        diagram_type
       );
 
       res.status(200).json({

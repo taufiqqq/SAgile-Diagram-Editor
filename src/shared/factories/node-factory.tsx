@@ -4,8 +4,12 @@ import { UseCaseHtml } from '../../features/diagram-editing/utils/shapes-html/Us
 import { ActorHtml } from '../../features/diagram-editing/utils/shapes-html/Actor-html';
 import { PackageHtml } from '../../features/diagram-editing/utils/shapes-html/Package-html';
 import { RectangularActorHtml } from '../../features/diagram-editing/utils/shapes-html/RectangularActor-html';
+import { SequenceActorHtml } from '../../features/sequence-diagram-editing/utils/shapes-html/SequenceActor-html';
+import { SequenceBoundaryHtml } from '../../features/sequence-diagram-editing/utils/shapes-html/SequenceBoundary-html';
+import { SequenceControlHtml } from '../../features/sequence-diagram-editing/utils/shapes-html/SequenceControl-html';
+import { SequenceEntityHtml } from '../../features/sequence-diagram-editing/utils/shapes-html/SequenceEntity-html';
 
-type DiagramElement = 'usecase'  | 'actor' | 'package' | 'rectangularactor' | string;
+type DiagramElement = 'usecase'  | 'actor' | 'package' | 'rectangularactor' | 'boundary' | 'control' | 'entity' | string;
 
 interface DiagramElementConfig {
   type: DiagramElement;
@@ -46,7 +50,36 @@ export const createNodeFactory = () => {
       width: 150,
       height: 100,
     },
-    
+    // Sequence diagram elements
+    sequenceactor: {
+      type: 'sequenceactor',
+      displayName: "Sequence Actor",
+      html: <SequenceActorHtml label={''} selected={false} hidePlaceholder={true} hasLifeline={false} />,
+      width: 120,
+      height: 100,
+    },
+    boundary: {
+      type: 'boundary',
+      displayName: "Boundary",
+      html: <SequenceBoundaryHtml label={''} selected={false} hidePlaceholder={true} hasLifeline={false} />,
+      width: 120,
+      height: 80,
+    },
+    control: {
+      type: 'control',
+      displayName: "Control",
+      html: <SequenceControlHtml label={''} selected={false} hidePlaceholder={true} hasLifeline={false} />,
+      width: 120,
+      height: 80,
+    },
+    entity: {
+      type: 'entity',
+      displayName: "Entity",
+      html: <SequenceEntityHtml label={''} selected={false} hidePlaceholder={true} hasLifeline={false} />,
+      width: 120,
+      height: 80,
+    },
+
     // Add more node types here
   };
 
