@@ -32,7 +32,7 @@ interface UseCaseSpecificationsProps {
 }
 
 const TEST_MODE = false; // Set to true to use static Gemini text for testing
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+const apiKey = import.meta.env.GEMINI_API_KEY;
 console.log("Test mode " + TEST_MODE.toString());
 
 export const UseCaseSpecifications: React.FC<UseCaseSpecificationsProps> = ({
