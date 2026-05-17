@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import pool from '../server/config/database';
+import pool from '../backend/config/database';
 
 // Get the directory name in ESM
 const __filename = fileURLToPath(import.meta.url);

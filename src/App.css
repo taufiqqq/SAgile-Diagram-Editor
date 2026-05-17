@@ -20,16 +20,6 @@ html {
   overflow: hidden;
 }
 
-/* Header */
-.header {
-  background-color: #007bff;
-  color: white;
-  padding: 35px;
-  text-align: center;
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
 /* Main Content Area */
 .main-content {
   display: flex;
@@ -82,3 +72,66 @@ html {
   background-color: #ffffff;
   color: #000000;
 }
+
+.header {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #007bff; /* Sample background color from the image */
+  padding: 10px 20px; /* Add some padding */
+  box-sizing: border-box; /* Include padding in element's total width and height */
+  position: relative; /* Needed for absolute positioning of bottom-left */
+  height: 100px; /* Example height, adjust as needed */
+}
+
+.header-title {
+  text-align: center; /* Center the title */
+  font-size: 20px; /* Adjust font size as needed */
+  margin-bottom: 10px; /* Space between title and menu */
+}
+
+.header-bottom-left {
+  position: absolute; /* Position relative to the .header */
+  bottom: 10px; /* Adjust distance from bottom */
+  left: 20px; /* Adjust distance from left */
+}
+
+.menu-bar {
+  display: flex; /* Arrange menu items in a row */
+  gap: 15px; /* Space between menu items */
+}
+
+.menu-item {
+  position: relative; /* Needed for dropdown positioning */
+  cursor: pointer; /* Already added inline, but good to have here */
+  padding: 5px; /* Add padding to menu items */
+}
+
+.menu-item:hover {
+  text-decoration: underline; /* Optional: underline on hover */
+}
+
+.export-menu .dropdown-menu {
+  display: none; /* Hide dropdown by default */
+  position: absolute; /* Position relative to .menu-item */
+  top: 100%; /* Position below the menu item */
+  left: 0;
+  background-color: #fff; /* Dropdown background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Add shadow */
+  z-index: 1; /* Ensure dropdown is above other content */
+  min-width: 120px; /* Minimum width for dropdown */
+  color:#000000;
+}
+
+.export-menu:hover .dropdown-menu {
+  display: block; /* Show dropdown on hover */
+}
+
+.dropdown-item {
+  padding: 10px; /* Padding for dropdown items */
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0; /* Highlight on hover */
+} 

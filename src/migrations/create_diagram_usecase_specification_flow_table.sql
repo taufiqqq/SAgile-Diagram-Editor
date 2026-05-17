@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS diagram_usecase_specification(
+    id VARCHAR(36) PRIMARY KEY,
+    usecase_id VARCHAR(36) NOT NULL,
+    type VARCHAR(50) NOT NULL DEFAULT 'NORMAL',
+    name VARCHAR(255) NOT NULL,
+    entry_point VARCHAR(255),
+    exit_point VARCHAR(255),
+    steps VARCHAR(4000) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (usecase_id) REFERENCES diagram_components(id) ON DELETE CASCADE
+); 

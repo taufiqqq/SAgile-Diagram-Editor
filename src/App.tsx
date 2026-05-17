@@ -6,7 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import './App.css';
 import { DnDProvider } from './features/diagram-editing';
 import { ModalProvider } from './shared/context/ModalContext';
-import { GlobalModal } from './shared/components/GlobalModal';
+import { UseCaseModal } from './shared/components/UseCaseModal';
 import Canvas from './shared/components/CanvasContainer';
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
       <Router>
         <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
-          <Route path="/:projectId/:sprintId" element={
+          <Route path="/:projectId" element={
             <div style={{ 
               width: '100%', 
               height: '100%', 
@@ -36,7 +36,7 @@ function App() {
                 <ModalProvider>
                   <DnDProvider>
                     <Canvas />
-                    <GlobalModal />
+                    <UseCaseModal />
                   </DnDProvider>
                 </ModalProvider>
               </ReactFlowProvider>
@@ -53,7 +53,7 @@ function App() {
                 <ModalProvider>
                   <DnDProvider>
                     <Canvas />
-                    <GlobalModal />
+                    <UseCaseModal />
                   </DnDProvider>
                 </ModalProvider>
               </ReactFlowProvider>

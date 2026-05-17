@@ -1,4 +1,4 @@
-import { ShapeNode as BaseShapeNode } from "../../../diagram-editing/types/NodeTypes.types";
+import { DiagramElementNode as BaseShapeNode } from "../../../diagram-editing/types/DiagramElementType.types";
 import { EdgeType } from "../../../diagram-editing/types/EdgeTypes.types";
 
 export type ShapeNode = BaseShapeNode;

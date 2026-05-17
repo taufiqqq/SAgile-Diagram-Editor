@@ -80,18 +80,19 @@ function NodeLabel({
           style={{ 
             border: '1px solid #3F8AE2',
             background: 'white',
-            padding: '2px 4px',
+            padding: '1px 2px',
             borderRadius: '3px',
             width: '80%',
             minWidth: '80px',
             maxWidth: '150px',
-            minHeight: '24px',
+            minHeight: '12px',
             maxHeight: '100px',
             textAlign: 'center',
             resize: 'none',
             overflow: 'hidden',
             cursor: readOnly ? 'default' : 'text',
             color: '#000000',
+    lineHeight: "1.2", // Adjust line height
             ...style
           }}
         />

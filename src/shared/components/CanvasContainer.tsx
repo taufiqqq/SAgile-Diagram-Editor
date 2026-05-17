@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   ConnectionMode,
   NodeTypes,
@@ -12,32 +12,44 @@ import {
   OnNodesDelete,
   OnEdgesDelete,
   Edge,
+  useReactFlow,
+  getNodesBounds,
+  getViewportForBounds,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useFlowState } from "../../features/diagram-editing/hooks/useFlowState";
 import { useFlowHandlers } from "../../features/diagram-editing/hooks/useFlowHandlers";
+import { useEdgeConnection } from "../../features/diagram-editing/hooks/useEdgeConnection";
 import { FlowControls } from "../../features/diagram-editing/components/FlowControl";
 import {
-  nodeTypes,
-  ShapeNode,
-} from "../../features/diagram-editing/types/NodeTypes.types";
+  diagramElementTypes,
+  DiagramElementNode,
+} from "../../features/diagram-editing/types/DiagramElementType.types";
 import { edgeTypes } from "../../features/diagram-editing/types/EdgeTypes.types";
 import { useParams } from "react-router-dom";
 import {
   fetchDiagramData,
   saveDiagramData,
-} from "../../features/diagram-editing/services/diagramService";
+} from "../../features/diagram-editing/services/diagramApiService";
 import { toast } from "react-toastify";
+import { toPng } from 'html-to-image';
 
 import RightSidebar from "./RightSidebar";
 import Footer from "./Footer";
 import LeftSidebar from "./LeftSidebar";
 import Header from "./Header";
+import { useEdgeType } from "../../features/diagram-editing/hooks/useEdgeType";
+
+function downloadImage(dataUrl: string) {
+  const a = document.createElement('a');
+  a.setAttribute('download', 'diagram.png');
+  a.setAttribute('href', dataUrl);
+  a.click();
+}
 
 const Canvas: React.FC = () => {
-  const { projectId, sprintId } = useParams<{
+  const { projectId } = useParams<{
     projectId: string;
-    sprintId: string;
   }>();
   const {
     nodes,
@@ -49,20 +61,57 @@ const Canvas: React.FC = () => {
     takeSnapshot,
   } = useFlowState();
 
-  const { onConnect, onDragOver, onDrop } = useFlowHandlers({
-    setNodes: setNodes as (nodes: ShapeNode[]) => void,
+  const { getNodes } = useReactFlow();
+
+  const handleExportImage = useCallback(() => {
+    const nodesBounds = getNodesBounds(getNodes());
+    const imageWidth = nodesBounds.x + nodesBounds.width;
+    const imageHeight = nodesBounds.y + nodesBounds.height;
+
+    const viewport = getViewportForBounds(nodesBounds, imageWidth, imageHeight, 0.5, 2, 20);
+
+    const reactFlowWrapper = document.querySelector('.react-flow__viewport');
+
+    if (reactFlowWrapper instanceof HTMLElement) {
+      toPng(reactFlowWrapper, {
+        backgroundColor: '#ffffff',
+        width: imageWidth,
+        height: imageHeight,
+        style: {
+          width: `${imageWidth}px`,
+          height: `${imageHeight}px`,
+          transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+        },
+        pixelRatio: 3,  
+      }).then(downloadImage);
+    } else {
+      console.error('React Flow viewport element not found or is not an HTMLElement.');
+    }
+  }, [getNodes]);
+
+  const { onConnect: baseOnConnect, onDragOver, onDrop } = useFlowHandlers({
+    setNodes: setNodes as (nodes: DiagramElementNode[]) => void,
     setEdges: setEdges as (edges: Edge[] | ((edges: Edge[]) => Edge[])) => void,
   });
 
+  const { onConnect: enhancedOnConnect } = useEdgeConnection(baseOnConnect);
+  const { selectedEdgeType } = useEdgeType();
+  
+  const deleteNode = useCallback((nodeId: string) => {
+    takeSnapshot();
+    setNodes((nds) => nds.filter(node => node.id !== nodeId));
+    setEdges((eds) => eds.filter(edge => edge.source !== nodeId && edge.target !== nodeId));
+  }, [setNodes, setEdges, takeSnapshot]);
+
   useEffect(() => {
     const loadDiagramData = async () => {
-      if (!projectId || !sprintId) {
-        toast.error('Project ID and Sprint ID are required');
+      if (!projectId) {
+        toast.error('Project ID are required');
         return;
       }
   
       try {
-        const diagramData = await fetchDiagramData(projectId, sprintId);
+        const diagramData = await fetchDiagramData(projectId);
   
         if (diagramData) {
           setNodes(diagramData.nodes);
@@ -77,36 +126,28 @@ const Canvas: React.FC = () => {
     };
   
     loadDiagramData();
-  }, [projectId, sprintId, setNodes, setEdges]);
+  }, [projectId, setNodes, setEdges]);
 
-  // Save diagram data when changes are made
   useEffect(() => {
     const saveDiagram = async () => {
-      if (!projectId || !sprintId) return;
-  
-      // Prevent saving if nodes and edges are empty
-      if (nodes.length === 0 && edges.length === 0) {
-        console.warn('Skipping save: Diagram is empty.');
-        return;
-      }
+      if (!projectId) return;
   
       toast.info('Saving diagram data...');
       try {
-        await saveDiagramData(projectId, sprintId, nodes, edges);
+        await saveDiagramData(projectId, nodes, edges, true);
       } catch (err) {
         console.error('Error saving diagram:', err);
         toast.error('Failed to save diagram data');
       }
     };
   
-    // Debounce the save operation
     const timeoutId = setTimeout(saveDiagram, 1000);
     return () => clearTimeout(timeoutId);
-  }, [projectId, sprintId, nodes, edges]);
+  }, [projectId, nodes, edges]);
 
   const handleNodesChange: OnNodesChange = React.useCallback(
     (changes) => {
-      onNodesChange(changes as NodeChange<ShapeNode>[]);
+      onNodesChange(changes as NodeChange<DiagramElementNode>[]);
     },
     [onNodesChange]
   );
@@ -120,10 +161,39 @@ const Canvas: React.FC = () => {
 
   const handleConnect: OnConnect = React.useCallback(
     (connection) => {
+      console.log("connection", connection);
+      console.log("nodes", nodes);
+  
+      const sourceNode = nodes.find((n) => n.id === connection.source);
+      const targetNode = nodes.find((n) => n.id === connection.target);
+      
+      if (
+        selectedEdgeType === "association" &&
+        sourceNode?.type === "usecaseshape" &&
+        sourceNode?.data?.type === "usecase" &&
+        targetNode?.type === "usecaseshape" &&
+        targetNode?.data?.type === "usecase"
+      ) {
+        toast.error("No association allowed between use case nodes.");
+        return;
+      }
+
+      if (
+        (selectedEdgeType === "extend" ||selectedEdgeType === "association" ||selectedEdgeType === "include" ||selectedEdgeType === "aggregation" ||selectedEdgeType === "composition")&&
+        sourceNode?.type === "usecaseshape" &&
+        sourceNode?.data?.type === "actor" &&
+        targetNode?.type === "usecaseshape" &&
+        targetNode?.data?.type === "actor"
+      ) {
+        toast.error("Relationship is invalid between actor nodes.");
+        return;
+      }
+
       takeSnapshot();
-      onConnect(connection);
+      enhancedOnConnect(connection);
+      console.log("connection", connection);
     },
-    [onConnect, takeSnapshot]
+    [enhancedOnConnect, takeSnapshot, selectedEdgeType, nodes]
   );
 
   const handleDrop = React.useCallback(
@@ -131,7 +201,7 @@ const Canvas: React.FC = () => {
       takeSnapshot();
       const newNode = onDrop(event);
       if (newNode) {
-        setNodes((nds: ShapeNode[]) => [...nds, newNode]);
+        setNodes((nds: DiagramElementNode[]) => [...nds, newNode]);
       }
     },
     [onDrop, setNodes, takeSnapshot]
@@ -159,7 +229,7 @@ const Canvas: React.FC = () => {
         flexDirection: "column",
       }}
     >
-      <Header />
+      <Header onExportImage={handleExportImage} />
       <div
         className="main-content"
         style={{ flex: 1, position: "relative", minHeight: 0 }}
@@ -175,6 +245,7 @@ const Canvas: React.FC = () => {
           }}
         >
           <ReactFlow
+            colorMode="light"
             nodes={nodes}
             edges={edges}
             onNodesChange={handleNodesChange}
@@ -185,7 +256,7 @@ const Canvas: React.FC = () => {
             onNodeDragStart={handleNodeDragStart}
             onNodesDelete={handleNodesDelete}
             onEdgesDelete={handleEdgesDelete}
-            nodeTypes={nodeTypes as NodeTypes}
+            nodeTypes={diagramElementTypes as NodeTypes}
             edgeTypes={edgeTypes}
             connectionMode={ConnectionMode.Loose}
             proOptions={{ hideAttribution: true }}
@@ -199,9 +270,10 @@ const Canvas: React.FC = () => {
           nodes={nodes}
           setNodes={
             setNodes as (
-              nodes: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+              nodes: DiagramElementNode[] | ((nodes: DiagramElementNode[]) => DiagramElementNode[])
             ) => void
           }
+          deleteNode={deleteNode}
         />
       </div>
       <Footer />

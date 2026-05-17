@@ -1,5 +1,5 @@
-import * as express from 'express';
-import { DiagramController } from '../controllers/DiagramController';
+import express from 'express';
+import { DiagramController } from '../controller/DiagramController';
 
 const router = express.Router();
 
@@ -13,8 +13,8 @@ console.log('Registered POST /process-plantuml route');
 // Save diagram data
 router.post('/save', DiagramController.saveDiagram);
 
-// Get diagram data by project and sprint ID
-router.get('/:projectId/:sprintId', DiagramController.getDiagram);
-console.log('Registered GET /:projectId/:sprintId route');
+// Get diagram data by project ID
+router.get('/:projectId', DiagramController.getDiagram);
+console.log('Registered GET /:projectId route');
 
 export default router; 

@@ -1,12 +1,12 @@
 import { Node, Edge, MarkerType } from '@xyflow/react';
-import { ShapeNode as BaseShapeNode } from './NodeTypes.types';
+import { DiagramElementNode as BaseShapeNode } from './DiagramElementType.types';
 
 export type ShapeNode = BaseShapeNode;
 
 export interface ParsedEdge extends Edge {
   type: string;
   data: {
-    type: 'association' | 'include' | 'exclude';
+    type: 'association' | 'include' | 'extend';
   };
   sourceHandle?: string;
   targetHandle?: string;

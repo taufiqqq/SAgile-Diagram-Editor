@@ -80,3 +80,13 @@ button:focus-visible {
   color: var(--text);
   opacity: 0.5;
 }
+
+.edge-selector-container,
+.edge-selector-container * {
+  pointer-events: all !important;
+}
+
+/* You might also need to target the parent edge path */
+.react-flow__edge-path, .react-flow__edge-path * {
+    pointer-events: initial !important;
+}
